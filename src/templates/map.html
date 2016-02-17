@@ -19,12 +19,7 @@
   </ion-content>
 
   <ion-scroll direction="y" id="report-list-scroll">
-    <div class="report-list-header">
-      <h2>Reportes</h2>
-      <p>Aquí encontrará problemas en su zona o en la zona que desee
-      reportar o chequear. Para hacer el reporte sólo debe hacer
-      click en el mapa en el lugar donde se encuentra el problema.</p>
-    </div>
+
     <div id="report-list">
       <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reports track by $index" class="report-inside-list">
         <div style="background-image: url('{{baseURL}}{{report.properties.category_url}}');" class="report-in-list-icon">

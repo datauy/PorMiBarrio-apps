@@ -214,9 +214,9 @@ body {
   padding-right: 20px;
   width: 100%;
   height: auto;
-  border-bottom-color: #adb9b8;
+  /*border-bottom-color: #adb9b8;
   border-bottom-style: solid;
-  border-bottom-width: 1px;
+  border-bottom-width: 1px;*/
   overflow:auto;
 }
 
@@ -349,15 +349,15 @@ body {
 }
 
 .report-detail-scroll{
-  height: 90%;
+  height: 88%;
   width: 100%;
   position: absolute;
-  top: 10%;
+  top: 12%;
 }
 
 .faq-scroll{
-  height: 90%;
+  height: 88%;
   width: 100%;
   position: absolute;
-  top: 10%;
+  top: 12%;
 }
