@@ -1,0 +1,24 @@
+<div class="ion-autocomplete-container {{viewModel.randomCssClass}} modal" style="display: none;">
+  <div class="bar bar-header item-input-inset">
+    <label class="item-input-wrapper">
+      <i class="icon ion-search placeholder-icon"></i>
+      <input class="ion-autocomplete-search" ng-model="viewModel.searchQuery" placeholder="{{viewModel.placeholder}}" type="search"/>
+    </label>
+    <div class="ion-autocomplete-loading-icon" ng-if="viewModel.showLoadingIcon && viewModel.loadingIcon">
+      <ion-spinner icon="{{viewModel.loadingIcon}}"></ion-spinner>
+    </div>
+    <button class="ion-autocomplete-cancel button button-clear" ng-click="viewModel.cancelClick()">{{viewModel.cancelLabel}}</button>
+  </div>
+  <ion-content class="has-header">
+    <ion-item class="item-divider" ng-show="viewModel.selectedItems.length > 0">{{viewModel.selectedItemsLabel}}</ion-item>
+    <ion-item class="item-icon-left item-icon-right" ng-repeat="selectedItem in viewModel.selectedItems track by $index">
+      <i class="icon ion-checkmark"></i>
+      {{viewModel.getItemValue(selectedItem,viewModel.itemViewValueKey)}}
+      <i class="icon ion-trash-a" ng-click="viewModel.removeItem($index)" style="cursor:pointer"></i>
+    </ion-item>
+    <ion-item class="item-divider" ng-show="viewModel.searchItems.length > 0">{{viewModel.selectItemsLabel}}</ion-item>
+    <ion-item collection-repeat="item in viewModel.searchItems" item-height="55px" item-width="100%" ng-click="viewModel.selectItem(item)">
+      {{viewModel.getItemValue(item,viewModel.itemViewValueKey)}}
+    </ion-item>
+  </ion-content>
+</div>

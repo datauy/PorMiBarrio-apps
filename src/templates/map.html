@@ -1,0 +1,83 @@
+<ion-view title="PMB-Map" hide-nav-bar="true">
+
+<ion-nav-title>
+
+</ion-nav-title>
+
+<div id="spinner" class="intro-spinner"><ion-spinner icon="spiral"></ion-spinner></div>
+
+<div class="top-bar-imm">
+  <div class="white-bar-imm"></div>
+  <div class="icon-imm-top"/></div>
+</div>
+
+
+  <ion-content data-tap-disabled="true">
+
+    <leaflet defaults="map.defaults" center="map.center" markers="map.markers" ng-if="map"></leaflet>
+
+  </ion-content>
+
+  <ion-scroll direction="y" id="report-list-scroll">
+    <div class="report-list-header">
+      <h2>Reportes</h2>
+      <p>Aquí encontrará problemas en su zona o en la zona que desee
+      reportar o chequear. Para hacer el reporte sólo debe hacer
+      click en el mapa en el lugar donde se encuentra el problema.</p>
+    </div>
+    <div id="report-list">
+      <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reports track by $index" class="report-inside-list">
+        <div style="background-image: url('{{baseURL}}{{report.properties.category_url}}');" class="report-in-list-icon">
+        </div>
+        <div class="report-in-list-info">
+          <p id="report-title-{{report.properties.id}}" style="color: {{report.properties.color}};" class="report-in-list-title">{{report.properties.title}}</p>
+          <p id="report-category-{{report.properties.id}}" class="report-in-list-category">{{report.properties.category}}</p>
+          <p id="report-date-{{report.properties.id}}" class="report-in-list-date">{{report.properties.date}}</p>
+          <div class="report-mini-icons">
+            <img class="report-mini-icon" ng-if="report.properties.fixed" src="./img/icon-resuelto.png" />
+            <img class="report-mini-icon" ng-if="report.properties.has_photo" src="./img/icon-camera.png" />
+            <img class="report-mini-icon" ng-if="report.properties.has_comment" src="./img/icon-comments.png" />
+            <img class="report-mini-icon" src="./img/icon-tags.png" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </ion-scroll>
+
+
+<div class="foot-bar">
+  <div class="street-search-bar">
+    <div class="search-icon"></div>
+    <label class="search-textbox-label">
+        <input ion-autocomplete type="text" id="search-textbox" readonly="readonly" class="ion-autocomplete" autocomplete="off"
+               ng-model="model"
+               item-value-key="codigo"
+               item-view-value-key="nombre"
+               items-method="searchLocation(query)"
+               placeholder="Ir a: escribir BARRIO, calle y/o Nro."
+               items-clicked-method="itemsClicked(callback)"
+               items-removed-method="itemsRemoved(callback)"
+               cancel-button-clicked-method="itemsCanceled(callback)"
+               max-selected-items="1" select-items-label="Seleccione una ubicación" manage-externally="true" selected-items-label="Calle"/>
+    </label>
+  </div>
+  <div class="options-bar">
+    <div id="button-report" class="option-active">
+      <div class="button-report" ng-click="report(0)"></div>
+    </div>
+    <div id="button-list-reports" class="option-inactive">
+      <div class="button-list-reports" ng-click="list_reports()"></div>
+    </div>
+    <div id="button-help" class="option-inactive">
+      <div class="button-help" ng-click="help()"></div>
+    </div>
+    <div id="button-find-me" class="option-inactive">
+      <div class="button-find-me" ng-click="find_me()"></div>
+    </div>
+    <div class="user-options">
+      <div class="user-picture"></div>
+    </div>
+  </div>
+</div>
+
+</ion-view>
