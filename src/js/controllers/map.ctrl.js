@@ -317,9 +317,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       leafletData.getMap().then(function(map) {
         var coords = layer.getLatLng();
         var lat = coords.lat;
+        console.log(lat);
         //Move a little the map center because the map view is smaller (report list is displayed)
-        lat = lat - 0.008;
-        map.setView(new L.LatLng(lat, coords.lng), 14);
+        lat = lat - 0.001;
+        console.log(lat);
+        map.setView(new L.LatLng(lat, coords.lng), 18);
         layer.openPopup();
       });
     };

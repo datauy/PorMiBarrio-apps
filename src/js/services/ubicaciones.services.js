@@ -1,12 +1,12 @@
 pmb_im.services.factory('locationAPI', ['$http', '$q', 'ApiImEndpoint', 'ApiDataEndpoint', function($http, $q, ApiImEndpoint, ApiDataEndpoint) {
 
-  var restPreffix = "ubicacionesRestWEB";
+  var restPreffix = "ubicacionesRestProd";
 
 
   var locationAPI = {};
 
   locationAPI.searchLocationByStr = function(_location) {
-    return $http.get(ApiImEndpoint.url + '/' + restPreffix + '/infoUbicacion/lugaresDeInteresYVias/', {
+    return $http.get(ApiImEndpoint.url + '/' + restPreffix + '/calles', {
       method: 'GET',
       params: {
         nombre: _location
