@@ -178,6 +178,9 @@ body {
   height: 40%;
   position: absolute;
   bottom: 105px;
+  border-top-color: #adb9b8;
+  border-top-style: solid;
+  border-top-width: 2px;
 }
 
 #report-list{

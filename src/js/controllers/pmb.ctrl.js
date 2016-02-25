@@ -1,4 +1,24 @@
-pmb_im.controllers.controller('PMBCtrl', ['$scope', '$state', 'leafletData', 'PMBService', 'ReportService', 'locationAPI', 'MapService','_','Loader','LocationsService',function($scope, $state, leafletData, PMBService, ReportService, locationAPI,MapService,_,Loader,LocationsService) {
+pmb_im.controllers.controller('PMBCtrl',
+['$scope',
+'$state',
+'leafletData',
+'PMBService',
+'ReportService',
+'locationAPI',
+'MapService',
+'_',
+'Loader',
+'LocationsService',
+function($scope,
+  $state,
+  leafletData,
+  PMBService,
+  ReportService,
+  locationAPI,
+  MapService,
+  _,
+  Loader,
+  LocationsService) {
   $scope.reportButton = {
     text: "Reportar",
     state: "unConfirmed"
@@ -64,8 +84,6 @@ pmb_im.controllers.controller('PMBCtrl', ['$scope', '$state', 'leafletData', 'PM
       });
     } else {
       //console.log("currentReport =" + JSON.stringify($scope.currentReport));
-
-      $state.go("app.wizard");
     }
 
   };
@@ -103,27 +121,31 @@ pmb_im.controllers.controller('PMBCtrl', ['$scope', '$state', 'leafletData', 'PM
   $scope.itemsClicked = function(callback) {
 
     $scope.clickedValueModel = callback;
-    $scope.selectedItem = callback.selectedItems[0];
+    //$scope.selectedItem = callback.selectedItems[0];
+    $scope.selectedItem = callback.item;
     $scope.ionAutocompleteElementSearch = angular.element(document.getElementsByClassName("ion-autocomplete-search"));
     if ($scope.searchMode == "esquina.numero") {
-      //selecciono una esquina
+        //selecciono una esquina
         $scope.location.esquina= $scope.selectedItem;
         locationGeomParams.tipo="ESQUINA";//$scope.selectedItem.descTipo;
         locationGeomParams.pathParams.push($scope.location.calle.codigo);
         locationGeomParams.pathParams.push($scope.location.esquina.codigo);
         locationAPI.getLocationGeom(locationGeomParams).then(function(result){
-        MapService.goToPlace(angular.extend({nombre: $scope.location.calle.nombre + " Y " + $scope.selectedItem.nombre},result));
+        MapService.goToPlace(angular.extend({nombre: $scope.location.calle.nombre + " esquina " + $scope.selectedItem.nombre},result),$scope);
         $scope.searchMode = "calle.lugar";
-        $scope.ionAutocompleteElementSearch.attr("placeholder", "Buscar calle o lugar");
+        $scope.ionAutocompleteElementSearch.attr("placeholder", "Buscar calle");
 
         });
 
 
 
     } else {
+      $scope.location.calle= $scope.selectedItem;
+      $scope.searchMode = "esquina.numero";
+      $scope.ionAutocompleteElementSearch.attr("placeholder", "Esquina o número");
+      $scope.ionAutocompleteElement.controller('ionAutocomplete').showModal();
 
-
-      if ($scope.selectedItem.descTipo === "VIA") {
+      /*if ($scope.selectedItem.descTipo === "VIA") {
         $scope.location.calle= $scope.selectedItem;
         $scope.searchMode = "esquina.numero";
         $scope.ionAutocompleteElementSearch.attr("placeholder", "Esquina o número");
@@ -139,13 +161,13 @@ pmb_im.controllers.controller('PMBCtrl', ['$scope', '$state', 'leafletData', 'PM
 
         });
 
-      }
+      }*/
     }
 
   };
 
   $scope.itemsCanceled= function(_item){
-    //console.log(JSON.stringify(_item));
+    console.log(_item.searchQuery);
     var numPuerta = parseInt(_item.searchQuery);
     if(Number.isInteger(numPuerta)){
       //console.log("IS number");
@@ -153,7 +175,7 @@ pmb_im.controllers.controller('PMBCtrl', ['$scope', '$state', 'leafletData', 'PM
       locationGeomParams.pathParams.push($scope.location.calle.codigo);
       locationGeomParams.pathParams.push(numPuerta);
       locationAPI.getLocationGeom(locationGeomParams).then(function(result){
-      MapService.goToPlace(angular.extend({nombre:$scope.selectedItem.nombre + " " + numPuerta },result));
+      MapService.goToPlace(angular.extend({nombre:$scope.selectedItem.nombre + " " + numPuerta },result),$scope);
       $scope.searchMode = "calle.lugar";
 
     },function(error){
@@ -165,7 +187,4 @@ pmb_im.controllers.controller('PMBCtrl', ['$scope', '$state', 'leafletData', 'PM
   }
 
   };
-
-
-
 }]);

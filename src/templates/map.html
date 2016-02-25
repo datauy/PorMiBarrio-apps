@@ -49,16 +49,20 @@
                item-value-key="codigo"
                item-view-value-key="nombre"
                items-method="searchLocation(query)"
-               placeholder="Ir a: escribir BARRIO, calle y/o Nro."
+               placeholder="Ir a: escribir calle y/o Nro."
                items-clicked-method="itemsClicked(callback)"
                items-removed-method="itemsRemoved(callback)"
                cancel-button-clicked-method="itemsCanceled(callback)"
-               max-selected-items="1" select-items-label="Seleccione una ubicación" manage-externally="true" selected-items-label="Calle"/>
+               max-selected-items="1"
+               select-items-label="Seleccione una calle"
+               manage-externally="true"
+               selected-items-label="Calle"
+               cancel-label="Volver"/>
     </label>
   </div>
   <div class="options-bar">
     <div id="button-report" class="option-active">
-      <div class="button-report" ng-click="report(0)"></div>
+      <div class="button-report" ng-click="new_report(0)"></div>
     </div>
     <div id="button-list-reports" class="option-inactive">
       <div class="button-list-reports" ng-click="list_reports()"></div>

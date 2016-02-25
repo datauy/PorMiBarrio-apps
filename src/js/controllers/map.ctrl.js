@@ -1,20 +1,36 @@
 pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
+  '$cordovaCamera',
+  '$cordovaFile',
   '$cordovaGeolocation',
   '$compile',
   '$state',
   '$stateParams',
   '$ionicModal',
-  '$ionicPopup','leafletData', 'PMBService','LocationsService','ReportService','FaqService',
+  '$ionicPopup',
+  'leafletData',
+  'PMBService',
+  'LocationsService',
+  'ReportService',
+  'FaqService',
+  'CategoriesService',
   function(
     $scope,
     $sce,
     _,
+    $cordovaCamera,
+    $cordovaFile,
     $cordovaGeolocation,
     $compile,
     $state,
     $stateParams,
     $ionicModal,
-    $ionicPopup,leafletData, PMBService, LocationsService, ReportService,FaqService
+    $ionicPopup,
+    leafletData,
+    PMBService,
+    LocationsService,
+    ReportService,
+    FaqService,
+    CategoriesService
   ) {
 
     /**
@@ -22,8 +38,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
      */
     $scope.featureReports = {};
     $scope.baseURL = "http://devel.pormibarrio.uy/";
-
-
 
 
     $scope.$on("$ionicView.afterEnter", function() {
@@ -53,8 +67,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           lng: -56.164531,
           zoom: 14
         };
-      //      $scope.goTo(0);
-
     });
 
     var Location = function() {
@@ -64,18 +76,27 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       this.name = "";
     };
 
-    /*$ionicModal.fromTemplateUrl('templates/addLocation.html', {
+
+    $ionicModal.fromTemplateUrl('templates/pmb-wizard.html', {
       scope: $scope,
       animation: 'slide-in-up'
     }).then(function(modal) {
-      $scope.modal = modal;
-    });*/
+        $scope.new_report_modal = modal;
+      });
 
-    $scope.report = function(alreadyLocated) {
+    $scope.new_report = function(alreadyLocated) {
       $scope.set_active_option('button-report');
       document.getElementById("report-list-scroll").style.display = "none";
       if(alreadyLocated==1){
-        $state.go("app.wizard");
+        document.getElementById("spinner").style.display = "block";
+        $scope.report = ReportService._new();
+        $scope.report.lat = LocationsService.new_report_lat;
+        $scope.report.lon = LocationsService.new_report_lng;
+        CategoriesService.all().success(function (response) {
+          $scope.categories = response;
+          document.getElementById("spinner").style.display = "none";
+          $scope.new_report_modal.show();
+        })
       }else{
         var alertPopup = $ionicPopup.alert({
          title: 'Nuevo reporte',
@@ -87,6 +108,155 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         });
       }
     }
+
+  $scope.update_subcategories = function(){
+    var all_subcats_selects_active = document.getElementsByClassName("subcategory-active");
+    if (all_subcats_selects_active != 'undefined' && all_subcats_selects_active.length>0){
+      all_subcats_selects_active[0].className = "subcategory-hidden";
+    }
+    var idCat = $scope.report.categorygroup;
+    var active_select = document.getElementById('subcategoriesSelect_'+idCat);
+    active_select.className = "subcategory-active";
+  };
+
+  $scope.confirmReport = function() {
+    var report_sent = PMBService.report($scope.report);
+    var back_to_map = false;
+    //document.getElementById("spinner").style.display = "block";
+    if($scope.report.file==null){
+      report_sent.success(function(data, status, headers,config){
+        //var jsonResult = JSON.stringify(result);
+        //console.log(jsonResult);
+        //console.log('data success');
+        //console.log(data); // object seems fine
+        $scope.back_to_map(true);
+      })
+      .error(function(data, status, headers,config){
+        //console.log('data error');
+        //console.log(data);
+        $scope.back_to_map(true);
+      })
+    }else{
+      report_sent.then(function(result) {
+        // Success!
+        //console.log("Envío exitoso",result);
+        $scope.back_to_map(true);
+      }, function(err) {
+        //console.log("Error al subir el archivo",err);
+        $scope.back_to_map(true);
+      }, function(progress) {
+        $timeout(function() {
+          $scope.downloadProgress = (progress.loaded / progress.total) * 100;
+        });
+      });
+    }
+  };
+
+  $scope.back_to_map = function(back_to_map){
+    if(back_to_map){
+      //LocationsService.initial_lat = $scope.report.lat;
+      //LocationsService.initial_lng = $scope.report.lon;
+      $scope.new_report_modal.hide();
+      $scope.addReportsLayer();
+    }else{
+      alert("Hubo un error al enviar el reporte.")
+    }
+  }
+
+  $scope.cancelReport = function(){
+    $scope.new_report_modal.hide();
+  }
+
+  $scope.image = null;
+
+  $scope.addImage = function(isFromAlbum) {
+
+    var options = {
+      quality: 100,
+      destinationType: Camera.DestinationType.FILE_URI,
+      sourceType: !isFromAlbum ? Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY, // Camera.PictureSourceType.PHOTOLIBRARY
+      allowEdit: false,
+      encodingType: Camera.EncodingType.JPEG,
+      popoverOptions: CameraPopoverOptions,
+      saveToPhotoAlbum: true
+
+    };
+
+
+    $cordovaCamera.getPicture(options).then(function(imageData) {
+      onImageSuccess(imageData);
+
+      function onImageSuccess(fileURI) {
+        window.FilePath.resolveNativePath(fileURI, function(result) {
+          // onSuccess code
+          fileURI = 'file://' + result;
+          $scope.report.file = fileURI;
+          $scope.imgURI = fileURI;
+          //createFileEntry(fileURI);
+        }, function(error) {
+          console.error("Error resolveNativePath" + error);
+        });
+
+      }
+
+      function createFileEntry(fileURI) {
+        window.resolveLocalFileSystemURL(fileURI, copyFile, fail);
+      }
+
+      // 5
+      function copyFile(fileEntry) {
+        var name = fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/') + 1);
+        var newName = makeid() + name;
+
+        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(fileSystem2) {
+            fileEntry.copyTo(
+              fileSystem2,
+              newName,
+              onCopySuccess,
+              fail
+            );
+          },
+          fail);
+      }
+
+      // 6
+      function onCopySuccess(entry) {
+        $scope.$apply(function() {
+          $scope.image = entry.nativeURL;
+        });
+      }
+
+      function fail(error) {
+
+        //console.log("fail: " + error.code);
+        //console.log("fail: " + angular.toJson(error));
+      }
+
+      function makeid() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < 5; i++) {
+          text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+      }
+
+    }, function(err) {
+      //console.log(err);
+    });
+  };
+
+  $scope.urlForImage = function() {
+    var imageURL = "http://placehold.it/200x200";
+    if ($scope.image) {
+      var name = $scope.image.substr($scope.image.lastIndexOf('/') + 1);
+      imageURL = cordova.file.dataDirectory + name;
+    }
+    //console.log("ImageURL = " + imageURL);
+    return imageURL;
+  };
+
 
     $scope.list_reports = function() {
       $scope.set_active_option('button-list-reports');
@@ -101,10 +271,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       });
 
     $scope.help = function() {
+      document.getElementById("spinner").style.display = "block";
       $scope.set_active_option('button-help');
       document.getElementById("report-list-scroll").style.display = "none";
       FaqService.all().success(function (response) {
         $scope.faq = response;
+        document.getElementById("spinner").style.display = "none";
         $scope.faq_modal.show()
       })
     }
@@ -382,12 +554,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                 $scope.map.markers.now = {
                   lat:position.coords.latitude,
                   lng:position.coords.longitude,
-                  message: "<p align='center'>Te encuentras aquí <br/> <a ng-click='report(1);'>Iniciar reporte en tu posición actual</a></p>",
+                  message: "<p align='center'>Te encuentras aquí <br/> <a ng-click='new_report(1);'>Iniciar reporte en tu posición actual</a></p>",
                   focus: true,
                   draggable: false,
                   getMessageScope: function() { return $scope; }
                 };
-                $scope.map.markers.now.openPopup();
+                //$scope.map.markers.now.openPopup();
               }, function(err) {
                 // error
                 //console.log("Location error!");
@@ -409,28 +581,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
        * Detect user long-pressing on map to add new location
        */
       $scope.$on('leafletDirectiveMap.contextmenu', function(event, locationEvent){
-        LocationsService.new_report_lat = locationEvent.leafletEvent.latlng.lat;
-        LocationsService.new_report_lng = locationEvent.leafletEvent.latlng.lng;
-        $state.go("app.wizard");
+        LocationsService.save_new_report_position(locationEvent.leafletEvent.latlng.lat,locationEvent.leafletEvent.latlng.lng)
+        $scope.new_report(1);
       });
-
-      /*$scope.saveLocation = function() {
-        LocationsService.savedLocations.push($scope.newLocation);
-        $scope.modal.hide();
-
-        $scope.map.center.lat  = $scope.newLocation.lat;
-        $scope.map.center.lng = $scope.newLocation.lng;
-        $scope.map.center.zoom = 15;
-
-        $scope.map.markers.now = {
-          lat:$scope.newLocation.lat,
-          lng:$scope.newLocation.lng,
-          message: "Nuevo reporte",
-          focus: true,
-          draggable: false
-        };
-        //$scope.goTo(LocationsService.savedLocations.length - 1);
-      };*/
 
 
   }

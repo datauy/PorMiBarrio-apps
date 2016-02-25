@@ -1,46 +1,41 @@
-<div class="top-bar-imm">
-  <div class="white-bar-imm"></div>
-  <div class="icon-imm-top"/></div>
-</div>
-
-<ion-view hide-nav-bar="true">
-  <ion-scroll direction="y" class="new-report-scroll">
-      <div class="new-report-slide">
-        <div class="new-report-content">
-          <div class="list">
-            <select id="categoriesSelect" ng-model="report.categorygroup" ng-change="update_subcategories()">
-              <option value="" disabled selected>Seleccione una categoría</option>
-              <option value="{{ key }}" ng-repeat="(key,data) in categories track by $index">{{ data.name }}</option>
-            </select>
-            <select id="subcategoriesSelect_{{key}}" class="subcategory-hidden" ng-model="report.category" ng-repeat="(key,data) in categories track by $index">
-              <option value="" disabled selected>Seleccione una subcategoría</option>
-              <option value="{{ subcats }}" ng-repeat="subcats in data.categories track by $index">{{ subcats }}</option>
-            </select>
-            <label class="item item-input">
-              <input type="text" placeholder="Ingrese título" ng-model="report.title">
-            </label>
-            <label class="item item-input">
-              <textarea placeholder="Descripción" ng-model="report.detail"></textarea>
-            </label>
-            <div class="list card">
-              <div class="item item-image">
-                <!--
-                <img id="image_preview" ng-src="{{urlForImage()}}" />
-              -->
-                <img class="image-preview" ng-show="imgURI !== undefined" ng-src="{{imgURI}}">
-                <img class="image-preview" ng-show="imgURI === undefined" ng-src="http://placehold.it/200x200">
+<ion-modal-view>
+    <ion-scroll direction="y" class="new-report-scroll">
+        <div class="new-report-slide">
+          <div class="new-report-content">
+            <div class="list">
+              <select id="categoriesSelect" ng-model="report.categorygroup" ng-change="update_subcategories()">
+                <option value="" disabled selected>Seleccione una categoría</option>
+                <option value="{{ key }}" ng-repeat="(key,data) in categories track by $index">{{ data.name }}</option>
+              </select>
+              <select id="subcategoriesSelect_{{key}}" class="subcategory-hidden" ng-model="report.category" ng-repeat="(key,data) in categories track by $index">
+                <option value="" disabled selected>Seleccione una subcategoría</option>
+                <option value="{{ subcats }}" ng-repeat="subcats in data.categories track by $index">{{ subcats }}</option>
+              </select>
+              <label class="item item-input">
+                <input type="text" placeholder="Ingrese título" ng-model="report.title">
+              </label>
+              <label class="item item-input">
+                <textarea placeholder="Descripción" ng-model="report.detail"></textarea>
+              </label>
+              <div class="list card">
+                <div class="item item-image">
+                  <!--
+                  <img id="image_preview" ng-src="{{urlForImage()}}" />
+                -->
+                  <img class="image-preview" ng-show="imgURI !== undefined" ng-src="{{imgURI}}">
+                  <img class="image-preview" ng-show="imgURI === undefined" ng-src="http://placehold.it/200x200">
+                </div>
+                <div class="padding">
+                  <button class="button button-block button-calm" ng-click="addImage()">Camara</button>
+                  <button class="button button-block button-calm" ng-click="addImage(true)">Album</button>
+                </div>
               </div>
               <div class="padding">
-                <button class="button button-block button-calm" ng-click="addImage()">Camara</button>
-                <button class="button button-block button-calm" ng-click="addImage(true)">Album</button>
+                <button class="button button-block button-calm" ng-click="confirmReport()">Publicar</button>
+                <button class="button button-block button-calm" ng-click="cancelReport()">Cancelar</button>
               </div>
-            </div>
-            <div class="padding">
-              <button class="button button-block button-calm" ng-click="confirmReport()">Publicar</button>
-              <button class="button button-block button-calm" ng-click="cancelReport()">Cancelar</button>
             </div>
           </div>
         </div>
-      </div>
-  </ionic-scroll>
-</ion-view>
+    </ionic-scroll>
+</ion-modal-view>

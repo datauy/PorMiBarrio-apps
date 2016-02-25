@@ -13,7 +13,7 @@ var pmb_im = {
 pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete','leaflet-directive', 'pmb_im.controllers', 'pmb_im.services', 'ngCordova'])
 
 .constant('ApiImEndpoint', {
-  url: 'http://www.montevideo.gub.uy/'
+  url: 'http://www.montevideo.gub.uy'
 })
 
 .constant('ApiDataEndpoint', {
@@ -75,17 +75,6 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
   }
 })
 
-.state('app.wizard', {
-  cache: false,
-  url: '/reportar',
-  views: {
-    'menuContent': {
-      templateUrl: 'templates/pmb-wizard.html',
-      controller: 'ReportCtrl'
-
-    }
-  }
-});
 // if none of the above states are matched, use this as the fallback
 $urlRouterProvider.otherwise('/app/intro');
 

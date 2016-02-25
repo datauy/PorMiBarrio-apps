@@ -16,12 +16,14 @@ pmb_im.services.factory('locationAPI', ['$http', '$q', 'ApiImEndpoint', 'ApiData
 
 
   locationAPI.searchEsquinaByStr = function(_location) {
-    console.log("searchEsquinaByStr = " + JSON.stringify(_location));
-    return $http.get(ApiImEndpoint.url + '/' + restPreffix + '/infoUbicacion/esquinas/' + _location.calle + '/', {
-      params: {
-        nombre: _location.esquina
-      }
-    });
+    //console.log("searchEsquinaByStr = " + JSON.stringify(_location));
+    //return $http.get(ApiImEndpoint.url + '/' + restPreffix + '/esquina/' + _location.calle + '/' + _location.esquina, {
+      return $http.get(ApiImEndpoint.url + '/' + restPreffix + '/cruces/' + _location.calle + '/',
+      {
+        params: {
+          nombre: _location.esquina
+        }
+      });
   };
   locationAPI.getLocationGeom = function(_location) {
     var url = ApiImEndpoint.url + '/' + restPreffix + locationAPI.getParamPathByTipo(_location.tipo);
@@ -39,19 +41,8 @@ pmb_im.services.factory('locationAPI', ['$http', '$q', 'ApiImEndpoint', 'ApiData
   locationAPI.getParamPathByTipo = function(_tipo) {
 
     var restGeoDataServicePath = {
-      'ESQUINA':"/esquinas/posicion",
-      'DIRECCION':"/direcciones/posicion",
-      'CULTURA': "/cultura/posicion",
-      'DEPORTE': "/deporte/posicion",
-      'EDUCACION': "/educacion/posicion",
-      'SALUD': "/salud/posicion",
-      'MONUMENTO': "/monumentos/posicion",
-      'ESPACIO LIBRE': "/nomobresDeEspacioLibre/puntoInterior",
-      'PATRIMONIO': "/patrimonio/puntoInterior",
-      'PLAYA': "/playas/puntoInterior",
-      'PARQUE': "/nombresDeParque/puntoInterior"
-
-
+      'ESQUINA':"/esquina",
+      'DIRECCION':"/direccion"
     };
 
     return restGeoDataServicePath[_tipo];

@@ -1,4 +1,4 @@
-pmb_im.services.factory('ReportService', ['$http', 'leafletData', '$cordovaFileTransfer', function($http, leafletData, $cordovaFileTransfer) {
+pmb_im.services.factory('ReportService', ['$http', 'leafletData', function($http, leafletData) {
   var baseURL = "http://devel.pormibarrio.uy/report/ajax/";
 
 
