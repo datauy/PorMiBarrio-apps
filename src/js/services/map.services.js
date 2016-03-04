@@ -27,7 +27,7 @@
        var layer = L.Proj.geoJson(_geoJson, {
          'pointToLayer': function(feature, latlng) {
            _latlng = latlng;
-           var htmlPopUp = "<p align='center'>"+feature.properties.nombre+" <br/> <a ng-click='new_report(1);'>Iniciar reporte aquí</a></p>";
+           var htmlPopUp = "<p align='center'>"+feature.properties.nombre+" <br/> <a ng-click='new_report_from_latlon("+_latlng.lat+","+_latlng.lng+");'>Iniciar reporte aquí</a></p>";
            var compiled = $compile(htmlPopUp)(scope);
            return L.marker(latlng).bindPopup(compiled[0]);
          }

@@ -40,7 +40,7 @@
   </ion-scroll>
 
 
-<div class="foot-bar">
+<div id="foot_bar" class="foot-bar">
   <div class="street-search-bar">
     <div class="search-icon"></div>
     <label class="search-textbox-label">
@@ -49,7 +49,7 @@
                item-value-key="codigo"
                item-view-value-key="nombre"
                items-method="searchLocation(query)"
-               placeholder="Ir a: escribir calle y/o Nro."
+               placeholder="Ir a: escribir calle."
                items-clicked-method="itemsClicked(callback)"
                items-removed-method="itemsRemoved(callback)"
                cancel-button-clicked-method="itemsCanceled(callback)"

@@ -84,6 +84,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.new_report_modal = modal;
       });
 
+    $scope.new_report_from_latlon = function(lat,lng) {
+      LocationsService.new_report_lat = lat;
+      LocationsService.new_report_lng = lng;
+      $scope.new_report(1);
+    }
+
     $scope.new_report = function(alreadyLocated) {
       $scope.set_active_option('button-report');
       document.getElementById("report-list-scroll").style.display = "none";
@@ -95,6 +101,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         CategoriesService.all().success(function (response) {
           $scope.categories = response;
           document.getElementById("spinner").style.display = "none";
+          document.getElementById("foot_bar").style.display = "none";
           $scope.new_report_modal.show();
         })
       }else{
@@ -117,12 +124,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     var idCat = $scope.report.categorygroup;
     var active_select = document.getElementById('subcategoriesSelect_'+idCat);
     active_select.className = "subcategory-active";
+    document.getElementById("subcategoriesSelectContainer").style.display="block";
   };
 
   $scope.confirmReport = function() {
     var report_sent = PMBService.report($scope.report);
     var back_to_map = false;
-    //document.getElementById("spinner").style.display = "block";
+    document.getElementById("spinner").style.display = "block";
     if($scope.report.file==null){
       report_sent.success(function(data, status, headers,config){
         //var jsonResult = JSON.stringify(result);
@@ -157,6 +165,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       //LocationsService.initial_lat = $scope.report.lat;
       //LocationsService.initial_lng = $scope.report.lon;
       $scope.new_report_modal.hide();
+      document.getElementById("foot_bar").style.display = "block";
+      document.getElementById("spinner").style.display = "none";
       $scope.addReportsLayer();
     }else{
       alert("Hubo un error al enviar el reporte.")
@@ -165,6 +175,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
   $scope.cancelReport = function(){
     $scope.new_report_modal.hide();
+    document.getElementById("foot_bar").style.display = "block";
   }
 
   $scope.image = null;
@@ -489,10 +500,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       leafletData.getMap().then(function(map) {
         var coords = layer.getLatLng();
         var lat = coords.lat;
-        console.log(lat);
         //Move a little the map center because the map view is smaller (report list is displayed)
         lat = lat - 0.001;
-        console.log(lat);
         map.setView(new L.LatLng(lat, coords.lng), 18);
         layer.openPopup();
       });
