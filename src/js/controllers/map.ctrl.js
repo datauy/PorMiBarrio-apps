@@ -41,7 +41,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
 
     $scope.$on("$ionicView.afterEnter", function() {
-      document.getElementById("spinner").style.display = "none";
+      //document.getElementById("spinner").style.display = "none";
 
         $scope.addReportsLayer();
         $scope.addMapControls();
