@@ -13,6 +13,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   'ReportService',
   'FaqService',
   'CategoriesService',
+  'AuthService',
+  'UserService',
   function(
     $scope,
     $sce,
@@ -30,7 +32,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     LocationsService,
     ReportService,
     FaqService,
-    CategoriesService
+    CategoriesService,
+    AuthService,
+    UserService
   ) {
 
     /**
@@ -43,10 +47,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.$on("$ionicView.afterEnter", function() {
       //document.getElementById("spinner").style.display = "none";
 
-        $scope.addReportsLayer();
-        $scope.addMapControls();
-
-
+      $scope.addReportsLayer();
+      $scope.addMapControls();
+      $scope.check_user_logged();
 
       $scope.map = {
         defaults: {
@@ -546,7 +549,150 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.removedValueModel = callback;
     };
 
+    $scope.user_options = function(){
+      var name = UserService.name;
+      if(name==null){
+        //No esta logueado
+        $scope.show_anonymous_menu();
+      }else{
+        //Está logueado
+        $scope.show_user_menu();
+      }
+    }
 
+    $scope.show_anonymous_menu = function(){
+      var menu = document.getElementById("user-options-menu");
+      var html = "<a ng-click='show_login_modal()'>Iniciar sesión</a>";
+      html = html + "<br/><a ng-click='show_sign_up_modal()'>Registrarse</a>";
+      menu.innerHTML = html;
+      $compile(menu)($scope); //<---- recompilation
+      menu.style.display = "block";
+    }
+
+    $scope.show_user_menu = function(){
+      var menu = document.getElementById("user-options-menu");
+      var html = UserService.name + "<br/><a ng-click='show_edit_user_modal()'>Mi perfil</a>";
+      html = html + "<br/><a ng-click='sign_out()'>Cerrar sesión</a>";
+      menu.innerHTML = html;
+      $compile(menu)($scope); //<---- recompilation
+      menu.style.display = "block";
+    }
+
+    $scope.sign_in = function(email, password){
+      document.getElementById("spinner").style.display = "block";
+      AuthService.sign_in(password, email).then(function(resp) {
+        UserService.save_user_data(resp.data.name, email, password);
+        $scope.set_user_picture(1);
+        document.getElementById("spinner").style.display = "none";
+        $scope.close_login_modal();
+        $scope.check_user_logged();
+      }, function(err) {
+        //console.log(err);
+        alert("Error en sign_in");
+      });
+    }
+
+    $scope.sign_out = function(){
+      UserService.erase_user_data();
+      document.getElementById("spinner").style.display = "none";
+      $scope.set_user_picture(0);
+      document.getElementById("user-options-menu").style.display="none";
+    }
+
+    $scope.show_edit_user_modal = function(){
+      //Cargar el modal con la info del usuario logueado y con el submit a update_user
+    }
+
+
+    $scope.show_login_modal = function(){
+      //Cargar el modal con el form de login y ahi llama al sign_in
+      $scope.nonauth = new Array();
+      $scope.nonauth.email = "";
+      $scope.nonauth.password = "";
+      $ionicModal.fromTemplateUrl('templates/log_in.html', {
+          scope: $scope,
+          animation: 'slide-in-up'
+        }).then(function(modal) {
+            document.getElementById("user-options-menu").style.display="none";
+            $scope.login_modal = modal;
+            $scope.login_modal.show();
+        });
+    }
+
+    $scope.login_ok = function(){
+      $scope.sign_in($scope.nonauth.email,$scope.nonauth.password);
+    }
+
+    $scope.close_login_modal = function(){
+      $scope.login_modal.hide();
+      $scope.login_modal.remove();
+    }
+
+
+
+    $scope.show_sign_up_modal = function(){
+      //cargar el modal con el form de sign_up y de ahi llamar al sign_up
+      $scope.newuser = new Array();
+      $scope.newuser.email = "";
+      $scope.newuser.password = "";
+      $scope.newuser.fullname = "";
+      $scope.newuser.id_doc = "";
+      $scope.newuser.telephone = "";
+      $ionicModal.fromTemplateUrl('templates/sign_up.html', {
+          scope: $scope,
+          animation: 'slide-in-up'
+        }).then(function(modal) {
+            document.getElementById("user-options-menu").style.display="none";
+            $scope.sign_up_modal = modal;
+            $scope.sign_up_modal.show();
+        });
+    }
+
+    $scope.close_sign_up_modal = function(){
+      $scope.sign_up_modal.hide();
+      $scope.sign_up_modal.remove();
+    }
+
+    $scope.sign_up = function(email,fullname,password, id_doc, user_phone){
+      document.getElementById("spinner").style.display = "block";
+      AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
+        alert(resp.data.message);
+        UserService.save_user_data(fullname, email, password);
+        $scope.set_user_picture(1);
+        document.getElementById("spinner").style.display = "none";
+        $scope.close_sign_up_modal();
+        $scope.check_user_logged();
+      }, function(err) {
+        //console.log(err);
+        alert("Error en sign_up");
+      });
+    }
+
+    $scope.sign_up_ok = function(){
+      $scope.sign_up($scope.newuser.email,$scope.newuser.fullname,$scope.newuser.password,$scope.newuser.id_doc,$scope.newuser.telephone);
+    }
+
+    $scope.check_user_logged = function(){
+      var name = UserService.name;
+      if(name==null){
+        //No esta logueado
+        $scope.set_user_picture(0);
+      }else{
+        //Está logueado
+        $scope.set_user_picture(1);
+      }
+    }
+
+    $scope.set_user_picture = function(isLogged){
+      var picture = document.getElementById("user_picture");
+      if(isLogged==0){
+        picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
+      }else{
+        //Descomentar al tener andando: picture.style.backgroundImage = "url(" + UserService.picture + ")";
+        picture.style.backgroundImage = "url(./img/icon-user.png)";
+      }
+
+    }
 
     $scope.find_me = function(){
         $scope.set_active_option("button-find-me");
@@ -557,7 +703,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           .then(function (position) {
                 $scope.map.center.lat  = position.coords.latitude;
                 $scope.map.center.lng = position.coords.longitude;
-                LocationsService.save_new_report_position(position.coords.latitude,position.coords.longitude)
+                LocationsService.save_new_report_position(position.coords.latitude,position.coords.longitude);
                 $scope.map.center.zoom = 18;
 
                 $scope.map.markers.now = {

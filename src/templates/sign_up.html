@@ -1,0 +1,54 @@
+<ion-modal-view class="new-report-modal">
+    <ion-scroll direction="y" class="new-report-scroll">
+        <div class="new-report-slide">
+          <div class="new-report-content">
+            <div class="category-header">
+              <h3>Regístrate y se parte</h3>
+              <p>Crea una cuenta en PorMiBarrio y comienza a colaborar.</p>
+            </div>
+            <div class="list">
+              <div class="text-input-header">
+                <h3>Correo electrónico *</h3>
+              </div>
+              <div class="text-input-container">
+                <input style="color: #ffffff; padding-left: 10px; padding-right: 10px;" class="text-input" type="text" placeholder="Proporcionar un correo válido" ng-model="newuser.email">
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3>Nombre y apellido *</h3>
+              </div>
+              <div class="text-input-container">
+                <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Por favor, ingrese nombre y apellido" ng-model="newuser.fullname"></textarea>
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3>Cédula de Identidad *</h3>
+              </div>
+              <div class="text-input-container">
+                <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Formato 0.000.000-0" ng-model="newuser.id_doc"></textarea>
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3>Teléfono (opcional)</h3>
+              </div>
+              <div class="text-input-container">
+                <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Proporcione un teléfono de contacto" ng-model="newuser.telephone"></textarea>
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3>Contraseña *</h3>
+              </div>
+              <div class="text-input-container">
+                <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Proporcione una contraseña" ng-model="newuser.password"></textarea>
+              </div>
+              <div class="field-separator"></div>
+              <div class="padding">
+                <button class="form-button" ng-click="sign_up_ok()">Registrarse</button>
+                <div class="field-separator"></div>
+                <button class="form-button" ng-click="close_sign_up_modal()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </ionic-scroll>
+</ion-modal-view>

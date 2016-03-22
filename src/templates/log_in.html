@@ -1,0 +1,32 @@
+<ion-modal-view class="new-report-modal">
+    <ion-scroll direction="y" class="new-report-scroll">
+        <div class="new-report-slide">
+          <div class="new-report-content">
+            <div class="category-header">
+              <h3>Ingresa tus datos si ya tienes cuenta:</h3>
+            </div>
+            <div class="list">
+              <div class="text-input-header">
+                <h3>Email *</h3>
+              </div>
+              <div class="text-input-container">
+                <input style="color: #ffffff; padding-left: 10px; padding-right: 10px;" class="text-input" type="text" placeholder="Proporcionar un correo electrónico" ng-model="nonauth.email"/>
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3>Contraseña *</h3>
+              </div>
+              <div class="text-input-container">
+                <input class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Ingrese su contraseña" type="password" ng-model="nonauth.password"/>
+              </div>
+              <div class="field-separator"></div>
+              <div class="padding">
+                <button class="form-button" ng-click="login_ok()">Acceder</button>
+                <div class="field-separator"></div>
+                <button class="form-button" ng-click="close_login_modal()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </ionic-scroll>
+</ion-modal-view>
