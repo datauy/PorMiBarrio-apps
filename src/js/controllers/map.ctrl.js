@@ -672,17 +672,34 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.edit_profile = function(email,password, fullname, new_email, id_doc, user_phone, user_picture_url){
       document.getElementById("spinner").style.display = "block";
-      AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url).then(function(resp) {
-        //alert(resp.data.message);
-        UserService.save_user_data(resp.data.name, resp.data.email, resp.data.password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
-        //$scope.set_user_picture(1);
-        document.getElementById("spinner").style.display = "none";
-        $scope.close_edit_profile_modal();
-        $scope.check_user_logged();
-      }, function(err) {
-        //console.log(err);
-        alert("Error en edit_profile");
-      });
+      var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
+      if(user_picture_url==null && user_picture_url==""){
+        edit_request.then(function(resp) {
+          //alert(resp.data.message);
+          UserService.save_user_data(resp.data.name, resp.data.email, resp.data.password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+          //$scope.set_user_picture(1);
+          document.getElementById("spinner").style.display = "none";
+          $scope.close_edit_profile_modal();
+          $scope.check_user_logged();
+        }, function(err) {
+          //console.log(err);
+          alert("Error en edit_profile");
+        });
+      }else{
+        edit_request.success(function(data, status, headers,config){
+          UserService.save_user_data(data.name, data.email, data.password, data.identity_document, data.phone, data.picture_url);
+          //$scope.set_user_picture(1);
+          document.getElementById("spinner").style.display = "none";
+          $scope.close_edit_profile_modal();
+          $scope.check_user_logged();
+          alert("Guardo Foto");
+        })
+        .error(function(data, status, headers,config){
+          //console.log('data error');
+          //console.log(data);
+          alert("Error en edit_profile");
+        })
+      }
     }
 
 
