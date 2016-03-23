@@ -165,10 +165,16 @@ body {
 
 .user-picture{
   width: 30px;
-  height: 70px;
+  height: 30px;
   background-image:    url(./img/icon-user.png);
   background-repeat:   no-repeat;
   background-position: center center;
+  background-size: 30px 30px;
+  -moz-border-radius: 70px;
+  -webkit-border-radius: 70px;
+  border-radius: 70px;
+  position: relative;
+  top: 30%;
 }
 
 #report-list-scroll{

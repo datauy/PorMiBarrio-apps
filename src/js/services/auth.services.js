@@ -1,4 +1,4 @@
-pmb_im.services.factory('AuthService', ['$http', function($http) {
+pmb_im.services.factory('AuthService', ['$http', '$cordovaFileTransfer', function($http, $cordovaFileTransfer) {
 
   var baseURL = "http://devel.pormibarrio.uy/auth/ajax/";
 
@@ -19,6 +19,56 @@ pmb_im.services.factory('AuthService', ['$http', function($http) {
     change_password: function (email,fullname,password, id_doc, user_phone) {
       return $http.get(baseURL + "create_user", { params: { login_email: email, name: fullname, password_register: password,
                                                             identity_document: id_doc, phone: user_phone } });
+    },
+
+    /*edit_user: function (email,password, fullname, new_email, id_doc, user_phone) {
+      var req = {
+       method: 'POST',
+       url: baseURL + 'edit_user',
+       headers: {
+         'Content-Type': 'multipart/form-data'
+       },
+       data: { email: email,
+               password_sign_in: password,
+               name: fullname,
+               new_email: new_email,
+               identity_document: id_doc,
+               phone: user_phone }
+      }
+
+      return $http(req);
+    }*/
+
+    edit_user: function (email,password, fullname, new_email, id_doc, user_phone, user_picture_url) {
+      alert(user_picture_url);
+
+      if (user_picture_url!=null && user_picture_url!="") {
+        var options = {
+         fileKey: "photo",
+         //fileName: filename,
+         //chunkedMode: false,
+         //mimeType: "image/jpg",
+         params : {  email: email,
+                     password_sign_in: password,
+                     name: fullname,
+                     new_email: new_email,
+                     identity_document: id_doc,
+                     phone: user_phone
+                   }
+        };
+        var trustAllHosts = true;
+        return $cordovaFileTransfer.upload(baseURL + "edit_user", user_picture_url, options, trustAllHosts);
+      }else{
+        return $http.get(baseURL + "edit_user", { params: { email: email,
+                                                            password_sign_in: password,
+                                                            name: fullname,
+                                                            new_email: new_email,
+                                                            identity_document: id_doc,
+                                                            phone: user_phone
+                                                          }
+                                                });
+      }
     }
+
   };
 }]);
