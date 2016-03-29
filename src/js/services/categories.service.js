@@ -1,6 +1,6 @@
-pmb_im.services.factory('CategoriesService', ['$http','LocationsService', function($http,LocationsService) {
+pmb_im.services.factory('CategoriesService', ['$http','LocationsService', 'ConfigService', function($http,LocationsService, ConfigService) {
 
-  var baseURL = "http://devel.pormibarrio.uy/report/new/ajax";
+  var baseURL = ConfigService.baseURL + "report/new/ajax";
 
   return {
     all: function () {

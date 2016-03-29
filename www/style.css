@@ -50,6 +50,45 @@ body {
   z-index: 99999;
 }
 
+.modal-spinner{
+  width: 130px;
+  height: 110px;
+  margin: 0 auto 0 auto;
+  z-index: 99999;
+  display: none;
+}
+
+#spinner-inside-modal{
+  position: absolute;
+  top: 30%;
+  left: 30%;
+  z-index: 99999;
+  background-color: #000000;
+  color: #FFFFFF;
+  padding: 10px;
+  border-radius: 35px 35px 35px 35px;
+  -moz-border-radius: 35px 35px 35px 35px;
+  -webkit-border-radius: 35px 35px 35px 35px;
+  border: 1px solid #FFFFFF;
+}
+
+#spinner-inside-modal h3{
+  color: #FFFFFF;
+  font-size: 12px;
+  margin: 0;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+#spinner-inside-modal .spinner svg{
+  width: 50px;
+  height: 50px;
+  stroke: #FFF;
+  fill: #FFF;
+  position: relative;
+  left: 30%;
+}
+
 .spinner svg {
   width: 50px;
   height: 50px;

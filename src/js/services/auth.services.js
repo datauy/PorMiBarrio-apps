@@ -1,6 +1,6 @@
-pmb_im.services.factory('AuthService', ['$http', '$cordovaFileTransfer', function($http, $cordovaFileTransfer) {
+pmb_im.services.factory('AuthService', ['$http', '$cordovaFileTransfer', 'ConfigService', function($http, $cordovaFileTransfer, ConfigService) {
 
-  var baseURL = "http://devel.pormibarrio.uy/auth/ajax/";
+  var baseURL = ConfigService.baseURL + "auth/ajax/";
 
   return {
     sign_in: function (password, email) {
@@ -21,27 +21,7 @@ pmb_im.services.factory('AuthService', ['$http', '$cordovaFileTransfer', functio
                                                             identity_document: id_doc, phone: user_phone } });
     },
 
-    /*edit_user: function (email,password, fullname, new_email, id_doc, user_phone) {
-      var req = {
-       method: 'POST',
-       url: baseURL + 'edit_user',
-       headers: {
-         'Content-Type': 'multipart/form-data'
-       },
-       data: { email: email,
-               password_sign_in: password,
-               name: fullname,
-               new_email: new_email,
-               identity_document: id_doc,
-               phone: user_phone }
-      }
-
-      return $http(req);
-    }*/
-
     edit_user: function (email,password, fullname, new_email, id_doc, user_phone, user_picture_url) {
-      alert(user_picture_url);
-
       if (user_picture_url!=null && user_picture_url!="") {
         var options = {
          fileKey: "photo",

@@ -8,6 +8,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$ionicModal',
   '$ionicPopup',
   'leafletData',
+  'ConfigService',
   'PMBService',
   'LocationsService',
   'ReportService',
@@ -15,6 +16,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   'CategoriesService',
   'AuthService',
   'UserService',
+  '$timeout',
   function(
     $scope,
     $sce,
@@ -28,20 +30,22 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $ionicModal,
     $ionicPopup,
     leafletData,
+    ConfigService,
     PMBService,
     LocationsService,
     ReportService,
     FaqService,
     CategoriesService,
     AuthService,
-    UserService
+    UserService,
+    $timeout
   ) {
 
     /**
      * Once state loaded, get put map on scope.
      */
     $scope.featureReports = {};
-    $scope.baseURL = "http://devel.pormibarrio.uy/";
+    $scope.baseURL = ConfigService.baseURL;
 
 
     $scope.$on("$ionicView.afterEnter", function() {
@@ -133,7 +137,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   $scope.confirmReport = function() {
     var report_sent = PMBService.report($scope.report);
     var back_to_map = false;
-    document.getElementById("spinner").style.display = "block";
+    document.getElementById("spinner-inside-modal").style.display = "block";
     if($scope.report.file==null){
       report_sent.success(function(data, status, headers,config){
         //var jsonResult = JSON.stringify(result);
@@ -157,7 +161,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.back_to_map(true);
       }, function(progress) {
         $timeout(function() {
-          $scope.downloadProgress = (progress.loaded / progress.total) * 100;
+          $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+          document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
         });
       });
     }
@@ -169,7 +174,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       //LocationsService.initial_lng = $scope.report.lon;
       $scope.new_report_modal.hide();
       document.getElementById("foot_bar").style.display = "block";
-      document.getElementById("spinner").style.display = "none";
+      document.getElementById("spinner-inside-modal").style.display = "none";
       $scope.addReportsLayer();
     }else{
       alert("Hubo un error al enviar el reporte.")
@@ -183,85 +188,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
   $scope.image = null;
 
-  $scope.addImage = function(isFromAlbum) {
-
-    var options = {
-      quality: 100,
-      destinationType: Camera.DestinationType.FILE_URI,
-      sourceType: !isFromAlbum ? Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY, // Camera.PictureSourceType.PHOTOLIBRARY
-      allowEdit: false,
-      encodingType: Camera.EncodingType.JPEG,
-      popoverOptions: CameraPopoverOptions,
-      saveToPhotoAlbum: true
-
-    };
-
-
-    $cordovaCamera.getPicture(options).then(function(imageData) {
-      onImageSuccess(imageData);
-
-      function onImageSuccess(fileURI) {
-        window.FilePath.resolveNativePath(fileURI, function(result) {
-          // onSuccess code
-          fileURI = 'file://' + result;
-          $scope.report.file = fileURI;
-          $scope.imgURI = fileURI;
-          //createFileEntry(fileURI);
-        }, function(error) {
-          console.error("Error resolveNativePath" + error);
-        });
-
-      }
-
-      function createFileEntry(fileURI) {
-        window.resolveLocalFileSystemURL(fileURI, copyFile, fail);
-      }
-
-      // 5
-      function copyFile(fileEntry) {
-        var name = fileEntry.fullPath.substr(fileEntry.fullPath.lastIndexOf('/') + 1);
-        var newName = makeid() + name;
-
-        window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(fileSystem2) {
-            fileEntry.copyTo(
-              fileSystem2,
-              newName,
-              onCopySuccess,
-              fail
-            );
-          },
-          fail);
-      }
-
-      // 6
-      function onCopySuccess(entry) {
-        $scope.$apply(function() {
-          $scope.image = entry.nativeURL;
-        });
-      }
-
-      function fail(error) {
-
-        //console.log("fail: " + error.code);
-        //console.log("fail: " + angular.toJson(error));
-      }
-
-      function makeid() {
-        var text = "";
-        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-        for (var i = 0; i < 5; i++) {
-          text += possible.charAt(Math.floor(Math.random() * possible.length));
-        }
-        return text;
-      }
-
-    }, function(err) {
-      //console.log(err);
-    });
-  };
-
   $scope.addImage = function(isFromAlbum, isUserPhoto) {
+
+    $scope.isUserPhoto = isUserPhoto;
 
     var source = Camera.PictureSourceType.CAMERA;
     if(isFromAlbum==1){
@@ -272,11 +201,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       quality: 100,
       destinationType: Camera.DestinationType.FILE_URI,
       sourceType: source,
-      allowEdit: false,
+      allowEdit: true,
+      correctOrientation : true,
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
       saveToPhotoAlbum: true
-
     };
 
 
@@ -287,8 +216,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         window.FilePath.resolveNativePath(fileURI, function(result) {
           // onSuccess code
           fileURI = 'file://' + result;
-          if(isUserPhoto==1){
-            UserService.add_photo(fileURI);
+          if($scope.isUserPhoto==1){
+            //UserService.add_photo(fileURI);
+            $scope.profile.picture_url = fileURI;
           }else{
             $scope.report.file = fileURI;
           }
@@ -479,7 +409,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.addReportsLayer = function() {
 
-      var baseURL = "http://devel.pormibarrio.uy/", ///"http://pormibarrio.uy/";//"http://datauy.netuy.net/",
+      var baseURL = ConfigService.baseURL;
         buildPopup = function(data, marker) {
           var reportId = data[3],
             descripcion = data[4];
@@ -621,11 +551,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.sign_in = function(email, password){
-      document.getElementById("spinner").style.display = "block";
+      document.getElementById("spinner-inside-modal").style.display = "block";
       AuthService.sign_in(password, email).then(function(resp) {
         UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
         //$scope.set_user_picture(1);
-        document.getElementById("spinner").style.display = "none";
+        document.getElementById("spinner-inside-modal").style.display = "none";
         $scope.close_login_modal();
         $scope.check_user_logged();
       }, function(err) {
@@ -648,57 +578,69 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.profile.password = "";
       $scope.profile.fullname = UserService.name;
       $scope.profile.new_email = UserService.email;
-      $scope.profile.id_doc = "";
-      $scope.profile.telephone = "";
+      $scope.profile.id_doc = UserService.identity_document;
+      $scope.profile.telephone = UserService.phone;
+      $scope.profile.picture_url = null;
       $ionicModal.fromTemplateUrl('templates/edit_profile.html', {
           scope: $scope,
           animation: 'slide-in-up'
         }).then(function(modal) {
             document.getElementById("user-options-menu").style.display="none";
             $scope.edit_profile_modal = modal;
+            document.getElementById("foot_bar").style.display = "none";
+
             $scope.edit_profile_modal.show();
         });
     }
 
     $scope.close_edit_profile_modal = function(){
       //Cargar el modal con la info del usuario logueado y con el submit a update_user
+      document.getElementById("foot_bar").style.display = "block";
       $scope.edit_profile_modal.hide();
       $scope.edit_profile_modal.remove();
     }
 
     $scope.edit_profile_ok = function(){
-      $scope.edit_profile(UserService.email,UserService.password,$scope.profile.fullname,$scope.profile.new_email,$scope.profile.id_doc,$scope.profile.telephone);
+      $scope.edit_profile(UserService.email,UserService.password,$scope.profile.fullname,$scope.profile.new_email,$scope.profile.id_doc,$scope.profile.telephone,$scope.profile.picture_url);
     }
 
     $scope.edit_profile = function(email,password, fullname, new_email, id_doc, user_phone, user_picture_url){
-      document.getElementById("spinner").style.display = "block";
+      document.getElementById("spinner-inside-modal").style.display = "block";
       var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
-      if(user_picture_url==null && user_picture_url==""){
-        edit_request.then(function(resp) {
-          //alert(resp.data.message);
-          UserService.save_user_data(resp.data.name, resp.data.email, resp.data.password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
-          //$scope.set_user_picture(1);
-          document.getElementById("spinner").style.display = "none";
-          $scope.close_edit_profile_modal();
-          $scope.check_user_logged();
-        }, function(err) {
-          //console.log(err);
-          alert("Error en edit_profile");
-        });
-      }else{
+      if(user_picture_url==null || user_picture_url==""){
         edit_request.success(function(data, status, headers,config){
-          UserService.save_user_data(data.name, data.email, data.password, data.identity_document, data.phone, data.picture_url);
+          UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+          UserService.add_photo(ConfigService.baseURL + UserService.picture_url); //PARCHE HASTA QUE EL EDIT DEVUELVA LA IMG EN PATH ABSOLUTO
           //$scope.set_user_picture(1);
-          document.getElementById("spinner").style.display = "none";
+          document.getElementById("spinner-inside-modal").style.display = "none";
           $scope.close_edit_profile_modal();
           $scope.check_user_logged();
-          alert("Guardo Foto");
         })
         .error(function(data, status, headers,config){
           //console.log('data error');
           //console.log(data);
           alert("Error en edit_profile");
         })
+      }else{
+        edit_request.then(function(resp) {
+          var data = JSON.stringify(resp);
+          alert(data);
+          UserService.save_user_data(data.response.name, data.response.email, password, data.response.identity_document, data.response.phone, data.response.picture_url);
+          alert(data.response.name);
+          UserService.add_photo(ConfigService.baseURL + UserService.picture_url); //PARCHE HASTA QUE EL EDIT DEVUELVA LA IMG EN PATH ABSOLUTO
+          //$scope.set_user_picture(1);
+          document.getElementById("spinner-inside-modal").style.display = "none";
+          $scope.close_edit_profile_modal();
+          $scope.check_user_logged();
+        }, function(err) {
+          //console.log(err);
+          alert("Error en edit_profile");
+        }, function(progress) {
+            $timeout(function() {
+              $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+              document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+            });
+        });
       }
     }
 
@@ -714,6 +656,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         }).then(function(modal) {
             document.getElementById("user-options-menu").style.display="none";
             $scope.login_modal = modal;
+            document.getElementById("foot_bar").style.display = "none";
             $scope.login_modal.show();
         });
     }
@@ -723,6 +666,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.close_login_modal = function(){
+      document.getElementById("foot_bar").style.display = "block";
       $scope.login_modal.hide();
       $scope.login_modal.remove();
     }
@@ -743,22 +687,24 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         }).then(function(modal) {
             document.getElementById("user-options-menu").style.display="none";
             $scope.sign_up_modal = modal;
+            document.getElementById("foot_bar").style.display = "none";
             $scope.sign_up_modal.show();
         });
     }
 
     $scope.close_sign_up_modal = function(){
+      document.getElementById("foot_bar").style.display = "block";
       $scope.sign_up_modal.hide();
       $scope.sign_up_modal.remove();
     }
 
     $scope.sign_up = function(email,fullname,password, id_doc, user_phone){
-      document.getElementById("spinner").style.display = "block";
+      document.getElementById("spinner-inside-modal").style.display = "block";
       AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
         alert(resp.data.message);
         UserService.save_user_data(fullname, email, password, id_doc, user_phone,null);
         $scope.set_user_picture(1);
-        document.getElementById("spinner").style.display = "none";
+        document.getElementById("spinner-inside-modal").style.display = "none";
         $scope.close_sign_up_modal();
         $scope.check_user_logged();
       }, function(err) {

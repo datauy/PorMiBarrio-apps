@@ -35,7 +35,7 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
   };
 
   function eraseUser() {
-    _db.get('user').then(function(doc) {
+    _db.get('user-logged').then(function(doc) {
       return _db.remove(doc);
     });
   }

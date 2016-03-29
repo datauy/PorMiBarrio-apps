@@ -40,8 +40,8 @@
               </div>
               <div class="foto-input-container">
                 <div class="foto-picker">
-                  <div ng-click="addUserImage(0,1)" class="foto-icon"></div>
-                  <div ng-click="addUserImage(1,1)" class="foto-text">o seleccione un archivo</div>
+                  <div ng-click="addImage(0,1)" class="foto-icon"></div>
+                  <div ng-click="addImage(1,1)" class="foto-text">o seleccione un archivo</div>
                 </div>
               </div>
               <div class="field-separator"></div>
@@ -57,4 +57,5 @@
           </div>
         </div>
     </ionic-scroll>
+    <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>
 </ion-modal-view>

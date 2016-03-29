@@ -1,5 +1,6 @@
-pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTransfer', function($http, leafletData, $cordovaFileTransfer) {
-  var base = "http://devel.pormibarrio.uy/";//"http://10.191.0.16:3000/";
+pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTransfer', 'ConfigService', function($http, leafletData, $cordovaFileTransfer,ConfigService) {
+
+  var base = ConfigService.baseURL;
 
   var PMBService = {
 
