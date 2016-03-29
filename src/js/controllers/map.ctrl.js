@@ -16,6 +16,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   'CategoriesService',
   'AuthService',
   'UserService',
+  'DBService',
   '$timeout',
   function(
     $scope,
@@ -38,6 +39,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     CategoriesService,
     AuthService,
     UserService,
+    DBService,
     $timeout
   ) {
 
@@ -47,13 +49,17 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.featureReports = {};
     $scope.baseURL = ConfigService.baseURL;
 
+    $scope.$on("$ionicView.loaded", function() {
+      DBService.initDB();
+      $scope.check_user_logged();
+    });
+
 
     $scope.$on("$ionicView.afterEnter", function() {
       //document.getElementById("spinner").style.display = "none";
 
       $scope.addReportsLayer();
       $scope.addMapControls();
-      $scope.check_user_logged();
 
       $scope.map = {
         defaults: {
@@ -193,19 +199,23 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.isUserPhoto = isUserPhoto;
 
     var source = Camera.PictureSourceType.CAMERA;
+    var fix_orientation = true;
+    var save_to_gallery = true;
     if(isFromAlbum==1){
       source = Camera.PictureSourceType.PHOTOLIBRARY;
+      fix_orientation = false;
+      save_to_gallery = false;
     }
 
     var options = {
-      quality: 100,
+      quality: 50,
       destinationType: Camera.DestinationType.FILE_URI,
       sourceType: source,
-      allowEdit: true,
-      correctOrientation : true,
+      allowEdit: false,
+      correctOrientation : fix_orientation,
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
-      saveToPhotoAlbum: true
+      saveToPhotoAlbum: save_to_gallery
     };
 
 
@@ -225,7 +235,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           $scope.imgURI = fileURI;
           //createFileEntry(fileURI);
         }, function(error) {
-          console.error("Error resolveNativePath" + error);
+          alert("Error resolveNativePath" + error);
         });
 
       }
@@ -554,10 +564,23 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById("spinner-inside-modal").style.display = "block";
       AuthService.sign_in(password, email).then(function(resp) {
         UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+        DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
         //$scope.set_user_picture(1);
         document.getElementById("spinner-inside-modal").style.display = "none";
         $scope.close_login_modal();
-        $scope.check_user_logged();
+        //$scope.check_user_logged();
+        $scope.set_user_picture(1);
+      }, function(err) {
+        //console.log(err);
+        alert("Error en sign_in");
+      });
+    }
+
+    $scope.sign_in_ajax = function(email, password){
+      AuthService.sign_in(password, email).then(function(resp) {
+        UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+        DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+        $scope.set_user_picture(1);
       }, function(err) {
         //console.log(err);
         alert("Error en sign_in");
@@ -566,6 +589,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.sign_out = function(){
       UserService.erase_user_data();
+      DBService.eraseUser();
       document.getElementById("spinner").style.display = "none";
       $scope.set_user_picture(0);
       document.getElementById("user-options-menu").style.display="none";
@@ -609,6 +633,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
       if(user_picture_url==null || user_picture_url==""){
         edit_request.success(function(data, status, headers,config){
+          document.getElementById("sent_label").innerHTML = "Enviado: 100%";
           UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
           UserService.add_photo(ConfigService.baseURL + UserService.picture_url); //PARCHE HASTA QUE EL EDIT DEVUELVA LA IMG EN PATH ABSOLUTO
           //$scope.set_user_picture(1);
@@ -622,11 +647,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           alert("Error en edit_profile");
         })
       }else{
-        edit_request.then(function(resp) {
-          var data = JSON.stringify(resp);
-          alert(data);
-          UserService.save_user_data(data.response.name, data.response.email, password, data.response.identity_document, data.response.phone, data.response.picture_url);
-          alert(data.response.name);
+        edit_request.then(function(result) {
+          var data = JSON.parse(result.response);
+          UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
           UserService.add_photo(ConfigService.baseURL + UserService.picture_url); //PARCHE HASTA QUE EL EDIT DEVUELVA LA IMG EN PATH ABSOLUTO
           //$scope.set_user_picture(1);
           document.getElementById("spinner-inside-modal").style.display = "none";
@@ -720,8 +743,19 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.check_user_logged = function(){
       var name = UserService.name;
       if(name==null){
-        //No esta logueado
-        $scope.set_user_picture(0);
+          //Si Hay un usuario guardado
+          var user = DBService.getUser();
+          user.then(function (doc) {
+            console.log(doc);
+            if(doc.name!=null && doc.name!="" && doc.name!="undefined"){
+              $scope.sign_in_ajax(doc.email, doc.password);
+            }else{
+              $scope.set_user_picture(0);
+            }
+          }).catch(function (err) {
+            console.log(err);
+            $scope.set_user_picture(0);
+          });
       }else{
         //Está logueado
         if(UserService.picture_url==null || UserService.picture_url==""){
