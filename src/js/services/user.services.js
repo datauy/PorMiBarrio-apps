@@ -38,6 +38,14 @@ pmb_im.services.factory('UserService', ['$http', function($http) {
     UserObj.picture_url = user_picture_url;
   }
 
+  UserObj.isLogged = function () {
+    if(UserObj.name!=null && UserObj.name!=""){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
 
   return UserObj;
 

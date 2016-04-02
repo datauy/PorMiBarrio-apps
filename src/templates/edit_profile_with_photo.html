@@ -2,10 +2,16 @@
     <ion-scroll direction="y" class="new-report-scroll">
         <div class="new-report-slide">
           <div class="new-report-content">
+            <div id="actual_photo_container" ng-if="actual_photo!=null">
+              <img id="actual_photo" src="{{actual_photo}}" />
+            </div>
             <div class="category-header">
               <h3>Editar perfil</h3>
               <p>Aquí puedes editar tus datos.</p>
             </div>
+            <div class="field-separator"></div>
+            <div class="field-separator"></div>
+            <div class="field-separator"></div>
             <div class="list">
               <div class="text-input-header">
                 <h3>Correo electrónico *</h3>
@@ -36,7 +42,7 @@
               </div>
               <div class="field-separator"></div>
               <div class="foto-header">
-                <h3>Agrega una foto a tu perfil</h3>
+                <h3>Si deseas, puedes reemplazar tu foto</h3>
               </div>
               <div class="foto-input-container">
                 <div class="foto-picker">

@@ -39,9 +39,10 @@
                 <h3>Contraseña *</h3>
               </div>
               <div class="text-input-container">
-                <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Proporcione una contraseña" ng-model="newuser.password"></textarea>
+                <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Proporcione una contraseña" ng-model="newuser.password" type="password"></textarea>
               </div>
               <div class="field-separator"></div>
+              <div id="error_container"></div>
               <div class="padding">
                 <button class="form-button" ng-click="sign_up_ok()">Registrarse</button>
                 <div class="field-separator"></div>

@@ -18,6 +18,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   'UserService',
   'DBService',
   '$timeout',
+  '$location',
+  'ErrorService',
+  '$ionicSlideBoxDelegate',
+  '$anchorScroll',
+  '$ionicScrollDelegate',
   function(
     $scope,
     $sce,
@@ -40,7 +45,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     AuthService,
     UserService,
     DBService,
-    $timeout
+    $timeout,
+    $location,
+    ErrorService,
+    $ionicSlideBoxDelegate,
+    $anchorScroll,
+    $ionicScrollDelegate
   ) {
 
     /**
@@ -57,7 +67,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.$on("$ionicView.afterEnter", function() {
       //document.getElementById("spinner").style.display = "none";
-
+      document.getElementById("foot_bar").style.display = "block";
       $scope.addReportsLayer();
       $scope.addMapControls();
 
@@ -89,14 +99,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       this.name = "";
     };
 
-
-    $ionicModal.fromTemplateUrl('templates/pmb-wizard.html', {
-      scope: $scope,
-      animation: 'slide-in-up'
-    }).then(function(modal) {
-        $scope.new_report_modal = modal;
-      });
-
     $scope.new_report_from_latlon = function(lat,lng) {
       LocationsService.new_report_lat = lat;
       LocationsService.new_report_lng = lng;
@@ -111,16 +113,41 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.report = ReportService._new();
         $scope.report.lat = LocationsService.new_report_lat;
         $scope.report.lon = LocationsService.new_report_lng;
-        CategoriesService.all().success(function (response) {
-          $scope.categories = response;
-          document.getElementById("spinner").style.display = "none";
-          document.getElementById("foot_bar").style.display = "none";
-          $scope.new_report_modal.show();
+        CategoriesService.all().then(function (response) {
+          if(ErrorService.http_response_is_successful_popup(response)){
+            $scope.categories = response.data.categories;
+            document.getElementById("spinner").style.display = "none";
+            document.getElementById("foot_bar").style.display = "none";
+            if(UserService.isLogged()){
+              $scope.report.name = UserService.name;
+              $scope.report.email = UserService.email;
+              $scope.report.password_sign_in = UserService.password;
+              $scope.report.phone = UserService.phone;
+              $ionicModal.fromTemplateUrl('templates/pmb-wizard.html', {
+                scope: $scope,
+                animation: 'slide-in-up'
+              }).then(function(modal) {
+                  $scope.new_report_modal = modal;
+                  $scope.new_report_modal.show();
+                });
+            }else{
+              $ionicModal.fromTemplateUrl('templates/pmb-wizard-with-login.html', {
+                scope: $scope,
+                animation: 'slide-in-up'
+              }).then(function(modal) {
+                  $scope.new_report_modal = modal;
+                  $scope.new_report_modal.show();
+                });
+
+            }
+          }else{
+            document.getElementById("spinner").style.display = "none";
+          }
         })
       }else{
         var alertPopup = $ionicPopup.alert({
          title: 'Nuevo reporte',
-         template: 'Para realizar un nuevo reporte, presione sobre la ubicación deseada.'
+         template: 'Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.'
         });
 
         alertPopup.then(function(res) {
@@ -146,25 +173,27 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     document.getElementById("spinner-inside-modal").style.display = "block";
     if($scope.report.file==null){
       report_sent.success(function(data, status, headers,config){
-        //var jsonResult = JSON.stringify(result);
-        //console.log(jsonResult);
-        //console.log('data success');
-        //console.log(data); // object seems fine
-        $scope.back_to_map(true);
+        if(ErrorService.http_data_response_is_successful(data,"error_container")){
+          $scope.back_to_map(true);
+        }else{
+          $scope.back_to_map(false);
+        }
       })
-      .error(function(data, status, headers,config){
-        //console.log('data error');
-        //console.log(data);
-        $scope.back_to_map(true);
+      .error(function(data, status, headers, config){
+        ErrorService.show_error_message("error_container",status);
+        $scope.back_to_map(false);
       })
     }else{
-      report_sent.then(function(result) {
-        // Success!
-        //console.log("Envío exitoso",result);
-        $scope.back_to_map(true);
-      }, function(err) {
-        //console.log("Error al subir el archivo",err);
-        $scope.back_to_map(true);
+      report_sent.then(function(resp) {
+        var data = JSON.parse(resp.response);
+        if(ErrorService.http_data_response_is_successful(data,"error_container")){
+          $scope.back_to_map(true);
+        }else{
+          $scope.back_to_map(false);
+        }
+      }, function(resp) {
+        ErrorService.show_error_message("error_container",resp.responseCode);
+        $scope.back_to_map(false);
       }, function(progress) {
         $timeout(function() {
           $scope.uploadProgress = (progress.loaded / progress.total) * 100;
@@ -174,21 +203,51 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
   };
 
+  $scope.next = function() {
+    $ionicSlideBoxDelegate.next();
+  };
+
+  $scope.previous = function() {
+    $ionicSlideBoxDelegate.previous();
+  };
+
+  $scope.confirmReportWithLogin = function() {
+    document.getElementById("spinner-inside-modal").style.display = "block";
+    AuthService.sign_in($scope.report.password_sign_in, $scope.report.email).then(function(resp) {
+      if(ErrorService.http_response_is_successful(resp,"error_container")){
+        UserService.save_user_data(resp.data.name, $scope.report.email, $scope.report.password_sign_in, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+        DBService.saveUser(resp.data.name,$scope.report.email,$scope.report.password_sign_in,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+        $scope.set_user_picture(1);
+        $scope.confirmReport();
+      }else{
+        $scope.back_to_map(false);
+      }
+
+    }, function(resp) {
+      //console.log(err);
+      ErrorService.show_error_message_ajax("error_container",resp.statusText);
+      $scope.back_to_map(false);
+    });
+
+  };
+
   $scope.back_to_map = function(back_to_map){
     if(back_to_map){
       //LocationsService.initial_lat = $scope.report.lat;
       //LocationsService.initial_lng = $scope.report.lon;
       $scope.new_report_modal.hide();
+      $scope.new_report_modal.remove();
       document.getElementById("foot_bar").style.display = "block";
       document.getElementById("spinner-inside-modal").style.display = "none";
       $scope.addReportsLayer();
     }else{
-      alert("Hubo un error al enviar el reporte.")
+      document.getElementById("spinner-inside-modal").style.display = "none";
     }
   }
 
   $scope.cancelReport = function(){
     $scope.new_report_modal.hide();
+    $scope.new_report_modal.remove();
     document.getElementById("foot_bar").style.display = "block";
   }
 
@@ -208,14 +267,16 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     var options = {
-      quality: 50,
+      quality: 90,
       destinationType: Camera.DestinationType.FILE_URI,
       sourceType: source,
-      allowEdit: false,
+      allowEdit: true,
       correctOrientation : fix_orientation,
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
-      saveToPhotoAlbum: save_to_gallery
+      saveToPhotoAlbum: save_to_gallery,
+      targetWidth: 200,
+      targetHeight: 200
     };
 
 
@@ -316,10 +377,19 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.set_active_option('button-help');
       document.getElementById("report-list-scroll").style.display = "none";
       FaqService.all().success(function (response) {
-        $scope.faq = response;
+        $scope.faq = $sce.trustAsHtml(response);
         document.getElementById("spinner").style.display = "none";
-        $scope.faq_modal.show()
+        $scope.faq_modal.show().then(function(){
+          var element = angular.element( document.querySelector( '#faq-container-div' ) );
+          var compiled = $compile(element.contents())($scope);
+        })
       })
+    }
+
+    $scope.scrollMe = function(anchor_id){
+      $location.hash(anchor_id);
+      var handle  = $ionicScrollDelegate.$getByHandle('content');
+      handle.anchorScroll();
     }
 
     $scope.close_faq_modal = function(){
@@ -544,8 +614,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.show_anonymous_menu = function(){
       var menu = document.getElementById("user-options-menu");
-      var html = "<a ng-click='show_login_modal()'>Iniciar sesión</a>";
-      html = html + "<br/><a ng-click='show_sign_up_modal()'>Registrarse</a>";
+      var html = "<div id='auth_options'><a ng-click='show_login_modal()'>Iniciar sesión</a>";
+      html = html + "<br/><br/><a ng-click='show_sign_up_modal()'>Registrarse</a></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
       menu.style.display = "block";
@@ -553,8 +623,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.show_user_menu = function(){
       var menu = document.getElementById("user-options-menu");
-      var html = UserService.name + "<br/><a ng-click='show_edit_profile_modal()'>Mi perfil</a>";
-      html = html + "<br/><a ng-click='sign_out()'>Cerrar sesión</a>";
+      var html = UserService.name + "<div id='auth_options'><a ng-click='show_edit_profile_modal()'>Mi perfil</a>";
+      html = html + "<br/><br/><a ng-click='sign_out()'>Cerrar sesión</a></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
       menu.style.display = "block";
@@ -563,27 +633,40 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.sign_in = function(email, password){
       document.getElementById("spinner-inside-modal").style.display = "block";
       AuthService.sign_in(password, email).then(function(resp) {
-        UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
-        DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
-        //$scope.set_user_picture(1);
-        document.getElementById("spinner-inside-modal").style.display = "none";
-        $scope.close_login_modal();
-        //$scope.check_user_logged();
-        $scope.set_user_picture(1);
-      }, function(err) {
+        if(ErrorService.http_response_is_successful(resp,"error_container")){
+          UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+          DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+          //$scope.set_user_picture(1);
+          document.getElementById("spinner-inside-modal").style.display = "none";
+          $scope.close_login_modal();
+          //$scope.check_user_logged();
+          $scope.set_user_picture(1);
+        }else{
+          document.getElementById("spinner-inside-modal").style.display = "none";
+        }
+      }, function(resp) {
         //console.log(err);
-        alert("Error en sign_in");
+        //alert("Error en sign_in");
+        document.getElementById("spinner-inside-modal").style.display = "none";
+        ErrorService.show_error_message("error_container",resp.statusText);
       });
     }
 
     $scope.sign_in_ajax = function(email, password){
       AuthService.sign_in(password, email).then(function(resp) {
-        UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
-        DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
-        $scope.set_user_picture(1);
-      }, function(err) {
+        if(ErrorService.http_response_is_successful_ajax(resp)){
+          UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+          DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+          $scope.set_user_picture(1);
+          return 1;
+        }else{
+          return 0;
+        }
+
+      }, function(resp) {
         //console.log(err);
-        alert("Error en sign_in");
+        ErrorService.show_error_message_ajax("error_container",resp.statusText);
+        return 0;
       });
     }
 
@@ -605,16 +688,29 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.profile.id_doc = UserService.identity_document;
       $scope.profile.telephone = UserService.phone;
       $scope.profile.picture_url = null;
-      $ionicModal.fromTemplateUrl('templates/edit_profile.html', {
-          scope: $scope,
-          animation: 'slide-in-up'
-        }).then(function(modal) {
-            document.getElementById("user-options-menu").style.display="none";
-            $scope.edit_profile_modal = modal;
-            document.getElementById("foot_bar").style.display = "none";
-
-            $scope.edit_profile_modal.show();
-        });
+      if(UserService.picture_url!=null){
+        $scope.actual_photo = UserService.picture_url;
+        $ionicModal.fromTemplateUrl('templates/edit_profile_with_photo.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+          }).then(function(modal) {
+              document.getElementById("user-options-menu").style.display="none";
+              $scope.edit_profile_modal = modal;
+              document.getElementById("foot_bar").style.display = "none";
+              $scope.edit_profile_modal.show();
+          });
+      }else{
+        $scope.actual_photo = null;
+        $ionicModal.fromTemplateUrl('templates/edit_profile.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+          }).then(function(modal) {
+              document.getElementById("user-options-menu").style.display="none";
+              $scope.edit_profile_modal = modal;
+              document.getElementById("foot_bar").style.display = "none";
+              $scope.edit_profile_modal.show();
+          });
+      }
     }
 
     $scope.close_edit_profile_modal = function(){
@@ -634,30 +730,34 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       if(user_picture_url==null || user_picture_url==""){
         edit_request.success(function(data, status, headers,config){
           document.getElementById("sent_label").innerHTML = "Enviado: 100%";
-          UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
-          UserService.add_photo(ConfigService.baseURL + UserService.picture_url); //PARCHE HASTA QUE EL EDIT DEVUELVA LA IMG EN PATH ABSOLUTO
-          //$scope.set_user_picture(1);
-          document.getElementById("spinner-inside-modal").style.display = "none";
-          $scope.close_edit_profile_modal();
-          $scope.check_user_logged();
+          console.log(data);
+          if(ErrorService.http_data_response_is_successful(data,"error_container")){
+            UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+            document.getElementById("spinner-inside-modal").style.display = "none";
+            $scope.close_edit_profile_modal();
+            $scope.check_user_logged();
+          }else{
+            document.getElementById("spinner-inside-modal").style.display = "none";
+          }
         })
         .error(function(data, status, headers,config){
-          //console.log('data error');
-          //console.log(data);
-          alert("Error en edit_profile");
+          ErrorService.show_error_message_ajax("error_container",status);
+          document.getElementById("spinner-inside-modal").style.display = "none";
         })
       }else{
         edit_request.then(function(result) {
           var data = JSON.parse(result.response);
-          UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
-          UserService.add_photo(ConfigService.baseURL + UserService.picture_url); //PARCHE HASTA QUE EL EDIT DEVUELVA LA IMG EN PATH ABSOLUTO
-          //$scope.set_user_picture(1);
+          if(ErrorService.http_data_response_is_successful(data,"error_container")){
+            UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+            document.getElementById("spinner-inside-modal").style.display = "none";
+            $scope.close_edit_profile_modal();
+            $scope.check_user_logged();
+          }else{
+            document.getElementById("spinner-inside-modal").style.display = "none";
+          }
+        }, function(result) {
+          ErrorService.show_error_message_ajax("error_container",result.responseCode);
           document.getElementById("spinner-inside-modal").style.display = "none";
-          $scope.close_edit_profile_modal();
-          $scope.check_user_logged();
-        }, function(err) {
-          //console.log(err);
-          alert("Error en edit_profile");
         }, function(progress) {
             $timeout(function() {
               $scope.uploadProgress = (progress.loaded / progress.total) * 100;
@@ -724,15 +824,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.sign_up = function(email,fullname,password, id_doc, user_phone){
       document.getElementById("spinner-inside-modal").style.display = "block";
       AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
-        alert(resp.data.message);
-        UserService.save_user_data(fullname, email, password, id_doc, user_phone,null);
-        $scope.set_user_picture(1);
+        if(ErrorService.http_response_is_successful(resp,"error_container")){
+          UserService.save_user_data(fullname, email, password, id_doc, user_phone,null);
+          $scope.set_user_picture(1);
+          document.getElementById("spinner-inside-modal").style.display = "none";
+          $scope.close_sign_up_modal();
+          $scope.check_user_logged();
+        }else{
+          document.getElementById("spinner-inside-modal").style.display = "none";
+        }
+      }, function(resp) {
         document.getElementById("spinner-inside-modal").style.display = "none";
-        $scope.close_sign_up_modal();
-        $scope.check_user_logged();
-      }, function(err) {
-        //console.log(err);
-        alert("Error en sign_up");
+        ErrorService.show_error_message("error_container",resp.statusText);
       });
     }
 
@@ -746,14 +849,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           //Si Hay un usuario guardado
           var user = DBService.getUser();
           user.then(function (doc) {
-            console.log(doc);
             if(doc.name!=null && doc.name!="" && doc.name!="undefined"){
               $scope.sign_in_ajax(doc.email, doc.password);
             }else{
               $scope.set_user_picture(0);
             }
           }).catch(function (err) {
-            console.log(err);
             $scope.set_user_picture(0);
           });
       }else{

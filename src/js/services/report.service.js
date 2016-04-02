@@ -26,13 +26,13 @@ pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService'
       detail: null,
       may_show_name: 1,
       category: null,
-      phone: '',
+      phone: null,
       pc: '',
       file: null,
-      name:'Pablo Pignolo',
-    email:'pablo.pignolo@gmail.com',
-    submit_sign_in:1,
-    password_sign_in:'itacare7',
+      name: null,
+    email: null,
+    submit_sign_in: 1,
+    password_sign_in: null,
     remember_me:1
     };
     return new Report(_data);

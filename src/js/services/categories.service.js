@@ -5,12 +5,6 @@ pmb_im.services.factory('CategoriesService', ['$http','LocationsService', 'Confi
   return {
     all: function () {
       return $http.get(baseURL, { params: { lat: LocationsService.new_report_lat, lon: LocationsService.new_report_lng, format: "json" } })
-    },
-    get: function () {
-      return $http.get(baseURL, { params: { lat: LocationsService.new_report_lat, lon: LocationsService.new_report_lng, format: "json" } })
-    },
-    add: function (id) {
-      return $http.get(baseURL, { params: { lat: LocationsService.new_report_lat, lon: LocationsService.new_report_lng, format: "json" } })
     }
   };
 }]);
