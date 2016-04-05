@@ -597,11 +597,22 @@ body {
   margin-top: 10px;
 }
 
-#user-options-menu a{
+.nonauth-link{
   color: #FFFFFF;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.user-logged-link{
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 #actual_photo{

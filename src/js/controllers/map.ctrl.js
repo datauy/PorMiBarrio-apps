@@ -23,6 +23,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$ionicSlideBoxDelegate',
   '$anchorScroll',
   '$ionicScrollDelegate',
+  '$cordovaNetwork',
   function(
     $scope,
     $sce,
@@ -50,7 +51,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     ErrorService,
     $ionicSlideBoxDelegate,
     $anchorScroll,
-    $ionicScrollDelegate
+    $ionicScrollDelegate,
+    $cordovaNetwork
   ) {
 
     /**
@@ -61,7 +63,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.$on("$ionicView.loaded", function() {
       DBService.initDB();
-      $scope.check_user_logged();
+      if($cordovaNetwork.isOnline()){
+        $scope.check_user_logged();
+      }
     });
 
 
@@ -107,6 +111,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.new_report = function(alreadyLocated) {
       $scope.set_active_option('button-report');
+      document.getElementById("user-options-menu").style.display="none";
       document.getElementById("report-list-scroll").style.display = "none";
       if(alreadyLocated==1){
         document.getElementById("spinner").style.display = "block";
@@ -225,7 +230,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     }, function(resp) {
       //console.log(err);
-      ErrorService.show_error_message_ajax("error_container",resp.statusText);
+      ErrorService.show_error_message("error_container",resp.statusText);
       $scope.back_to_map(false);
     });
 
@@ -362,6 +367,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.list_reports = function() {
       $scope.set_active_option('button-list-reports');
+      document.getElementById("user-options-menu").style.display="none";
       document.getElementById("report-list-scroll").style.display = "block";
     }
 
@@ -375,6 +381,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.help = function() {
       document.getElementById("spinner").style.display = "block";
       $scope.set_active_option('button-help');
+      document.getElementById("user-options-menu").style.display="none";
       document.getElementById("report-list-scroll").style.display = "none";
       FaqService.all().success(function (response) {
         $scope.faq = $sce.trustAsHtml(response);
@@ -414,6 +421,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.viewReportDetails = function(id){
       document.getElementById("spinner").style.display = "block";
       document.getElementById("report-list-scroll").style.display = "none";
+      document.getElementById("user-options-menu").style.display="none";
       ReportService.getById(id).then(function(resp) {
         $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;",""));
         document.getElementById("spinner").style.display = "none";
@@ -614,8 +622,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.show_anonymous_menu = function(){
       var menu = document.getElementById("user-options-menu");
-      var html = "<div id='auth_options'><a ng-click='show_login_modal()'>Iniciar sesión</a>";
-      html = html + "<br/><br/><a ng-click='show_sign_up_modal()'>Registrarse</a></div>";
+      var html = "<div id='auth_options'><div class='nonauth-link' ng-click='show_login_modal()'>Iniciar sesión</div>";
+      html = html + "<div class='nonauth-link' ng-click='show_sign_up_modal()'>Registrarse</div></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
       menu.style.display = "block";
@@ -623,8 +631,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.show_user_menu = function(){
       var menu = document.getElementById("user-options-menu");
-      var html = UserService.name + "<div id='auth_options'><a ng-click='show_edit_profile_modal()'>Mi perfil</a>";
-      html = html + "<br/><br/><a ng-click='sign_out()'>Cerrar sesión</a></div>";
+      var html = UserService.name + "<div id='auth_options'><div class='user-logged-link' ng-click='show_edit_profile_modal()'>Mi perfil</div>";
+      html = html + "<div class='user-logged-link' ng-click='sign_out()'>Cerrar sesión</div></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
       menu.style.display = "block";
@@ -665,7 +673,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
       }, function(resp) {
         //console.log(err);
-        ErrorService.show_error_message_ajax("error_container",resp.statusText);
+        //ErrorService.show_error_message_popup(resp.statusText);
         return 0;
       });
     }
@@ -741,7 +749,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           }
         })
         .error(function(data, status, headers,config){
-          ErrorService.show_error_message_ajax("error_container",status);
+          ErrorService.show_error_message("error_container",status);
           document.getElementById("spinner-inside-modal").style.display = "none";
         })
       }else{
@@ -756,7 +764,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             document.getElementById("spinner-inside-modal").style.display = "none";
           }
         }, function(result) {
-          ErrorService.show_error_message_ajax("error_container",result.responseCode);
+          ErrorService.show_error_message("error_container",result.responseCode);
           document.getElementById("spinner-inside-modal").style.display = "none";
         }, function(progress) {
             $timeout(function() {
@@ -826,10 +834,17 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
         if(ErrorService.http_response_is_successful(resp,"error_container")){
           UserService.save_user_data(fullname, email, password, id_doc, user_phone,null);
-          $scope.set_user_picture(1);
+          //$scope.set_user_picture(1);
           document.getElementById("spinner-inside-modal").style.display = "none";
           $scope.close_sign_up_modal();
-          $scope.check_user_logged();
+          var alertPopup = $ionicPopup.alert({
+           title: "Usuario creado con éxito",
+           template: resp.data.message
+          });
+          alertPopup.then(function(res) {
+            //return false;
+          });
+          //$scope.check_user_logged();
         }else{
           document.getElementById("spinner-inside-modal").style.display = "none";
         }
@@ -874,13 +889,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       if(hasPhoto==0){
         picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
       }else{
-        picture.style.backgroundImage = "url(" + UserService.picture_url + ")";
+        if(UserService.picture_url!=null && UserService.picture_url!=""){
+          picture.style.backgroundImage = "url(" + UserService.picture_url + ")";
+        }else{
+          picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
+        }
       }
 
     }
 
     $scope.find_me = function(){
         $scope.set_active_option("button-find-me");
+        document.getElementById("user-options-menu").style.display="none";
         document.getElementById("report-list-scroll").style.display = "none";
         var posOptions = {timeout: 10000, enableHighAccuracy: true};
         $cordovaGeolocation
@@ -921,7 +941,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
        * Detect user long-pressing on map to add new location
        */
       $scope.$on('leafletDirectiveMap.contextmenu', function(event, locationEvent){
-        LocationsService.save_new_report_position(locationEvent.leafletEvent.latlng.lat,locationEvent.leafletEvent.latlng.lng)
+        document.getElementById("user-options-menu").style.display="none";
+        LocationsService.save_new_report_position(locationEvent.leafletEvent.latlng.lat,locationEvent.leafletEvent.latlng.lng);
         $scope.new_report(1);
       });
 

@@ -53,6 +53,17 @@ pmb_im.services.factory('ErrorService', ['$http','$ionicPopup', function($http,$
         errorDiv.innerHTML="<h3>" + message + "</h3>";
         errorDiv.style.display = "block";
         return false;
+    },
+
+    show_error_message_popup: function (message) {
+        var alertPopup = $ionicPopup.alert({
+         title: "Error",
+         template: message
+        });
+        alertPopup.then(function(res) {
+          return false;
+        });
+        return false;
     }
 
   };
