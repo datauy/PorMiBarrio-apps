@@ -282,8 +282,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           }else{
             $scope.back_to_map(false);
           }
-        }, function(resp) {
-          ErrorService.show_error_message("error_container",resp.responseCode);
+        }, function(error) {
+          ErrorService.show_error_message("error_container","Hubo un error en el envío: Código = " + error.code);
           $scope.back_to_map(false);
         }, function(progress) {
           $timeout(function() {
@@ -874,8 +874,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             }else{
               document.getElementById("spinner-inside-modal").style.display = "none";
             }
-          }, function(result) {
-            ErrorService.show_error_message("error_container",result.responseCode);
+          }, function(error) {
+            ErrorService.show_error_message("error_container","Hubo un error en el envío: Código = " + error.code);
             document.getElementById("spinner-inside-modal").style.display = "none";
           }, function(progress) {
               $timeout(function() {
