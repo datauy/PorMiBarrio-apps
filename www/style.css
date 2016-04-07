@@ -421,7 +421,13 @@ body {
   height: 88%;
   width: 100%;
   position: absolute;
-  top: 12%;
+  top: 0%;
+}
+
+.report-detail-back{
+  position: absolute;
+  top: 88%;
+  right: 6%;
 }
 
 .faq-scroll{
@@ -437,14 +443,14 @@ body {
 }
 
 #faq_content{
-  margin-top: 70px;
-  height: 70%;
+  margin-top: 20px;
+  height: 80%;
 }
 
 #faq_back_to_top{
   position: absolute;
   bottom: 5%;
-  width: 100%;
+  right: 6%;
 }
 
 .category-header h3{
@@ -568,6 +574,20 @@ body {
   -webkit-border-radius: 7px 7px 7px 7px;
   border-radius: 7px 7px 7px 7px;
   color: #FFFFFF;
+  background-color: transparent;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.custom-html-modal-button{
+  border-color: #1a2837;
+  border-width: 2px;
+  border-style: solid;
+  height: 35px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  color: #1a2837;
   background-color: transparent;
   text-transform: uppercase;
   font-weight: bold;

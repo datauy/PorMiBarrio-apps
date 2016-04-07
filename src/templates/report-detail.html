@@ -1,9 +1,9 @@
 <ion-modal-view>
-    <div class="padding">
-      <button class="button button-block button-calm" ng-click="close_report_detail_modal()">Volver al mapa</button>
-    </div>
   <ion-scroll direction="y" class="report-detail-scroll">
     <div ng-bind-html="report_detail" class="report-detail-container">
     </div>
   </ion-scroll>
+  <div class="padding report-detail-back">
+    <button class="custom-html-modal-button" ng-click="close_report_detail_modal()">Volver al mapa</button>
+  </div>
 </ion-modal-view>

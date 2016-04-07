@@ -30,10 +30,10 @@ pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService'
       pc: '',
       file: null,
       name: null,
-    email: null,
-    submit_sign_in: 1,
-    password_sign_in: null,
-    remember_me:1
+      email: null,
+      submit_sign_in: 1,
+      password_sign_in: null,
+      remember_me:1
     };
     return new Report(_data);
   };

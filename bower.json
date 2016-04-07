@@ -1,5 +1,5 @@
 {
-  "name": "pormibarrio-im",
+  "name": "pmb-mobile",
   "devDependencies": {
     "ionic": "driftyco/ionic-bower#1.1.0"
   },
@@ -12,9 +12,11 @@
     "Proj4Leaflet": "proj4leaflet#~0.7.2"
   },
   "version": "0.1.0",
-  "homepage": "https://github.com/dti-montevideo/pormibarrio-im-mobile",
+  "homepage": "https://github.com/datauy/PorMiBarrioAPPs/",
   "authors": [
-    "yonsonsal <ignacio.talavera@gmail.com>"
+    "DATAUY.ORG <contacto@datauy.org>",
+    "Fernando Uval <fernando@datauy.org>",
+    "Pablo Pignolo <pablo.pignolo@gmail.com>"
   ],
   "license": "MIT",
   "ignore": [
@@ -25,7 +27,7 @@
     "test",
     "tests"
   ],
-  "description": "Por mi barrio app.",
+  "description": "Mobile APP for PorMiBarrio website",
   "main": "app.js",
   "moduleType": [
     "globals"

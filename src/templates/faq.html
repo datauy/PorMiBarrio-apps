@@ -1,13 +1,11 @@
 <ion-modal-view>
-    <div class="padding">
-      <button class="button button-block button-calm" ng-click="close_faq_modal()">Volver al mapa</button>
-    </div>
   <ion-content id="faq_content" delegate-handle="content">
     <a id="top"></a>
     <div ng-bind-html="faq" class="faq-container" id="faq-container-div" >
     </div>
   </ion-content>
   <div class="padding" id="faq_back_to_top">
-    <button class="button button-block button-calm" ng-click="scrollMe('top')">Volver al inicio</button>
+    <button class="custom-html-modal-button" ng-click="scrollMe('top')">Lista de preguntas</button>
+    <button class="custom-html-modal-button" ng-click="close_faq_modal()">Volver al mapa</button>
   </div>
 </ion-modal-view>

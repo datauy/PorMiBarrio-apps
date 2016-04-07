@@ -1,20 +1,20 @@
 pmb_im.services.factory('DBService', ['$q', function($q) {
    var _db;
 
-   // We'll need this later.
-   var user_credentials_saved = false;
-
    return {
        initDB: initDB,
        saveUser: saveUser,
        getUser: getUser,
        eraseUser: eraseUser,
-       credentials_saved: credentials_saved
+       saveReport: saveReport,
+       getAllReports: getAllReports,
+       deleteReport: deleteReport,
+       getCategories: getCategories,
+       saveCategories: saveCategories
    };
 
    function saveUser(user_name, user_email, user_password, user_id_doc, user_phone, user_picture_url) {
-         user_credentials_saved = true;
-         return _db.put({
+         var user = {
             _id: 'user-logged',
             name: user_name,
             email: user_email,
@@ -22,38 +22,21 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
             identity_document: user_id_doc,
             phone: user_phone,
             picture_url: user_picture_url
-          }).then(function (response) {
-            // handle response
-          }).catch(function (err) {
-            eraseUser();
-            _db.put({
-               _id: 'user-logged',
-               name: user_name,
-               email: user_email,
-               password: user_password,
-               identity_document: user_id_doc,
-               phone: user_phone,
-               picture_url: user_picture_url
-             })
-          });
+         };
+         getUser().then(function (doc) {
+           user._rev = doc._rev;
+           return _db.put(user);
+         }).catch(function (err) {
+           return _db.put(user);
+         })
    };
-
-  function credentials_saved() {
-    return user_credentials_saved;
-  }
 
   function getUser() {
      return _db.get('user-logged');
-     /*.then(function (doc) {
-       // handle doc
-     }).catch(function (err) {
-       console.log(err);
-     });*/
   };
 
   function eraseUser() {
     _db.get('user-logged').then(function(doc) {
-      user_credentials_saved = false;
       return _db.remove(doc);
     });
   }
@@ -63,4 +46,46 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
        _db = new PouchDB('pmb_local_db');
        return _db;
    };
+
+   function saveReport(report) {
+      var pouchCollate = require('pouchdb-collate');
+      new_report_id = pouchCollate.toIndexableString(['report', report]);
+      report._id = new_report_id;
+      alert(report._id);
+      return _db.put(report);
+   };
+
+   function getCategories() {
+     return _db.get('categories-list');
+   };
+
+   function saveCategories(categories) {
+     getCategories().then(function (doc) {
+       categories._rev = doc._rev;
+       return _db.put(categories);
+     }).catch(function (err) {
+       categories._id = "categories-list";
+       return _db.put(categories);
+     })
+   };
+
+   function getAllReports() {
+     return db.allDocs({
+      include_docs: true,
+      attachments: false,
+      startkey: 'report',
+      endkey: 'report\uffff'
+     });/*.then(function (result) {
+      // handle result
+    }).catch(function (err) {
+      console.log(err);
+    });*/
+  };
+
+  function deleteReport(report_id) {
+    _db.get(report_id).then(function(doc) {
+      return _db.remove(doc);
+    });
+  };
+
 }]);

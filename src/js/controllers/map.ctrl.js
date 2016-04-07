@@ -24,6 +24,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$anchorScroll',
   '$ionicScrollDelegate',
   '$cordovaNetwork',
+  'PopUpService',
+  '$ionicPlatform',
+  'ConnectivityService',
   function(
     $scope,
     $sce,
@@ -52,7 +55,10 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $ionicSlideBoxDelegate,
     $anchorScroll,
     $ionicScrollDelegate,
-    $cordovaNetwork
+    $cordovaNetwork,
+    PopUpService,
+    $ionicPlatform,
+    ConnectivityService
   ) {
 
     /**
@@ -63,10 +69,74 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.$on("$ionicView.loaded", function() {
       DBService.initDB();
-      if($cordovaNetwork.isOnline()){
+      if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
       }
+      if(ionic.Platform.isWebView()){
+        $scope.$on('$cordovaNetwork:online', function(event, networkState){
+          $scope.send_offline_reports();
+        });
+        /*$scope.$on('$cordovaNetwork:offline', function(event, networkState){
+          console.log("went offline");
+        });*/
+      }
+      else {
+        window.addEventListener("online", function(e) {
+          $scope.send_offline_reports();
+        }, false);
+        /*window.addEventListener("offline", function(e) {
+          console.log("went offline");
+        }, false);*/
+      }
     });
+
+    $scope.send_offline_reports = function() {
+      var reports = DBService.getAllReports();
+      reports.then(function (result) {
+        // handle result
+        if(result!=null && result.total_rows>0){
+          result.rows.forEach(function(row) {
+              var report = row.doc;
+              var status = send_offline_report(report);
+              status.then(function(){
+                if(status==true){
+                  DBService.deleteReport(report._id);
+                }
+              })
+          });
+        }
+      }).catch(function (err) {
+        //console.log(err);
+      });
+    }
+
+    $scope.send_offline_report = function(report) {
+      var report_sent = PMBService.report(report);
+      if(report.file==null){
+        report_sent.success(function(data, status, headers,config){
+          if(ErrorService.http_data_response_is_successful_ajax(data)){
+            return true;
+          }else{
+            return false;
+          }
+        })
+        .error(function(data, status, headers, config){
+          return false;
+        })
+      }else{
+        report_sent.then(function(resp) {
+          var data = JSON.parse(resp.response);
+          if(ErrorService.http_data_response_is_successful_ajax(data)){
+            return true;
+          }else{
+            return false;
+          }
+        }, function(resp) {
+            return false;
+        }, function(progress) {
+        });
+      }
+  };
 
 
     $scope.$on("$ionicView.afterEnter", function() {
@@ -114,52 +184,67 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById("user-options-menu").style.display="none";
       document.getElementById("report-list-scroll").style.display = "none";
       if(alreadyLocated==1){
-        document.getElementById("spinner").style.display = "block";
-        $scope.report = ReportService._new();
-        $scope.report.lat = LocationsService.new_report_lat;
-        $scope.report.lon = LocationsService.new_report_lng;
-        CategoriesService.all().then(function (response) {
-          if(ErrorService.http_response_is_successful_popup(response)){
-            $scope.categories = response.data.categories;
-            document.getElementById("spinner").style.display = "none";
-            document.getElementById("foot_bar").style.display = "none";
-            if(UserService.isLogged()){
-              $scope.report.name = UserService.name;
-              $scope.report.email = UserService.email;
-              $scope.report.password_sign_in = UserService.password;
-              $scope.report.phone = UserService.phone;
-              $ionicModal.fromTemplateUrl('templates/pmb-wizard.html', {
-                scope: $scope,
-                animation: 'slide-in-up'
-              }).then(function(modal) {
-                  $scope.new_report_modal = modal;
-                  $scope.new_report_modal.show();
-                });
+        if(ConnectivityService.isOnline()){
+          document.getElementById("spinner").style.display = "block";
+          $scope.report = ReportService._new();
+          $scope.report.lat = LocationsService.new_report_lat;
+          $scope.report.lon = LocationsService.new_report_lng;
+          CategoriesService.all().then(function (response) {
+            if(ErrorService.http_response_is_successful_popup(response)){
+              DBService.saveCategories(response.data);
+              $scope.show_report_form(response.data.categories);
             }else{
-              $ionicModal.fromTemplateUrl('templates/pmb-wizard-with-login.html', {
-                scope: $scope,
-                animation: 'slide-in-up'
-              }).then(function(modal) {
-                  $scope.new_report_modal = modal;
-                  $scope.new_report_modal.show();
-                });
-
+              document.getElementById("spinner").style.display = "none";
             }
+          })
+        }else{
+          //OFFLINE REPORT. First need to check if there is any cached categories. If not, it's the first time
+          //runing the app so need to show message saying that first time report has to be online.
+          var categoriesDoc = CategoriesService.getCachedCategories();
+          if(categories!=null){
+            $scope.report = ReportService._new();
+            $scope.report.lat = LocationsService.new_report_lat;
+            $scope.report.lon = LocationsService.new_report_lng;
+            $scope.show_report_form(categoriesDoc.categories)
           }else{
-            document.getElementById("spinner").style.display = "none";
+            //First time report
+            PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
           }
-        })
+
+        }
       }else{
-        var alertPopup = $ionicPopup.alert({
-         title: 'Nuevo reporte',
-         template: 'Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.'
-        });
-
-        alertPopup.then(function(res) {
-
-        });
+        PopUpService.show_alert('Nuevo reporte','Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.');
       }
+
+    };
+
+  $scope.show_report_form = function(categories){
+    $scope.categories = categories;
+    document.getElementById("spinner").style.display = "none";
+    document.getElementById("foot_bar").style.display = "none";
+    if(UserService.isLogged()){
+      $scope.report.name = UserService.name;
+      $scope.report.email = UserService.email;
+      $scope.report.password_sign_in = UserService.password;
+      $scope.report.phone = UserService.phone;
+      $ionicModal.fromTemplateUrl('templates/pmb-wizard.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function(modal) {
+          $scope.new_report_modal = modal;
+          $scope.new_report_modal.show();
+        });
+    }else{
+      $ionicModal.fromTemplateUrl('templates/pmb-wizard-with-login.html', {
+        scope: $scope,
+        animation: 'slide-in-up'
+      }).then(function(modal) {
+          $scope.new_report_modal = modal;
+          $scope.new_report_modal.show();
+        });
+
     }
+  }
 
   $scope.update_subcategories = function(){
     var all_subcats_selects_active = document.getElementsByClassName("subcategory-active");
@@ -173,38 +258,44 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   };
 
   $scope.confirmReport = function() {
-    var report_sent = PMBService.report($scope.report);
-    var back_to_map = false;
-    document.getElementById("spinner-inside-modal").style.display = "block";
-    if($scope.report.file==null){
-      report_sent.success(function(data, status, headers,config){
-        if(ErrorService.http_data_response_is_successful(data,"error_container")){
-          $scope.back_to_map(true);
-        }else{
+    if(ConnectivityService.isOnline()){
+      var report_sent = PMBService.report($scope.report);
+      var back_to_map = false;
+      document.getElementById("spinner-inside-modal").style.display = "block";
+      if($scope.report.file==null){
+        report_sent.success(function(data, status, headers,config){
+          if(ErrorService.http_data_response_is_successful(data,"error_container")){
+            $scope.back_to_map(true);
+          }else{
+            $scope.back_to_map(false);
+          }
+        })
+        .error(function(data, status, headers, config){
+          ErrorService.show_error_message("error_container",status);
           $scope.back_to_map(false);
-        }
-      })
-      .error(function(data, status, headers, config){
-        ErrorService.show_error_message("error_container",status);
-        $scope.back_to_map(false);
-      })
-    }else{
-      report_sent.then(function(resp) {
-        var data = JSON.parse(resp.response);
-        if(ErrorService.http_data_response_is_successful(data,"error_container")){
-          $scope.back_to_map(true);
-        }else{
+        })
+      }else{
+        report_sent.then(function(resp) {
+          var data = JSON.parse(resp.response);
+          if(ErrorService.http_data_response_is_successful(data,"error_container")){
+            $scope.back_to_map(true);
+          }else{
+            $scope.back_to_map(false);
+          }
+        }, function(resp) {
+          ErrorService.show_error_message("error_container",resp.responseCode);
           $scope.back_to_map(false);
-        }
-      }, function(resp) {
-        ErrorService.show_error_message("error_container",resp.responseCode);
-        $scope.back_to_map(false);
-      }, function(progress) {
-        $timeout(function() {
-          $scope.uploadProgress = (progress.loaded / progress.total) * 100;
-          document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+        }, function(progress) {
+          $timeout(function() {
+            $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+            document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+          });
         });
-      });
+      }
+    }else{
+      DBService.saveReport($scope.report);
+      $scope.back_to_map(true);
+      PopUpService.show_alert("Envío pendiente","El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
     }
   };
 
@@ -217,23 +308,28 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   };
 
   $scope.confirmReportWithLogin = function() {
-    document.getElementById("spinner-inside-modal").style.display = "block";
-    AuthService.sign_in($scope.report.password_sign_in, $scope.report.email).then(function(resp) {
-      if(ErrorService.http_response_is_successful(resp,"error_container")){
-        UserService.save_user_data(resp.data.name, $scope.report.email, $scope.report.password_sign_in, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
-        DBService.saveUser(resp.data.name,$scope.report.email,$scope.report.password_sign_in,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
-        $scope.set_user_picture(1);
-        $scope.confirmReport();
-      }else{
+    if(ConnectivityService.isOnline()){
+      document.getElementById("spinner-inside-modal").style.display = "block";
+      AuthService.sign_in($scope.report.password_sign_in, $scope.report.email).then(function(resp) {
+        if(ErrorService.http_response_is_successful(resp,"error_container")){
+          UserService.save_user_data(resp.data.name, $scope.report.email, $scope.report.password_sign_in, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+          DBService.saveUser(resp.data.name,$scope.report.email,$scope.report.password_sign_in,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+          $scope.set_user_picture(1);
+          $scope.confirmReport();
+        }else{
+          $scope.back_to_map(false);
+        }
+
+      }, function(resp) {
+        //console.log(err);
+        ErrorService.show_error_message("error_container",resp.statusText);
         $scope.back_to_map(false);
-      }
-
-    }, function(resp) {
-      //console.log(err);
-      ErrorService.show_error_message("error_container",resp.statusText);
-      $scope.back_to_map(false);
-    });
-
+      });
+    }else{
+      DBService.saveReport($scope.report);
+      $scope.back_to_map(true);
+      PopUpService.show_alert("Envío pendiente","El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
+    }
   };
 
   $scope.back_to_map = function(back_to_map){
@@ -371,26 +467,30 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById("report-list-scroll").style.display = "block";
     }
 
-    $ionicModal.fromTemplateUrl('templates/faq.html', {
-      scope: $scope,
-      animation: 'slide-in-up'
-    }).then(function(modal) {
-        $scope.faq_modal = modal;
-      });
-
     $scope.help = function() {
-      document.getElementById("spinner").style.display = "block";
-      $scope.set_active_option('button-help');
-      document.getElementById("user-options-menu").style.display="none";
-      document.getElementById("report-list-scroll").style.display = "none";
-      FaqService.all().success(function (response) {
-        $scope.faq = $sce.trustAsHtml(response);
-        document.getElementById("spinner").style.display = "none";
-        $scope.faq_modal.show().then(function(){
-          var element = angular.element( document.querySelector( '#faq-container-div' ) );
-          var compiled = $compile(element.contents())($scope);
+      if(ConnectivityService.isOnline()){
+        document.getElementById("spinner").style.display = "block";
+        $scope.set_active_option('button-help');
+        document.getElementById("user-options-menu").style.display="none";
+        document.getElementById("report-list-scroll").style.display = "none";
+        FaqService.all().success(function (response) {
+          $scope.faq = $sce.trustAsHtml(response);
+          document.getElementById("spinner").style.display = "none";
+          $ionicModal.fromTemplateUrl('templates/faq.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+          }).then(function(modal) {
+              $scope.faq_modal = modal;
+              $scope.faq_modal.show().then(function(){
+                var element = angular.element( document.querySelector( '#faq-container-div' ) );
+                var compiled = $compile(element.contents())($scope);
+              })
+            });
         })
-      })
+      }else{
+        PopUpService.show_alert("Sin conexión a internet","Para ver la ayuda debe estar conectado a internet");
+      }
+
     }
 
     $scope.scrollMe = function(anchor_id){
@@ -401,6 +501,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.close_faq_modal = function(){
       $scope.faq_modal.hide();
+      $scope.faq_modal.remove();
     }
 
     $scope.set_active_option = function(buttonid) {
@@ -411,27 +512,32 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById(buttonid).className = "option-active";
     }
 
-    $ionicModal.fromTemplateUrl('templates/report-detail.html', {
-      scope: $scope,
-      animation: 'slide-in-up'
-    }).then(function(modal) {
-        $scope.report_detail_modal = modal;
-      });
+
 
     $scope.viewReportDetails = function(id){
-      document.getElementById("spinner").style.display = "block";
-      document.getElementById("report-list-scroll").style.display = "none";
-      document.getElementById("user-options-menu").style.display="none";
-      ReportService.getById(id).then(function(resp) {
-        $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;",""));
-        document.getElementById("spinner").style.display = "none";
-        $scope.report_detail_modal.show()
-      }, function(err) {
-        //console.log(err);
-        document.getElementById("spinner").style.display = "none";
-        $scope.report_detail = "ERROR AL CARGAR DATOS DEL REPORTE";
-        $scope.report_detail_modal.show()
-      });
+      if(ConnectivityService.isOnline()){
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("report-list-scroll").style.display = "none";
+        document.getElementById("user-options-menu").style.display="none";
+        ReportService.getById(id).then(function(resp) {
+          $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;",""));
+          document.getElementById("spinner").style.display = "none";
+          $ionicModal.fromTemplateUrl('templates/report-detail.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+          }).then(function(modal) {
+              $scope.report_detail_modal = modal;
+              $scope.report_detail_modal.show()
+            });
+        }, function(resp) {
+          //console.log(err);
+          document.getElementById("spinner").style.display = "none";
+          ErrorService.show_error_message_popup("ERROR AL CARGAR DATOS DEL REPORTE: " + resp.statusText)
+        });
+      }else{
+        PopUpService.show_alert("Sin conexión a internet","Para ver los detalles del reporte, debe estar conectado a internet.");
+      }
+
     }
 
     $scope.close_report_detail_modal = function(){
@@ -639,25 +745,29 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.sign_in = function(email, password){
-      document.getElementById("spinner-inside-modal").style.display = "block";
-      AuthService.sign_in(password, email).then(function(resp) {
-        if(ErrorService.http_response_is_successful(resp,"error_container")){
-          UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
-          DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
-          //$scope.set_user_picture(1);
+      if(ConnectivityService.isOnline()){
+        document.getElementById("spinner-inside-modal").style.display = "block";
+        AuthService.sign_in(password, email).then(function(resp) {
+          if(ErrorService.http_response_is_successful(resp,"error_container")){
+            UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+            DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+            //$scope.set_user_picture(1);
+            document.getElementById("spinner-inside-modal").style.display = "none";
+            $scope.close_login_modal();
+            //$scope.check_user_logged();
+            $scope.set_user_picture(1);
+          }else{
+            document.getElementById("spinner-inside-modal").style.display = "none";
+          }
+        }, function(resp) {
+          //console.log(err);
+          //alert("Error en sign_in");
           document.getElementById("spinner-inside-modal").style.display = "none";
-          $scope.close_login_modal();
-          //$scope.check_user_logged();
-          $scope.set_user_picture(1);
-        }else{
-          document.getElementById("spinner-inside-modal").style.display = "none";
-        }
-      }, function(resp) {
-        //console.log(err);
-        //alert("Error en sign_in");
-        document.getElementById("spinner-inside-modal").style.display = "none";
-        ErrorService.show_error_message("error_container",resp.statusText);
-      });
+          ErrorService.show_error_message("error_container",resp.statusText);
+        });
+      }else{
+        PopUpService.show_alert("Sin conexión a internet","Para iniciar sesión debe estar conectado a internet");
+      }
     }
 
     $scope.sign_in_ajax = function(email, password){
@@ -733,45 +843,49 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.edit_profile = function(email,password, fullname, new_email, id_doc, user_phone, user_picture_url){
-      document.getElementById("spinner-inside-modal").style.display = "block";
-      var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
-      if(user_picture_url==null || user_picture_url==""){
-        edit_request.success(function(data, status, headers,config){
-          document.getElementById("sent_label").innerHTML = "Enviado: 100%";
-          console.log(data);
-          if(ErrorService.http_data_response_is_successful(data,"error_container")){
-            UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+      if(ConnectivityService.isOnline()){
+        document.getElementById("spinner-inside-modal").style.display = "block";
+        var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
+        if(user_picture_url==null || user_picture_url==""){
+          edit_request.success(function(data, status, headers,config){
+            document.getElementById("sent_label").innerHTML = "Enviado: 100%";
+            console.log(data);
+            if(ErrorService.http_data_response_is_successful(data,"error_container")){
+              UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+              document.getElementById("spinner-inside-modal").style.display = "none";
+              $scope.close_edit_profile_modal();
+              $scope.check_user_logged();
+            }else{
+              document.getElementById("spinner-inside-modal").style.display = "none";
+            }
+          })
+          .error(function(data, status, headers,config){
+            ErrorService.show_error_message("error_container",status);
             document.getElementById("spinner-inside-modal").style.display = "none";
-            $scope.close_edit_profile_modal();
-            $scope.check_user_logged();
-          }else{
+          })
+        }else{
+          edit_request.then(function(result) {
+            var data = JSON.parse(result.response);
+            if(ErrorService.http_data_response_is_successful(data,"error_container")){
+              UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+              document.getElementById("spinner-inside-modal").style.display = "none";
+              $scope.close_edit_profile_modal();
+              $scope.check_user_logged();
+            }else{
+              document.getElementById("spinner-inside-modal").style.display = "none";
+            }
+          }, function(result) {
+            ErrorService.show_error_message("error_container",result.responseCode);
             document.getElementById("spinner-inside-modal").style.display = "none";
-          }
-        })
-        .error(function(data, status, headers,config){
-          ErrorService.show_error_message("error_container",status);
-          document.getElementById("spinner-inside-modal").style.display = "none";
-        })
+          }, function(progress) {
+              $timeout(function() {
+                $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+                document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+              });
+          });
+        }
       }else{
-        edit_request.then(function(result) {
-          var data = JSON.parse(result.response);
-          if(ErrorService.http_data_response_is_successful(data,"error_container")){
-            UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
-            document.getElementById("spinner-inside-modal").style.display = "none";
-            $scope.close_edit_profile_modal();
-            $scope.check_user_logged();
-          }else{
-            document.getElementById("spinner-inside-modal").style.display = "none";
-          }
-        }, function(result) {
-          ErrorService.show_error_message("error_container",result.responseCode);
-          document.getElementById("spinner-inside-modal").style.display = "none";
-        }, function(progress) {
-            $timeout(function() {
-              $scope.uploadProgress = (progress.loaded / progress.total) * 100;
-              document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
-            });
-        });
+        PopUpService.show_alert("Sin conexión a internet","Para editar su perfil debe estar conectado a internet");
       }
     }
 
@@ -830,28 +944,32 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.sign_up = function(email,fullname,password, id_doc, user_phone){
-      document.getElementById("spinner-inside-modal").style.display = "block";
-      AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
-        if(ErrorService.http_response_is_successful(resp,"error_container")){
-          UserService.save_user_data(fullname, email, password, id_doc, user_phone,null);
-          //$scope.set_user_picture(1);
+      if(ConnectivityService.isOnline()){
+        document.getElementById("spinner-inside-modal").style.display = "block";
+        AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
+          if(ErrorService.http_response_is_successful(resp,"error_container")){
+            UserService.save_user_data(fullname, email, password, id_doc, user_phone,null);
+            //$scope.set_user_picture(1);
+            document.getElementById("spinner-inside-modal").style.display = "none";
+            $scope.close_sign_up_modal();
+            var alertPopup = $ionicPopup.alert({
+             title: "Usuario creado con éxito",
+             template: resp.data.message
+            });
+            alertPopup.then(function(res) {
+              //return false;
+            });
+            //$scope.check_user_logged();
+          }else{
+            document.getElementById("spinner-inside-modal").style.display = "none";
+          }
+        }, function(resp) {
           document.getElementById("spinner-inside-modal").style.display = "none";
-          $scope.close_sign_up_modal();
-          var alertPopup = $ionicPopup.alert({
-           title: "Usuario creado con éxito",
-           template: resp.data.message
-          });
-          alertPopup.then(function(res) {
-            //return false;
-          });
-          //$scope.check_user_logged();
-        }else{
-          document.getElementById("spinner-inside-modal").style.display = "none";
-        }
-      }, function(resp) {
-        document.getElementById("spinner-inside-modal").style.display = "none";
-        ErrorService.show_error_message("error_container",resp.statusText);
-      });
+          ErrorService.show_error_message("error_container",resp.statusText);
+        });
+      }else{
+        PopUpService.show_alert("Sin conexión a internet","Para iniciar registrarse debe estar conectado a internet");
+      }
     }
 
     $scope.sign_up_ok = function(){
@@ -928,7 +1046,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
           };
 
-          var Location = function() {
+      var Location = function() {
         if ( !(this instanceof Location) ) return new Location();
         this.lat  = "";
         this.lng  = "";

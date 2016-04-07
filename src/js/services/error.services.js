@@ -48,6 +48,14 @@ pmb_im.services.factory('ErrorService', ['$http','$ionicPopup', function($http,$
       }
     },
 
+    http_data_response_is_successful_ajax: function (data) {
+      if(data.result==0){
+        return false;
+      }else{
+        return true;
+      }
+    },
+
     show_error_message: function (errorContainerId, message) {
         var errorDiv = document.getElementById(errorContainerId);
         errorDiv.innerHTML="<h3>" + message + "</h3>";
