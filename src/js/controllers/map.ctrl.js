@@ -81,7 +81,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.$on('$cordovaNetwork:online', function(event, networkState){
           $scope.check_user_logged();
           $scope.send_offline_reports();
-          //$scope.addReportsLayer();
+          $scope.addReportsLayer();
         });
         $scope.$on('$cordovaNetwork:offline', function(event, networkState){
           $scope.create_offline_map();
@@ -91,7 +91,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         window.addEventListener("online", function(e) {
           $scope.check_user_logged();
           $scope.send_offline_reports();
-          //$scope.addReportsLayer();
+          $scope.addReportsLayer();
         }, false);
         window.addEventListener("offline", function(e) {
           $scope.create_offline_map();
@@ -133,10 +133,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
               }
           });
         }
-        $scope.addReportsLayer();
+
       }).catch(function (err) {
         //console.log(err);
-        $scope.addReportsLayer();
       });
     }
 
@@ -525,7 +524,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById("report-list-scroll").style.display = "block";
     }
 
-    $scope.faq = function() {
+    $scope.help = function() {
       if(ConnectivityService.isOnline()){
         document.getElementById("spinner").style.display = "block";
         $scope.set_active_option('button-faq');
