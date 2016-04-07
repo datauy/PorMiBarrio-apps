@@ -71,24 +71,33 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       DBService.initDB();
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
+        $scope.send_offline_reports();
       }
+      $scope.set_network_events();
+    });
+
+    $scope.set_network_events = function() {
       if(ionic.Platform.isWebView()){
         $scope.$on('$cordovaNetwork:online', function(event, networkState){
+          $scope.check_user_logged();
           $scope.send_offline_reports();
+          //$scope.addReportsLayer();
         });
-        /*$scope.$on('$cordovaNetwork:offline', function(event, networkState){
-          console.log("went offline");
-        });*/
+        $scope.$on('$cordovaNetwork:offline', function(event, networkState){
+          $scope.create_offline_map();
+        });
       }
       else {
         window.addEventListener("online", function(e) {
+          $scope.check_user_logged();
           $scope.send_offline_reports();
+          //$scope.addReportsLayer();
         }, false);
-        /*window.addEventListener("offline", function(e) {
-          console.log("went offline");
-        }, false);*/
+        window.addEventListener("offline", function(e) {
+          $scope.create_offline_map();
+        }, false);
       }
-    });
+    }
 
     $scope.send_offline_reports = function() {
       var reports = DBService.getAllReports();
@@ -97,16 +106,37 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         if(result!=null && result.total_rows>0){
           result.rows.forEach(function(row) {
               var report = row.doc;
-              var status = send_offline_report(report);
-              status.then(function(){
-                if(status==true){
-                  DBService.deleteReport(report._id);
-                }
-              })
+              var report_sent = PMBService.report(report);
+              if(report.file==null){
+                report_sent.success(function(data, status, headers,config){
+                  if(ErrorService.http_data_response_is_successful_ajax(data)){
+                    DBService.deleteReport(report._id);
+                  }else{
+                    //ERROR SENDING THE REPORT;
+                  }
+                })
+                .error(function(data, status, headers, config){
+                  //ERROR SENDING THE REPORT;
+                })
+              }else{
+                report_sent.then(function(resp) {
+                  var data = JSON.parse(resp.response);
+                  if(ErrorService.http_data_response_is_successful_ajax(data)){
+                    DBService.deleteReport(report._id);
+                  }else{
+                    //ERROR SENDING THE REPORT;
+                  }
+                }, function(error) {
+                    //ERROR SENDING THE REPORT;
+                }, function(progress) {
+                });
+              }
           });
         }
+        $scope.addReportsLayer();
       }).catch(function (err) {
         //console.log(err);
+        $scope.addReportsLayer();
       });
     }
 
@@ -131,23 +161,36 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           }else{
             return false;
           }
-        }, function(resp) {
+        }, function(error) {
             return false;
         }, function(progress) {
         });
       }
   };
 
+    $scope.create_offline_map = function(){
+      $scope.map = {
+          defaults: {
+            tileLayer: './offline_tiles/{z}/{x}/{y}.png',
+            minZoom: 12,
+            maxZoom: 16,
+            zoomControlPosition: 'topleft',
+          },
+          markers: {},
+          events: {
+            map: {
+              enable: ['context'],
+              logic: 'emit'
+            }
+          }
+        };
+    };
 
-    $scope.$on("$ionicView.afterEnter", function() {
-      //document.getElementById("spinner").style.display = "none";
-      document.getElementById("foot_bar").style.display = "block";
-      $scope.addReportsLayer();
-      $scope.addMapControls();
-
+    $scope.create_online_map = function(){
       $scope.map = {
         defaults: {
           tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+          minZoom: 12,
           maxZoom: 18,
           zoomControlPosition: 'topleft',
         },
@@ -159,6 +202,19 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           }
         }
       };
+    };
+
+    $scope.$on("$ionicView.afterEnter", function() {
+      //document.getElementById("spinner").style.display = "none";
+      document.getElementById("foot_bar").style.display = "block";
+      if(ConnectivityService.isOnline()){
+        $scope.create_online_map();
+        $scope.addReportsLayer();
+        //$scope.addMapControls();
+      }else{
+        $scope.create_offline_map();
+      }
+
         $scope.map.center = {
           lat: -34.901113,
           lng: -56.164531,
@@ -184,8 +240,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById("user-options-menu").style.display="none";
       document.getElementById("report-list-scroll").style.display = "none";
       if(alreadyLocated==1){
+        document.getElementById("spinner").style.display = "block";
         if(ConnectivityService.isOnline()){
-          document.getElementById("spinner").style.display = "block";
           $scope.report = ReportService._new();
           $scope.report.lat = LocationsService.new_report_lat;
           $scope.report.lon = LocationsService.new_report_lng;
@@ -201,16 +257,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           //OFFLINE REPORT. First need to check if there is any cached categories. If not, it's the first time
           //runing the app so need to show message saying that first time report has to be online.
           var categoriesDoc = CategoriesService.getCachedCategories();
-          if(categories!=null){
-            $scope.report = ReportService._new();
-            $scope.report.lat = LocationsService.new_report_lat;
-            $scope.report.lon = LocationsService.new_report_lng;
-            $scope.show_report_form(categoriesDoc.categories)
-          }else{
-            //First time report
-            PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
-          }
-
+          categoriesDoc.then(function(doc){
+            if(doc!=null){
+              $scope.report = ReportService._new();
+              $scope.report.lat = LocationsService.new_report_lat;
+              $scope.report.lon = LocationsService.new_report_lng;
+              $scope.show_report_form(doc.categories)
+            }else{
+              //First time report
+              document.getElementById("spinner").style.display = "none";
+              PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
+            }
+          });
         }
       }else{
         PopUpService.show_alert('Nuevo reporte','Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.');
@@ -467,10 +525,10 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       document.getElementById("report-list-scroll").style.display = "block";
     }
 
-    $scope.help = function() {
+    $scope.faq = function() {
       if(ConnectivityService.isOnline()){
         document.getElementById("spinner").style.display = "block";
-        $scope.set_active_option('button-help');
+        $scope.set_active_option('button-faq');
         document.getElementById("user-options-menu").style.display="none";
         document.getElementById("report-list-scroll").style.display = "none";
         FaqService.all().success(function (response) {
@@ -507,7 +565,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.set_active_option = function(buttonid) {
       document.getElementById("button-report").className = "option-inactive";
       document.getElementById("button-list-reports").className = "option-inactive";
-      document.getElementById("button-help").className = "option-inactive";
+      document.getElementById("button-faq").className = "option-inactive";
       document.getElementById("button-find-me").className = "option-inactive";
       document.getElementById(buttonid).className = "option-active";
     }
@@ -574,7 +632,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     };
 
 
-    $scope.getReports = function() {
+    /*$scope.getReports = function() {
 
       leafletData.getMap().then(function(map) {
         var bbox = map.getBounds();
@@ -586,23 +644,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           }
         });
       });
-    };
+    };*/
 
-    $scope.addMapControls = function() {
-
+    /*$scope.addMapControls = function() {
       var _crosshair, _crosshairIcon = L.icon({
         iconUrl: 'img/crosshairs@x2.png' //,
-          /*  iconSize: [36, 36], // size of the icon
-            iconAnchor: [18, 18], // point of the icon which will correspond to marker's location
-            */
       });
 
       leafletData.getMap().then(function(map) {
       });
-    };
+    };*/
 
     $scope.addReportsLayer = function() {
-
       var baseURL = ConfigService.baseURL;
         buildPopup = function(data, marker) {
           var reportId = data[3],
@@ -657,8 +710,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         });
 
       });
-
-
     };
 
     $scope.goToReport = function(report) {
@@ -1027,8 +1078,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                 $scope.map.center.lat  = position.coords.latitude;
                 $scope.map.center.lng = position.coords.longitude;
                 LocationsService.save_new_report_position(position.coords.latitude,position.coords.longitude);
-                $scope.map.center.zoom = 18;
-
+                if(ConnectivityService.isOnline()){
+                  $scope.map.center.zoom = 18;
+                }else{
+                  $scope.map.center.zoom = 16;
+                }
                 $scope.map.markers.now = {
                   lat:position.coords.latitude,
                   lng:position.coords.longitude,
@@ -1042,6 +1096,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                 // error
                 //console.log("Location error!");
                 //console.log(err);
+                ErrorService.show_error_message_popup("No hemos podido geolocalizarlo. ¿Tal vez olvidó habilitar los servicios de localización en su dispositivo?")
               });
 
           };

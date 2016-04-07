@@ -8,16 +8,7 @@ pmb_im.services.factory('CategoriesService', ['$http','LocationsService', 'Confi
     },
 
     getCachedCategories: function () {
-      var categories = DBService.getCategories();
-      categories.then(function (doc) {
-        if(doc.categories!=null && doc.categories!="" && doc.categories!="undefined"){
-          return doc;
-        }else{
-          return null;
-        }
-      }).catch(function (err) {
-        return null;
-      });
+      return DBService.getCategories();
     }
   };
 }]);

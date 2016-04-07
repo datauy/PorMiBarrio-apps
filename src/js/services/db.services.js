@@ -48,10 +48,9 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
    };
 
    function saveReport(report) {
-      var pouchCollate = require('pouchdb-collate');
-      new_report_id = pouchCollate.toIndexableString(['report', report]);
+      //var pouchCollate = require('pouchdb-collate');
+      new_report_id = "report_" + pouchCollate.toIndexableString([report]);
       report._id = new_report_id;
-      alert(report._id);
       return _db.put(report);
    };
 
@@ -70,11 +69,11 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
    };
 
    function getAllReports() {
-     return db.allDocs({
+     return _db.allDocs({
       include_docs: true,
       attachments: false,
-      startkey: 'report',
-      endkey: 'report\uffff'
+      startkey: 'report_',
+      endkey: 'report_\uffff'
      });/*.then(function (result) {
       // handle result
     }).catch(function (err) {

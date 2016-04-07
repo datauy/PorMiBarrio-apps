@@ -179,7 +179,7 @@ body {
   height: 70px;
 }
 
-.button-help{
+.button-faq{
   background-image:    url(./img/icon-ayuda.png);
   background-repeat:   no-repeat;
   background-position: center center;
@@ -675,4 +675,8 @@ body {
 
 .slider {
   height: 600px;
+}
+
+.leaflet-control-attribution{
+  display: none;
 }
