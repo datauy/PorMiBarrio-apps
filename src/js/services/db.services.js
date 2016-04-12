@@ -7,8 +7,11 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
        getUser: getUser,
        eraseUser: eraseUser,
        saveReport: saveReport,
+       getReport: getReport,
        getAllReports: getAllReports,
+       updateReport: updateReport,
        deleteReport: deleteReport,
+       deleteGivenReport: deleteGivenReport,
        getCategories: getCategories,
        saveCategories: saveCategories
    };
@@ -48,11 +51,16 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
    };
 
    function saveReport(report) {
-      //var pouchCollate = require('pouchdb-collate');
-      new_report_id = "report_" + pouchCollate.toIndexableString([report]);
+      //new_report_id = "report_" + pouchCollate.toIndexableString([report]);
+      var date = new Date();
+      var new_report_id = "report_" + date.getFullYear() + (date.getMonth() + 1) + date.getDate() + date.getMilliseconds();
       report._id = new_report_id;
       return _db.put(report);
    };
+
+   function updateReport(report) {
+     return _db.put(report);
+  };
 
    function getCategories() {
      return _db.get('categories-list');
@@ -67,6 +75,10 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
        return _db.put(categories);
      })
    };
+
+  function getReport(reportId) {
+     return _db.get(reportId);
+  };
 
    function getAllReports() {
      return _db.allDocs({
@@ -85,6 +97,10 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
     _db.get(report_id).then(function(doc) {
       return _db.remove(doc);
     });
+  };
+
+  function deleteGivenReport(report) {
+    return _db.remove(report);
   };
 
 }]);

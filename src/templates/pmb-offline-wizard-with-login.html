@@ -1,0 +1,126 @@
+<ion-modal-view class="new-report-modal">
+  <ion-slide-box on-slide-changed="slideHasChanged($index)">
+    <ion-slide>
+      <ion-scroll direction="y" class="new-report-scroll">
+          <div class="new-report-slide">
+            <div class="new-report-content">
+              <div class="category-header">
+                <h3>Categoría & subcategoría *</h3>
+                <p>Si la categoría a la que quiere reportar no se encuentra,
+                  por favor no lo haga en otra. Con el tiempo iremos incorporando nuevas categorías.</p>
+              </div>
+              <div class="list">
+                <div class="category-select-container">
+                  <select id="categoriesSelect" class="category-select" ng-model="report.categorygroup" ng-change="update_subcategories()">
+                    <option value="" disabled>Seleccione una categoría</option>
+                    <option value="{{ key }}" ng-repeat="(key,data) in categories track by $index">{{ data.name }}</option>
+                  </select>
+                </div>
+                <div class="field-separator"></div>
+                <div id="subcategoriesSelectContainer" class="category-select-container" style="display: none;">
+                  <select id="subcategoriesSelect_{{key}}" class="subcategory-hidden" ng-model="report.category" ng-repeat="(key,data) in categories track by $index">
+                    <option value="" disabled selected>Seleccione una subcategoría</option>
+                    <option value="{{ subcats }}" ng-repeat="subcats in data.categories track by $index">{{ subcats }}</option>
+                  </select>
+                </div>
+                <div class="field-separator"></div>
+                <div class="text-input-header">
+                  <h3>Título *</h3>
+                </div>
+                <div class="text-input-container">
+                  <input style="color: #ffffff; padding-left: 10px; padding-right: 10px;" class="text-input" type="text" placeholder="Proporcionar un título" ng-model="report.title">
+                </div>
+                <div class="field-separator"></div>
+                <div class="text-input-header">
+                  <h3>Detalles *</h3>
+                </div>
+                <div class="text-input-container">
+                  <textarea class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Por favor, rellene los datos del problema" ng-model="report.detail"></textarea>
+                </div>
+                <div class="field-separator"></div>
+                <div id="reportHasPhoto" ng-if="report.file!=null && report.file!='undefined'">
+                  <img class="report-photo" src="{{report.file}}" />
+                  <div class="foto-header">
+                    <h3>Reemplazar la foto</h3>
+                  </div>
+                  <div class="foto-input-container">
+                    <div class="foto-picker">
+                      <div ng-click="addImage(0,0)" class="foto-icon"></div>
+                      <div ng-click="addImage(1,0)" class="foto-text">o seleccione un archivo</div>
+                    </div>
+                  </div>
+                  <div class="field-separator"></div>
+                  <div class="foto-footer">
+                    <h3>El archivo no puede pesar más de 2MB. (JPG)</h3>
+                  </div>
+                </div>
+                <div id="reportWithoutPhoto" ng-if="report.file==null || report.file=='undefined'">
+                  <div class="foto-header">
+                    <h3>Agregar una foto</h3>
+                  </div>
+                  <div class="foto-input-container">
+                    <div class="foto-picker">
+                      <div ng-click="addImage(0,0)" class="foto-icon"></div>
+                      <div ng-click="addImage(1,0)" class="foto-text">o seleccione un archivo</div>
+                    </div>
+                  </div>
+                  <div class="field-separator"></div>
+                  <div class="foto-footer">
+                    <h3>El archivo no puede pesar más de 2MB. (JPG)</h3>
+                  </div>
+                </div>
+                <div class="field-separator"></div>
+                <div class="field-separator"></div>
+                <div class="padding">
+                  <button class="form-button" ng-click="next()">Siguiente</button>
+                  <div class="field-separator"></div>
+                  <button class="form-button" ng-click="cancelReport()">Volver al mapa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+      </ionic-scroll>
+    </ion-slide>
+
+    <ion-slide>
+      <ion-scroll direction="y" class="new-report-scroll">
+          <div class="new-report-slide">
+            <div class="new-report-content">
+              <div class="category-header">
+                <h3>Accede a tu cuenta</h3>
+                <p>Logueate a tu cuenta para poder enviar reportes a la IM</p>
+              </div>
+              <div class="list">
+                <div class="text-input-header">
+                  <h3>Email *</h3>
+                </div>
+                <div class="text-input-container">
+                  <input style="color: #ffffff; padding-left: 10px; padding-right: 10px;" class="text-input" type="text" placeholder="Proporcionar un correo electrónico" ng-model="report.email"/>
+                </div>
+                <div class="field-separator"></div>
+                <div class="text-input-header">
+                  <h3>Contraseña *</h3>
+                </div>
+                <div class="text-input-container">
+                  <input class="text-input" style="color: #ffffff; padding-left: 10px; padding-right: 10px; padding-top: 10px;" placeholder="Ingrese su contraseña" type="password" ng-model="report.password_sign_in"/>
+                </div>
+                <div class="field-separator"></div>
+                <div id="error_container"></div>
+                <div class="padding">
+                  <button class="form-button" ng-click="updateOfflineReport()">Guardar cambios</button>
+                  <div class="field-separator"></div>
+                  <button class="form-button" ng-click="cancelReport()">Volver al mapa</button>
+                </div>
+                <div class="field-separator"></div>
+                <div class="field-separator"></div>
+                <div class="padding">
+                  <button class="form-button" ng-click="previous()">Atrás</button>
+                </div>
+              </div>
+            </div>
+          </div>
+      </ionic-scroll>
+    </ion-slide>
+  </ion-slide-box>
+    <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>
+</ion-modal-view>

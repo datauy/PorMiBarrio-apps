@@ -1,0 +1,47 @@
+<ion-modal-view class="new-report-modal">
+    <ion-scroll direction="y" class="new-report-scroll">
+        <div class="new-report-slide">
+          <div class="new-report-content">
+            <div class="category-header">
+              <h3><b>Eliminar reporte pendiente de envío</b></h3>
+              <p>El siguiente reporte aún no se ha enviado a la IM.</p>
+            </div>
+            <div class="list">
+              <div class="text-input-header">
+                <h3><b>Categoría:</b></h3>
+              </div>
+              <div class="text-input-header">
+                <h3>{{report.category}}</h3>
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3><b>Título:</b></h3>
+              </div>
+              <div class="text-input-header">
+                <h3>{{report.title}}</h3>
+              </div>
+              <div class="field-separator"></div>
+              <div class="text-input-header">
+                <h3><b>Detalles:</b></h3>
+              </div>
+              <div class="text-input-header">
+                <h3>{{report.detail}}</h3>
+              </div>
+              <div class="field-separator"></div>
+              <div class="field-separator"></div>
+              <div class="category-header">
+                <h3>¿Está seguro que desea eliminarlo?</h3>
+                <p>Una vez eliminado no podrá recuperarlo ni se enviará a la IM.</p>
+              </div>
+              <div id="error_container"></div>
+              <div class="padding">
+                <button class="form-button" ng-click="deleteOfflineReportOk()">Eliminar reporte</button>
+                <div class="field-separator"></div>
+                <button class="form-button" ng-click="cancelReport()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </ionic-scroll>
+    <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>
+</ion-modal-view>

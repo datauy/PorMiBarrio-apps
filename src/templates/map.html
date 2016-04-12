@@ -19,7 +19,6 @@
   </ion-content>
 
   <ion-scroll direction="y" id="report-list-scroll">
-
     <div id="report-list">
       <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reports track by $index" class="report-inside-list">
         <div style="background-image: url('{{baseURL}}{{report.properties.category_url}}');" class="report-in-list-icon">
@@ -37,6 +36,9 @@
         </div>
       </div>
     </div>
+  </ion-scroll>
+  <ion-scroll direction="y" id="offline-report-list-scroll">
+
   </ion-scroll>
 
 
