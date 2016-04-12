@@ -87,6 +87,16 @@ pmb_im.services.factory('ErrorService', ['$http','$ionicPopup', 'ValidationServi
             errors = errors + '<h3>- El campo "' + field.name + '" no es una dirección de correo válida.</h3>';
           }
         }
+        if(field.type=="iddoc_uy"){
+          if(!ValidationService.validate_iddoc_uy(field.value)){
+            errors = errors + '<h3>- El campo "' + field.name + '" no es una cédula uruguaya válida.</h3>';
+          }
+        }
+        if(field.type=="two_words"){
+          if(!ValidationService.validate_two_words(field.value)){
+            errors = errors + '<h3>- El campo "' + field.name + '" debe contener al menos dos palabras.</h3>';
+          }
+        }
       });
       if(errors ==""){
         return true;

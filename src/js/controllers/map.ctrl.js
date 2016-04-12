@@ -285,7 +285,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
               if(doc!=null){
                 $scope.report =  $scope.offlineReports[reportId];
                 //$scope.report.categorygroup = "Plantación";
-                console.log($scope.report);
+                //console.log($scope.report);
                 //$scope.report.file = "file:///home/lito/Im%C3%A1genes/MapaMelillaSeccional22.png";
                 $scope.show_offline_report_form(doc.categories)
               }else{
@@ -1178,44 +1178,53 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.edit_profile = function(email,password, fullname, new_email, id_doc, user_phone, user_picture_url){
       if(ConnectivityService.isOnline()){
         document.getElementById("spinner-inside-modal").style.display = "block";
-        var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
-        if(user_picture_url==null || user_picture_url==""){
-          edit_request.success(function(data, status, headers,config){
-            document.getElementById("sent_label").innerHTML = "Enviado: 100%";
-            console.log(data);
-            if(ErrorService.http_data_response_is_successful(data,"error_container")){
-              UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+        var fields = new Array();
+        fields.push($scope.create_field_array("Correo electrónico","email",new_email));
+        //fields.push($scope.create_field_array("Contraseña","notNull",password));
+        fields.push($scope.create_field_array("Cédula de Identidad","iddoc_uy",id_doc));
+        fields.push($scope.create_field_array("Nombre y apellido","two_words",fullname));
+        if(ErrorService.check_fields(fields,"error_container")){
+          var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
+          if(user_picture_url==null || user_picture_url==""){
+            edit_request.success(function(data, status, headers,config){
+              document.getElementById("sent_label").innerHTML = "Enviado: 100%";
+              //console.log(data);
+              if(ErrorService.http_data_response_is_successful(data,"error_container")){
+                UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+                document.getElementById("spinner-inside-modal").style.display = "none";
+                $scope.close_edit_profile_modal();
+                $scope.check_user_logged();
+              }else{
+                document.getElementById("spinner-inside-modal").style.display = "none";
+              }
+            })
+            .error(function(data, status, headers,config){
+              ErrorService.show_error_message("error_container",status);
               document.getElementById("spinner-inside-modal").style.display = "none";
-              $scope.close_edit_profile_modal();
-              $scope.check_user_logged();
-            }else{
+            })
+          }else{
+            edit_request.then(function(result) {
+              var data = JSON.parse(result.response);
+              if(ErrorService.http_data_response_is_successful(data,"error_container")){
+                UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+                document.getElementById("spinner-inside-modal").style.display = "none";
+                $scope.close_edit_profile_modal();
+                $scope.check_user_logged();
+              }else{
+                document.getElementById("spinner-inside-modal").style.display = "none";
+              }
+            }, function(error) {
+              ErrorService.show_error_message("error_container","Hubo un error en el envío: Código = " + error.code);
               document.getElementById("spinner-inside-modal").style.display = "none";
-            }
-          })
-          .error(function(data, status, headers,config){
-            ErrorService.show_error_message("error_container",status);
-            document.getElementById("spinner-inside-modal").style.display = "none";
-          })
+            }, function(progress) {
+                $timeout(function() {
+                  $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+                  document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+                });
+            });
+          }
         }else{
-          edit_request.then(function(result) {
-            var data = JSON.parse(result.response);
-            if(ErrorService.http_data_response_is_successful(data,"error_container")){
-              UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
-              document.getElementById("spinner-inside-modal").style.display = "none";
-              $scope.close_edit_profile_modal();
-              $scope.check_user_logged();
-            }else{
-              document.getElementById("spinner-inside-modal").style.display = "none";
-            }
-          }, function(error) {
-            ErrorService.show_error_message("error_container","Hubo un error en el envío: Código = " + error.code);
-            document.getElementById("spinner-inside-modal").style.display = "none";
-          }, function(progress) {
-              $timeout(function() {
-                $scope.uploadProgress = (progress.loaded / progress.total) * 100;
-                document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
-              });
-          });
+          document.getElementById("spinner-inside-modal").style.display = "none";
         }
       }else{
         PopUpService.show_alert("Sin conexión a internet","Para editar su perfil debe estar conectado a internet");
@@ -1282,8 +1291,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         var fields = new Array();
         fields.push($scope.create_field_array("Correo electrónico","email",email));
         fields.push($scope.create_field_array("Contraseña","notNull",password));
-        fields.push($scope.create_field_array("Cédula de Identidad","notNull",id_doc));
-        fields.push($scope.create_field_array("Nombre y apellido","notNull",fullname));
+        fields.push($scope.create_field_array("Cédula de Identidad","iddoc_uy",id_doc));
+        fields.push($scope.create_field_array("Nombre y apellido","two_words",fullname));
         if(ErrorService.check_fields(fields,"error_container")){
           AuthService.create_user(email,fullname,password, id_doc, user_phone).then(function(resp) {
             if(ErrorService.http_response_is_successful(resp,"error_container")){
