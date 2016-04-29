@@ -27,6 +27,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   'PopUpService',
   '$ionicPlatform',
   'ConnectivityService',
+  '$cordovaInAppBrowser',
   function(
     $scope,
     $sce,
@@ -58,7 +59,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $cordovaNetwork,
     PopUpService,
     $ionicPlatform,
-    ConnectivityService
+    ConnectivityService,
+    $cordovaInAppBrowser
   ) {
 
     /**
@@ -75,6 +77,22 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       }
       $scope.set_network_events();
     });
+
+    $scope.openWebsite = function(url) {
+      var options = {
+                location: 'no',
+                clearcache: 'yes',
+                toolbar: 'no'
+            };
+
+     $cordovaInAppBrowser.open(url, '_blank', options)
+          .then(function(event) {
+            // success
+          })
+          .catch(function(event) {
+            // error
+        });
+    }
 
     $scope.set_network_events = function() {
       if(ionic.Platform.isWebView()){
@@ -257,17 +275,21 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           //runing the app so need to show message saying that first time report has to be online.
           var categoriesDoc = CategoriesService.getCachedCategories();
           categoriesDoc.then(function(doc){
-            if(doc!=null){
+            if(doc && doc.categories && Object.keys(doc.categories).length>0){
               $scope.report = ReportService._new();
               $scope.report.lat = LocationsService.new_report_lat;
               $scope.report.lon = LocationsService.new_report_lng;
-              $scope.show_report_form(doc.categories)
+              $scope.show_report_form(doc.categories);
             }else{
               //First time report
               document.getElementById("spinner").style.display = "none";
               PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
             }
-          });
+          }).catch(function (err) {
+              //First time report
+              document.getElementById("spinner").style.display = "none";
+              PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
+            });
         }
       }else{
         PopUpService.show_alert('Nuevo reporte','Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.');
@@ -282,17 +304,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             //runing the app so need to show message saying that first time report has to be online.
             var categoriesDoc = CategoriesService.getCachedCategories();
             categoriesDoc.then(function(doc){
-              if(doc!=null){
+              if(doc && doc.categories && Object.keys(doc.categories).length>0){
                 $scope.report =  $scope.offlineReports[reportId];
-                //$scope.report.categorygroup = "Plantación";
-                //console.log($scope.report);
-                //$scope.report.file = "file:///home/lito/Im%C3%A1genes/MapaMelillaSeccional22.png";
-                $scope.show_offline_report_form(doc.categories)
+                $scope.show_offline_report_form(doc.categories);
               }else{
                 //First time report
                 document.getElementById("spinner").style.display = "none";
                 PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
               }
+            }).catch(function (err) {
+              //First time report
+              document.getElementById("spinner").style.display = "none";
+              PopUpService.show_alert('Primer reporte','La primera vez que realiza un reporte debe encontrarse conectado a internet.');
             });
 
       };
@@ -554,10 +577,10 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     var options = {
-      quality: 90,
+      quality: 50,
       destinationType: Camera.DestinationType.FILE_URI,
       sourceType: source,
-      allowEdit: true,
+      allowEdit: false,
       correctOrientation : fix_orientation,
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
@@ -839,7 +862,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         document.getElementById("spinner").style.display = "block";
         $scope.hide_special_divs();
         ReportService.getById(id).then(function(resp) {
-          $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;",""));
+          $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;","").replace('src="/','src="'+ConfigService.baseURL));
           document.getElementById("spinner").style.display = "none";
           $ionicModal.fromTemplateUrl('templates/report-detail.html', {
             scope: $scope,
