@@ -28,6 +28,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$ionicPlatform',
   'ConnectivityService',
   '$cordovaInAppBrowser',
+  '$interval',
+  '$cordovaKeyboard',
   function(
     $scope,
     $sce,
@@ -60,8 +62,33 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     PopUpService,
     $ionicPlatform,
     ConnectivityService,
-    $cordovaInAppBrowser
+    $cordovaInAppBrowser,
+    $interval,
+    $cordovaKeyboard
   ) {
+
+    /*$ionicPlatform.registerBackButtonAction(function () {
+      document.getElementById("foot_bar").style.display = "block";
+      $scope.previous();
+    }, 100);
+
+    $ionicPlatform.on('backbutton', function() {
+      document.getElementById("foot_bar").style.display = "block";
+    });
+
+    $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+      document.getElementById("foot_bar").style.display = "block";
+    });
+
+    // Execute action on hide modal
+    $scope.$on('modal.removed', function() {
+      document.getElementById("foot_bar").style.display = "block";
+    });
+
+    $scope.$on('$destroy', function() {
+      document.getElementById("foot_bar").style.display = "block";
+    });*/
+
 
     /**
      * Once state loaded, get put map on scope.
@@ -70,12 +97,16 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.baseURL = ConfigService.baseURL;
 
     $scope.$on("$ionicView.beforeEnter", function() {
+
       DBService.initDB();
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
         $scope.send_offline_reports();
       }
       $scope.set_network_events();
+      var checkOfflineReports = $interval(function() {
+        $scope.send_offline_reports();
+      }, 300000);
     });
 
     $scope.openWebsite = function(url) {
@@ -118,43 +149,44 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.send_offline_reports = function() {
-      var reports = DBService.getAllReports();
-      reports.then(function (result) {
-        // handle result
-        if(result!=null && result.total_rows>0){
-          result.rows.forEach(function(row) {
-              var report = row.doc;
-              var report_sent = PMBService.report(report);
-              if(report.file==null){
-                report_sent.success(function(data, status, headers,config){
-                  if(ErrorService.http_data_response_is_successful_ajax(data)){
-                    DBService.deleteReport(report._id);
-                  }else{
+      if(ConnectivityService.isOnline()){
+        var reports = DBService.getAllReports();
+        reports.then(function (result) {
+          // handle result
+          if(result!=null && result.total_rows>0){
+            result.rows.forEach(function(row) {
+                var report = row.doc;
+                var report_sent = PMBService.report(report);
+                if(report.file==null){
+                  report_sent.success(function(data, status, headers,config){
+                    if(ErrorService.http_data_response_is_successful_ajax(data)){
+                      DBService.deleteReport(report._id);
+                    }else{
+                      //ERROR SENDING THE REPORT;
+                    }
+                  })
+                  .error(function(data, status, headers, config){
                     //ERROR SENDING THE REPORT;
-                  }
-                })
-                .error(function(data, status, headers, config){
-                  //ERROR SENDING THE REPORT;
-                })
-              }else{
-                report_sent.then(function(resp) {
-                  var data = JSON.parse(resp.response);
-                  if(ErrorService.http_data_response_is_successful_ajax(data)){
-                    DBService.deleteReport(report._id);
-                  }else{
-                    //ERROR SENDING THE REPORT;
-                  }
-                }, function(error) {
-                    //ERROR SENDING THE REPORT;
-                }, function(progress) {
-                });
-              }
-          });
-        }
-
-      }).catch(function (err) {
-        //console.log(err);
-      });
+                  })
+                }else{
+                  report_sent.then(function(resp) {
+                    var data = JSON.parse(resp.response);
+                    if(ErrorService.http_data_response_is_successful_ajax(data)){
+                      DBService.deleteReport(report._id);
+                    }else{
+                      //ERROR SENDING THE REPORT;
+                    }
+                  }, function(error) {
+                      //ERROR SENDING THE REPORT;
+                  }, function(progress) {
+                  });
+                }
+            });
+          }
+        }).catch(function (err) {
+          //console.log(err);
+        });
+      }
     }
 
     $scope.send_offline_report = function(report) {
@@ -327,7 +359,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.report =  $scope.offlineReports[reportId];
     $ionicModal.fromTemplateUrl('templates/delete-offline-report.html', {
       scope: $scope,
-      animation: 'slide-in-up'
+      hardwareBackButtonClose: false,
+      animation: 'slide-in-up',
+      //focusFirstInput: true
     }).then(function(modal) {
         $scope.new_report_modal = modal;
         document.getElementById("spinner").style.display = "none";
@@ -373,7 +407,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.report.phone = UserService.phone;
       $ionicModal.fromTemplateUrl('templates/pmb-wizard.html', {
         scope: $scope,
-        animation: 'slide-in-up'
+        animation: 'slide-in-up',
+        //focusFirstInput: true,
+        hardwareBackButtonClose: false
       }).then(function(modal) {
           $scope.new_report_modal = modal;
           $scope.new_report_modal.show();
@@ -381,7 +417,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }else{
       $ionicModal.fromTemplateUrl('templates/pmb-wizard-with-login.html', {
         scope: $scope,
-        animation: 'slide-in-up'
+        hardwareBackButtonClose: false,
+        animation: 'slide-in-up',
+        //focusFirstInput: true
       }).then(function(modal) {
           $scope.new_report_modal = modal;
           $scope.new_report_modal.show();
@@ -401,7 +439,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.report.phone = UserService.phone;
       $ionicModal.fromTemplateUrl('templates/pmb-offline-wizard.html', {
         scope: $scope,
-        animation: 'slide-in-up'
+        hardwareBackButtonClose: false,
+        animation: 'slide-in-up',
+        //focusFirstInput: true
       }).then(function(modal) {
           $scope.new_report_modal = modal;
           $scope.new_report_modal.show();
@@ -409,7 +449,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }else{
       $ionicModal.fromTemplateUrl('templates/pmb-offline-wizard.html', { //Se llama siempre al form que no pide usuario porque ya se guardó el usuario la primera vez
         scope: $scope,
-        animation: 'slide-in-up'
+        hardwareBackButtonClose: false,
+        animation: 'slide-in-up',
+        //focusFirstInput: true
       }).then(function(modal) {
           $scope.new_report_modal = modal;
           $scope.new_report_modal.show();
@@ -462,8 +504,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
               $scope.back_to_map(false);
             }
           }, function(error) {
-            ErrorService.show_error_message("error_container","Hubo un error en el envío: Código = " + error.code);
-            $scope.back_to_map(false);
+            $scope.save_offline_report().then(function(response){
+              $scope.back_to_map(true);
+              //$scope.list_reports_and_go(response.id);
+              $scope.list_reports();
+              PopUpService.show_alert("Error en el envío","Hubo un error en el envío: Código = " + error.code + ". El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
+            });
           }, function(progress) {
             $timeout(function() {
               $scope.uploadProgress = (progress.loaded / progress.total) * 100;
@@ -817,7 +863,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           document.getElementById("spinner").style.display = "none";
           $ionicModal.fromTemplateUrl('templates/faq.html', {
             scope: $scope,
-            animation: 'slide-in-up'
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
           }).then(function(modal) {
               $scope.faq_modal = modal;
               $scope.faq_modal.show().then(function(){
@@ -866,7 +914,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           document.getElementById("spinner").style.display = "none";
           $ionicModal.fromTemplateUrl('templates/report-detail.html', {
             scope: $scope,
-            animation: 'slide-in-up'
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
           }).then(function(modal) {
               $scope.report_detail_modal = modal;
               $scope.report_detail_modal.show()
@@ -1166,7 +1216,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.actual_photo = UserService.picture_url;
         $ionicModal.fromTemplateUrl('templates/edit_profile_with_photo.html', {
             scope: $scope,
-            animation: 'slide-in-up'
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
           }).then(function(modal) {
               document.getElementById("user-options-menu").style.display="none";
               $scope.edit_profile_modal = modal;
@@ -1177,7 +1229,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.actual_photo = null;
         $ionicModal.fromTemplateUrl('templates/edit_profile.html', {
             scope: $scope,
-            animation: 'slide-in-up'
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
           }).then(function(modal) {
               $scope.hide_special_divs();
               $scope.edit_profile_modal = modal;
@@ -1262,7 +1316,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.nonauth.password = "";
       $ionicModal.fromTemplateUrl('templates/log_in.html', {
           scope: $scope,
-          animation: 'slide-in-up'
+          hardwareBackButtonClose: false,
+          animation: 'slide-in-up',
+          //focusFirstInput: true
         }).then(function(modal) {
             $scope.hide_special_divs();
             $scope.login_modal = modal;
@@ -1293,7 +1349,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.newuser.telephone = "";
       $ionicModal.fromTemplateUrl('templates/sign_up.html', {
           scope: $scope,
-          animation: 'slide-in-up'
+          hardwareBackButtonClose: false,
+          animation: 'slide-in-up',
+          //focusFirstInput: true
         }).then(function(modal) {
             $scope.hide_special_divs();
             $scope.sign_up_modal = modal;

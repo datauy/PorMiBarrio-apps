@@ -21,14 +21,18 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
 })
 
 
-.run(function($ionicPlatform, $rootScope) {
+.run(function($ionicPlatform, $rootScope, $cordovaKeyboard) {
   $rootScope.VERSION = window.VERSION;
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if (window.cordova && window.cordova.plugins.Keyboard) {
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      //cordova.plugins.Keyboard.disableScroll(false);
     }
+    $cordovaKeyboard.hideAccessoryBar(true)
+    //$cordovaKeyboard.disableScroll(false)
+    ionic.Platform.isFullScreen = false;
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
@@ -38,7 +42,8 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
 
 .config(function($stateProvider, $urlRouterProvider, $compileProvider, $ionicConfigProvider) {
   $compileProvider.debugInfoEnabled(false);
-  $ionicConfigProvider.scrolling.jsScrolling(false);
+  //$ionicConfigProvider.scrolling.jsScrolling(true);
+  
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.
