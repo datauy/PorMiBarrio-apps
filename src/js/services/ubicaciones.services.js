@@ -25,7 +25,7 @@ pmb_im.services.factory('locationAPI', ['$http', '$q', 'ApiImEndpoint', 'ApiData
         }
       });
   };
-  
+
   locationAPI.getLocationGeom = function(_location) {
     var url = ApiImEndpoint.url + '/' + restPreffix + locationAPI.getParamPathByTipo(_location.tipo);
     for (var i = 0; i < _location.pathParams.length; i++) {
