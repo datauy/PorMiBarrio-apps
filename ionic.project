@@ -8,7 +8,7 @@
     },
     {
       "path": "/data",
-      "proxyUrl": "http://devel.pormibarrio.uy/"
+      "proxyUrl": "http://pmbuy.development.datauy.org/"
     }
   ],
   "gulpStartupTasks": [

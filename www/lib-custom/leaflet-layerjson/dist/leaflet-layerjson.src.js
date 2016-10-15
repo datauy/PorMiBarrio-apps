@@ -398,7 +398,7 @@
 
   /*  _onEachFeatureDefault: function(feature, layer) {
 // does this feature have a property named popupContent?
-var html,reportId,descripcion,baseURL = "http://devel.pormibarrio.uy/";
+var html,reportId,descripcion,baseURL = "http://pmbuy.development.datauy.org/";
   if (feature.properties) {
     reportId = feature.properties.id;
     descripcion = feature.properties.title;

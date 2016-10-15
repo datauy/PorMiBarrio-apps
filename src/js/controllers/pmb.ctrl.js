@@ -106,8 +106,8 @@ function($scope,
       }
 
       return promiseSearch;
-
-
+    }else{
+          return [];
     }
   };
 
@@ -120,6 +120,7 @@ function($scope,
 
   $scope.itemsClicked = function(callback) {
 
+    console.log(callback);
     $scope.clickedValueModel = callback;
     //$scope.selectedItem = callback.selectedItems[0];
     $scope.selectedItem = callback.item;
@@ -127,14 +128,16 @@ function($scope,
     if ($scope.searchMode == "esquina.numero") {
         //selecciono una esquina
         $scope.location.esquina= $scope.selectedItem;
+        locationGeomParams.pathParams = [];
         locationGeomParams.tipo="ESQUINA";//$scope.selectedItem.descTipo;
         locationGeomParams.pathParams.push($scope.location.calle.codigo);
         locationGeomParams.pathParams.push($scope.location.esquina.codigo);
         locationAPI.getLocationGeom(locationGeomParams).then(function(result){
-        MapService.goToPlace(angular.extend({nombre: $scope.location.calle.nombre + " esquina " + $scope.selectedItem.nombre},result),$scope);
-        $scope.searchMode = "calle.lugar";
-        $scope.ionAutocompleteElementSearch.attr("placeholder", "Buscar calle");
-
+          //console.log(result.geoJSON);
+          MapService.goToPlace(angular.extend({nombre: $scope.location.calle.nombre + " esquina " + $scope.selectedItem.nombre, geom: result.geoJSON},result),$scope);
+          $scope.searchMode = "calle.lugar";
+          $scope.ionAutocompleteElementSearch.attr("placeholder", "Buscar calle");
+          $scope.externalModel = [];
         });
 
 
@@ -144,7 +147,7 @@ function($scope,
       $scope.searchMode = "esquina.numero";
       $scope.ionAutocompleteElementSearch.attr("placeholder", "Esquina o número");
       $scope.ionAutocompleteElement.controller('ionAutocomplete').showModal();
-
+      $scope.preselectedSearchItems = [];
       /*if ($scope.selectedItem.descTipo === "VIA") {
         $scope.location.calle= $scope.selectedItem;
         $scope.searchMode = "esquina.numero";

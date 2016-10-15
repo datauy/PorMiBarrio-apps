@@ -1,6 +1,6 @@
 pmb_im.services.factory('UserService', ['$http', function($http) {
 
-  //var baseURL = "http://devel.pormibarrio.uy/auth/ajax/";
+  //var baseURL = "http://pmbuy.development.datauy.org/auth/ajax/";
   var UserObj = {};
   UserObj.name = null;
   UserObj.email = null;

@@ -1067,7 +1067,10 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     };
 
     // Suggestion
-    $scope.model = "";
+    $scope.model = [];
+    $scope.externalModel = [];
+    $scope.selectedItems = [];
+    $scope.preselectedSearchItems = [];
     $scope.clickedValueModel = "";
     $scope.removedValueModel = "";
 

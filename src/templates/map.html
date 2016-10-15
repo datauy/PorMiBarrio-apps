@@ -48,6 +48,9 @@
     <label class="search-textbox-label">
         <input ion-autocomplete type="text" id="search-textbox" readonly="readonly" class="ion-autocomplete" autocomplete="off"
                ng-model="model"
+               external-model="externalModel"
+               selected-items="selectedItems"
+               search-items="preselectedSearchItems"
                item-value-key="codigo"
                item-view-value-key="nombre"
                items-method="searchLocation(query)"

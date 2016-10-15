@@ -14,9 +14,7 @@
   "version": "0.1.0",
   "homepage": "https://github.com/datauy/PorMiBarrioAPPs/",
   "authors": [
-    "DATAUY.ORG <contacto@datauy.org>",
-    "Fernando Uval <fernando@datauy.org>",
-    "Pablo Pignolo <pablo.pignolo@gmail.com>"
+    "DATAUY.ORG <contacto@datauy.org>"
   ],
   "license": "MIT",
   "ignore": [
