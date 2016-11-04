@@ -1,6 +1,6 @@
 pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService', function($http, leafletData, ConfigService) {
 
-  var baseURL = ConfigService.baseURL + "report/ajax/";
+  var baseURL = ConfigService.baseURL + "/report/ajax/";
 
 
   /**

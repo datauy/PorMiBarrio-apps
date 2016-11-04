@@ -124,7 +124,6 @@ function($scope,
 
     $scope.ionAutocompleteElement.controller('ionAutocomplete').showModal();
 
-
   };
 
   $scope.itemsClicked = function(callback) {
@@ -139,7 +138,7 @@ function($scope,
       locationGeomParams.pathParams.push($scope.location.calle.codigo);
       locationGeomParams.pathParams.push($scope.location.esquina.codigo);
       var str_tipo = "";
-      if($scope.isNumeric($scope.selectedItem.codigo)){
+      if($scope.isNumeric($scope.selectedItem.nombre)){
         //Seleccionó un número de puerta
         locationGeomParams.tipo="DIRECCION";
       }else{
@@ -182,7 +181,6 @@ function($scope,
   };
 
   $scope.itemsCanceled= function(_item){
-    console.log(_item.searchQuery);
     var numPuerta = parseInt(_item.searchQuery);
     if(Number.isInteger(numPuerta)){
       //console.log("IS number");

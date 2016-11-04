@@ -208,7 +208,7 @@ body {
   background-image:    url(./img/icon-user-anonymous.png);
   background-repeat:   no-repeat;
   background-position: center center;
-  background-size: 30px 30px;
+  background-size: 30px 30px !important;
   -moz-border-radius: 70px;
   -webkit-border-radius: 70px;
   border-radius: 70px;
@@ -223,13 +223,13 @@ body {
   height: 40%;
   position: absolute;
   bottom: 105px;
+  top: auto;
   border-top-color: #adb9b8;
   border-top-style: solid;
   border-top-width: 2px;
 }
 
 #offline-report-list-scroll{
-  display: none;
   background-color: #e8eeec;
   width: 100%;
   height: auto;
@@ -237,17 +237,30 @@ body {
   min-height: 20%;
   position: absolute;
   bottom: 105px;
+  top: auto;
   border-top-color: #adb9b8;
   border-top-style: solid;
   border-top-width: 2px;
 }
 
 #offline-report-list-scroll h3{
-  font-size: 10pt;
+  font-size: 18px;
   padding-left: 10px;
   padding-right: 10px;
   margin-top: 10px;
   margin-bottom: -10px;
+}
+
+#offline-report-list-scroll h3 a{
+  font-size: 20px;
+  color: #0078A8;
+  text-align: center;
+}
+
+.report-in-list-actions a{
+  font-size: 18px;
+  margin-right: 15px;
+  color: #0078A8;
 }
 
 .offline-pending{
@@ -262,7 +275,7 @@ body {
 
 #report-list-offline{
   background-color: #e8eeec;
-  height: auto;
+  height: 40%;
 }
 
 .list{
@@ -656,8 +669,8 @@ body {
 
 #user-options-menu{
   display: none;
-  height: 120px;
-  width: 150px;
+  height: 160px;
+  width: 200px;
   z-index: 99999;
   background-color:rgba(0, 0, 0, 0.8);
   position: absolute;
@@ -703,6 +716,7 @@ body {
   -moz-border-radius: 70px;
   -webkit-border-radius: 70px;
   border-radius: 70px;
+  background-size: 100% 100% !important;
 }
 
 #actual_photo_container h3{
@@ -734,6 +748,20 @@ body {
   color: red;
 }
 
+#error_container_inside{
+  display: none;
+  width: 90%;
+  height: auto;
+  margin-top: 10px;
+}
+
+#error_container_inside h3{
+  font-size: 14px;
+  text-align: left;
+  margin-bottom: 5px;
+  color: red;
+}
+
 .slider {
   height: 600px;
 }
@@ -746,4 +774,82 @@ body {
   width: 75%;
   height: auto;
   margin: 0 auto 0 auto;
+}
+
+.report-link{
+  font-size: 18px;
+}
+
+.leaflet-popup-content{
+  font-size: 18px;
+}
+
+#map_crosshair{
+  z-index: 99999999;
+  width: 100px;
+  height: 100px;
+  margin: auto;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background-image:    url(./img/crosshairs@x2.png);
+  background-size:     cover;
+  background-repeat:   no-repeat;
+  background-position: center center;
+  display: none;
+}
+
+#map_crosshair_button{
+  z-index: 1000;
+  width: 100%;
+  margin: auto;
+  position: absolute;
+  left: 0;
+  bottom: 105px;
+  display: none;
+}
+
+#map_crosshair_button .custom-html-modal-button{
+  background-color: #2bac6d;
+  width: 100%;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+
+.button-clear.button-clear{
+  color: #000000;
+}
+
+.popup-sub-title{
+  font-size: 14px;
+  color: #FFFFFF;
+  text-align: left;
+}
+
+.popup-title{
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+.popup-container .popup{
+  background-color: rgba(0, 0, 0, 0.8)
+}
+
+.popup-body{
+  font-size: 14px;
+  color: #FFFFFF;
+  text-align: left;
+}
+
+#comment_container input[type="checkbox"]{
+  width: auto;
+}
+
+.report-detail-back .custom-html-modal-button{
+  display: inline;
+  margin-right: 15px;
+}
+
+#comment-button{
+  display: none;
 }

@@ -21,7 +21,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$location',
   'ErrorService',
   '$ionicSlideBoxDelegate',
-  '$anchorScroll',
   '$ionicScrollDelegate',
   '$cordovaNetwork',
   'PopUpService',
@@ -56,7 +55,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $location,
     ErrorService,
     $ionicSlideBoxDelegate,
-    $anchorScroll,
     $ionicScrollDelegate,
     $cordovaNetwork,
     PopUpService,
@@ -95,6 +93,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
      */
     $scope.featureReports = {};
     $scope.baseURL = ConfigService.baseURL;
+    $scope.user_cached_image = "";
+    $scope.report_detail_id = null;
+    $scope.one_value_popup = null;
+    $scope.abuse_name = null;
+    $scope.abuse_email = null;
+    $scope.abuse_subject = null;
+    $scope.abuse_message = null;
 
     $scope.$on("$ionicView.beforeEnter", function() {
 
@@ -102,11 +107,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
         $scope.send_offline_reports();
+      }else{
+        $scope.set_offline_user();
       }
       $scope.set_network_events();
       var checkOfflineReports = $interval(function() {
         $scope.send_offline_reports();
-      }, 300000);
+      }, 60000);
     });
 
     $scope.openWebsite = function(url) {
@@ -131,9 +138,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           $scope.check_user_logged();
           $scope.send_offline_reports();
           $scope.addReportsLayer();
+          $scope.create_online_map();
         });
         $scope.$on('$cordovaNetwork:offline', function(event, networkState){
           $scope.create_offline_map();
+          $scope.set_offline_user();
         });
       }
       else {
@@ -141,12 +150,24 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           $scope.check_user_logged();
           $scope.send_offline_reports();
           $scope.addReportsLayer();
+          $scope.create_online_map();
         }, false);
         window.addEventListener("offline", function(e) {
           $scope.create_offline_map();
+          $scope.set_offline_user();
         }, false);
       }
-    }
+    };
+
+    $scope.send_offline_reports_from_menu = function() {
+      if(ConnectivityService.isOnline()){
+        $scope.send_offline_reports();
+        $scope.list_offline_reports();
+      }else{
+        PopUpService.show_alert('Error de conexión','Para poder enviar los reportes pendientes debe estar conectado a internet.');
+      }
+
+    };
 
     $scope.send_offline_reports = function() {
       if(ConnectivityService.isOnline()){
@@ -324,7 +345,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             });
         }
       }else{
-        PopUpService.show_alert('Nuevo reporte','Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.');
+        $scope.addMapControls();
+        //PopUpService.show_alert('Nuevo reporte','Para realizar un nuevo reporte, mantén presionado sobre la ubicación deseada.');
       }
     };
 
@@ -359,7 +381,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.report =  $scope.offlineReports[reportId];
     $ionicModal.fromTemplateUrl('templates/delete-offline-report.html', {
       scope: $scope,
-      hardwareBackButtonClose: false,
+      //hardwareBackButtonClose: false,
       animation: 'slide-in-up',
       //focusFirstInput: true
     }).then(function(modal) {
@@ -389,8 +411,26 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
   }
 
+  $scope.cleanOfflineMarkers = function(map){
+      map.eachLayer(function (layer) {
+        if(layer._url!="undefined" && layer._url!=null){
+          //IT's THE MAP ITSELF
+        }else{
+          if(layer.options.alt == "Reporte pendiente de envío"){
+            map.removeLayer(layer);
+          }
+        };
+      });
+  }
+
   $scope.deleteOfflineReportOk = function(){
+    var id = $scope.report._id;
     DBService.deleteGivenReport($scope.report).then(function(){
+      var marker = $scope.offlineReportsMarkers[id];
+      leafletData.getMap().then(function(map) {
+        map.removeLayer(marker);
+      });
+      //console.log($scope.offlineReportsMarkers[report.id]);
       $scope.back_to_map(true);
       $scope.list_reports();
     });
@@ -432,32 +472,37 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.categories = categories;
     document.getElementById("spinner").style.display = "none";
     document.getElementById("foot_bar").style.display = "none";
+    var template = "";
     if(UserService.isLogged()){
       $scope.report.name = UserService.name;
       $scope.report.email = UserService.email;
       $scope.report.password_sign_in = UserService.password;
       $scope.report.phone = UserService.phone;
-      $ionicModal.fromTemplateUrl('templates/pmb-offline-wizard.html', {
-        scope: $scope,
-        hardwareBackButtonClose: false,
-        animation: 'slide-in-up',
-        //focusFirstInput: true
-      }).then(function(modal) {
-          $scope.new_report_modal = modal;
-          $scope.new_report_modal.show();
-        });
+      template = "templates/pmb-offline-wizard.html";
     }else{
-      $ionicModal.fromTemplateUrl('templates/pmb-offline-wizard.html', { //Se llama siempre al form que no pide usuario porque ya se guardó el usuario la primera vez
-        scope: $scope,
-        hardwareBackButtonClose: false,
-        animation: 'slide-in-up',
-        //focusFirstInput: true
-      }).then(function(modal) {
-          $scope.new_report_modal = modal;
-          $scope.new_report_modal.show();
-        });
-
+      //template = "templates/pmb-offline-wizard-with-login.html";
+      template = "templates/pmb-offline-wizard.html";
+      //Se llama siempre al form que no pide usuario porque ya se guardó el usuario la primera vez
     }
+    $ionicModal.fromTemplateUrl('templates/pmb-offline-wizard.html', {
+      scope: $scope,
+      //hardwareBackButtonClose: false,
+      animation: 'slide-in-up',
+      //focusFirstInput: true
+    }).then(function(modal) {
+        $scope.new_report_modal = modal;
+        $scope.new_report_modal.show().then(function(){
+              var categorygroup = $scope.report.categorygroup;
+              var categories_select = angular.element( document.querySelector( '#categoriesSelect' ) );
+              categories_select.val(categorygroup);
+              $scope.update_subcategories();
+              var category = $scope.report.category;
+              var sub_select_id = "#subcategoriesSelect_"+categorygroup;
+              var sub_categories_select = angular.element( document.querySelector( sub_select_id ) );
+              sub_categories_select.val(category);
+              //var compiled = $compile(element.contents())($scope);
+            });;
+    });
   }
 
   $scope.update_subcategories = function(){
@@ -469,6 +514,148 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     var active_select = document.getElementById('subcategoriesSelect_'+idCat);
     active_select.className = "subcategory-active";
     document.getElementById("subcategoriesSelectContainer").style.display="block";
+  };
+
+  $scope.abuse = function() {
+      var confirmAbuse = $ionicPopup.show({
+      template: 'Nombre: <input type="text" id="abuse_name"><br/>Email: <input type="text" id="abuse_email"><br/>Asunto: <input type="text" id="abuse_subject"><br/>Mensaje<textarea rows="6" id="abuse_message"></textarea><div id="error_container_inside"></div>',
+      title: "Denunciar abuso",
+      subTitle: "Estás reportando por abusiva al siguiente reporte, que contiene información personal, o similar:",
+      scope: $scope,
+      buttons: [
+        { text: 'Cancelar' },
+        {
+          text: '<b>Enviar</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            var fields = new Array();
+            $scope.abuse_email = document.getElementById("abuse_email").value;
+            $scope.abuse_name = document.getElementById("abuse_name").value;
+            $scope.abuse_subject = document.getElementById("abuse_subject").value;
+            $scope.abuse_message = document.getElementById("abuse_message").value;
+            fields.push($scope.create_field_array("Nombre","notNull",$scope.abuse_name));
+            fields.push($scope.create_field_array("Email","email",$scope.abuse_email));
+            fields.push($scope.create_field_array("Asunto","notNull",$scope.abuse_subject));
+            fields.push($scope.create_field_array("Mensaje","notNull",$scope.abuse_message));
+            if(ErrorService.check_fields(fields,"error_container_inside")){
+              return $scope.abuse_email;
+            }else{
+              e.preventDefault();
+            }
+          }
+        }
+      ]
+    });
+    confirmAbuse.then(function(res) {
+     if(res) {
+       var http_request = PMBService.abuse($scope.abuse_email,$scope.report_detail_id,$scope.abuse_name,abuse_subject,$scope.abuse_message);
+       http_request.then(function(resp) {
+          //var data = JSON.parse(resp.response);
+          //if(ErrorService.http_data_response_is_successful(data,"error_container")){
+            PopUpService.show_alert("Denuncia enviada","Gracias por tus comentarios. ¡Nos pondremos en contacto con usted tan pronto como nos sea posible!");
+            $scope.abuse_name = null;
+            $scope.abuse_email = null;
+            $scope.abuse_subject = null;
+            $scope.abuse_message = null;
+          //}
+       });
+    }
+   });
+  };
+
+  $scope.comment = function() {
+      var confirmComment = $ionicPopup.show({
+      template: '<div id="comment_container"><input type="checkbox" id="comment_showname"/> - Mostrar mi nombre<br/><input type="checkbox" id="comment_addalerts"/> - Recibir futuros comentarios<br/><input type="checkbox" id="comment_fixed"/> - Problema arreglado <br/>Comentario: <textarea rows="6" id="comment_message"></textarea><div id="error_container_inside"></div></div>',
+      title: "Añadir comentario",
+      subTitle: "",
+      scope: $scope,
+      buttons: [
+        { text: 'Cancelar' },
+        {
+          text: '<b>Enviar</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            var fields = new Array();
+            $scope.comment_showname = document.getElementById("comment_showname").checked;
+            console.log($scope.comment_showname);
+            /*$scope.abuse_name = document.getElementById("abuse_name").value;
+            $scope.abuse_subject = document.getElementById("abuse_subject").value;
+            $scope.abuse_message = document.getElementById("abuse_message").value;
+            fields.push($scope.create_field_array("Nombre","notNull",$scope.abuse_name));
+            fields.push($scope.create_field_array("Email","email",$scope.abuse_email));
+            fields.push($scope.create_field_array("Asunto","notNull",$scope.abuse_subject));
+            fields.push($scope.create_field_array("Mensaje","notNull",$scope.abuse_message));
+            if(ErrorService.check_fields(fields,"error_container_inside")){
+              return $scope.abuse_email;
+            }else{*/
+              e.preventDefault();
+            //}
+          }
+        }
+      ]
+    });
+    confirmComment.then(function(res) {
+     if(res) {
+       var http_request = PMBService.comment($scope.abuse_email,$scope.report_detail_id,$scope.abuse_name,abuse_subject,$scope.abuse_message);
+       http_request.then(function(resp) {
+          //var data = JSON.parse(resp.response);
+          //if(ErrorService.http_data_response_is_successful(data,"error_container")){
+            PopUpService.show_alert("Denuncia enviada","Gracias por tus comentarios. ¡Nos pondremos en contacto con usted tan pronto como nos sea posible!");
+            $scope.abuse_name = null;
+            $scope.abuse_email = null;
+            $scope.abuse_subject = null;
+            $scope.abuse_message = null;
+          //}
+       });
+    }
+   });
+  };
+
+  $scope.subscribe = function() {
+    if(UserService.isLogged()){
+      var confirmSubscribe = PopUpService.confirmPopup("Subscribirse","¿Está seguro que desea recibir un correo a la dirección "+UserService.email+" cuando se dejen comentarios sobre este problema?");
+      confirmSubscribe.then(function(res) {
+       if(res) {
+        var http_request = PMBService.subscribe(UserService.email,$scope.report_detail_id);
+        http_request.then(function(resp) {
+           //var data = JSON.parse(resp.response);
+           //if(ErrorService.http_data_response_is_successful(data,"error_container")){
+           //}
+           PopUpService.show_alert("Confirme su correo","Se ha enviado un link a la dirección " + UserService.email + " para confirmar su correo. Luego de esto comenzarán a llegarle las alertas sobre nuevos comentarios.")
+        });
+       }
+     });
+    }else{
+      var confirmSubscribe = PopUpService.askForOneValuePopUp($scope,"Subscribirse","Por favor, ingrese un correo al que desea recibir mensajes cuando se dejen comentarios sobre este problema.", "Email", "email");
+      confirmSubscribe.then(function(res) {
+       if(res) {
+         $scope.one_value_popup = res;
+         var http_request = PMBService.subscribe($scope.one_value_popup,$scope.report_detail_id);
+         http_request.then(function(resp) {
+            //var data = JSON.parse(resp.response);
+            //if(ErrorService.http_data_response_is_successful(data,"error_container")){
+              PopUpService.show_alert("Confirme su correo","Se ha enviado un link a la dirección " + $scope.one_value_popup + " para confirmar su correo. Luego de esto comenzarán a llegarle las alertas sobre nuevos comentarios.")
+              $scope.one_value_popup = null;
+            //}
+         });
+      }
+     });
+    }
+
+  };
+
+  $scope.hide = function() {
+    if(UserService.isLogged()){
+      var confirmHide = PopUpService.confirmPopup("Ocultar","¿¿Está seguro de que desea ocultar su reporte? Este no aparecerá más ni en la página ni en la aplicación si es ocultado.");
+      confirmHide.then(function(res) {
+       if(res) {
+        var http_request = PMBService.hide($scope.report_detail_id);
+        http_request.then(function(resp) {
+           PopUpService.show_alert("Ocultar","Se ha ocultado el reporte. No será visible en el futuro.");
+        });
+       }
+     });
+    }
   };
 
   $scope.confirmReport = function() {
@@ -508,7 +695,14 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
               $scope.back_to_map(true);
               //$scope.list_reports_and_go(response.id);
               $scope.list_reports();
-              PopUpService.show_alert("Error en el envío","Hubo un error en el envío: Código = " + error.code + ". El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
+              var alert = "Código: " + error.code;
+              alert = alert + " Origen: " + error.source;
+              alert = alert + " Destino: " + error.target;
+              alert = alert + " http_status: " + error.http_status;
+              //alert = alert + " Body: " + error.body;
+            //  alert = alert + " Exception: " + error.exception;
+              //console.log(alert);
+              PopUpService.show_alert("Error en el envío","Hubo un error en el envío: " + alert + ". El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
             });
           }, function(progress) {
             $timeout(function() {
@@ -623,7 +817,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     var options = {
-      quality: 50,
+      quality: 90,
       destinationType: Camera.DestinationType.FILE_URI,
       sourceType: source,
       allowEdit: false,
@@ -631,8 +825,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
       saveToPhotoAlbum: save_to_gallery,
-      targetWidth: 200,
-      targetHeight: 200
+      targetWidth: 350,
+      targetHeight: 350
     };
 
 
@@ -640,9 +834,14 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       onImageSuccess(imageData);
 
       function onImageSuccess(fileURI) {
+        //alert(fileURI);
         window.FilePath.resolveNativePath(fileURI, function(result) {
           // onSuccess code
+          //alert(result);
           fileURI = 'file://' + result;
+          if(result.startsWith("file://")){
+            fileURI = result;
+          }
           if($scope.isUserPhoto==1){
             //UserService.add_photo(fileURI);
             $scope.profile.picture_url = fileURI;
@@ -686,8 +885,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
       function fail(error) {
 
-        //console.log("fail: " + error.code);
-        //console.log("fail: " + angular.toJson(error));
       }
 
       function makeid() {
@@ -717,6 +914,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
 
     $scope.list_reports = function() {
+      $scope.hide_special_divs();
       $scope.set_active_option('button-list-reports');
       document.getElementById("user-options-menu").style.display="none";
       if(ConnectivityService.isOnline()){
@@ -724,48 +922,54 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         document.getElementById("report-list-scroll").style.display = "block";
       }else{
         //SHOW OFFLINE REPORTS
-        leafletData.getMap().then(function(map) {
-          map.eachLayer(function (layer) {
-            if(layer._url!="undefined" && layer._url!=null){
-              //IT's THE MAP ITSELF
-            }else{
-              map.removeLayer(layer);
-            };
-          });
-          var reports = DBService.getAllReports();
-          var div = '<div id="report-list-offline">';
-          $scope.offlineReports = new Array();
-          $scope.offlineReportsMarkers = new Array();
-          reports.then(function (result) {
-            // handle result
-            div = div + '<h3><b>Reportes guardados en el dispositivo y pendientes de envío:</b></h3>';
-            if(result!=null && result.rows.length>0){
-              result.rows.forEach(function(row) {
-                  var report = row.doc;
-                  $scope.offlineReports[report._id]=report;
-                  div = div + $scope.add_offline_report_div(report);
-                  var marker = L.marker([report.lat, report.lon]).addTo(map);
-                  var markerHTML = '<a class="text report-link" ng-click="editOfflineReport(\'' + report._id + '\')"><p>' + report.title + '</p></a><p class="offline-pending">(pendiente de envío)</p>';
-                  var compiled = $compile(markerHTML)($scope);
-                  marker.bindPopup(compiled[0]);
-                  $scope.offlineReportsMarkers[report._id]=marker;
-              });
-            }else{
-              div = div + '<br/><h3>No hay ningún reporte pendiente de envío.</h3>';
-            }
-            div = div + '</div>';
-            var element = angular.element( document.querySelector( '#offline-report-list-scroll' ) );
-            element.html(div);
-            var compiled = $compile(element.contents())($scope);
-          }).catch(function (err) {
-            div = div + '<br/><h3>No hay ningún reporte pendiente de envío.</h3>';
-            div = div + '</div>';
-          });
-          document.getElementById("offline-report-list-scroll").style.display = "block";
-        });
-
+        $scope.list_offline_reports();
       }
     };
+
+    $scope.list_offline_reports_menu = function(){
+      $scope.hide_special_divs();
+      $scope.list_offline_reports();
+    }
+
+    $scope.list_offline_reports = function(){
+      leafletData.getMap().then(function(map) {
+        $scope.cleanOfflineMarkers(map);
+        var reports = DBService.getAllReports();
+        var div = '<ion-scroll direction="y" id="offline-report-list-scroll"><div class="scroll"><div id="report-list-offline">';
+        $scope.offlineReports = new Array();
+        $scope.offlineReportsMarkers = new Array();
+        reports.then(function (result) {
+          // handle result
+          div = div + '<h3><b>Reportes guardados en el dispositivo y pendientes de envío:</b></h3>';
+          if(result!=null && result.rows.length>0){
+            result.rows.forEach(function(row) {
+                var report = row.doc;
+                $scope.offlineReports[report._id]=report;
+                div = div + $scope.add_offline_report_div(report);
+                var markerOptions = {alt: "Reporte pendiente de envío"};
+                var marker = L.marker([report.lat, report.lon],markerOptions).addTo(map);
+                var markerHTML = '<a class="text report-link" ng-click="editOfflineReport(\'' + report._id + '\')"><p>' + report.title + '</p></a><p class="offline-pending">(pendiente de envío)</p>';
+                var compiled = $compile(markerHTML)($scope);
+                marker.bindPopup(compiled[0]);
+                $scope.offlineReportsMarkers[report._id]=marker;
+            });
+            div = div + "<br/><h3><a ng-click='send_offline_reports_from_menu()'>- Enviar todos los reportes pendientes</a></h3>";
+          }else{
+            div = div + '<br/><h3>No hay ningún reporte pendiente de envío.</h3>';
+          }
+          div = div + '</div></div><div class="scroll-bar scroll-bar-v"><div class="scroll-bar-indicator scroll-bar-fade-out"></div></div></ion-scroll>';
+          var element = angular.element( document.querySelector( '#offline-report-list-container' ) );
+          element.html(div);
+          var compiled = $compile(element.contents())($scope);
+          $scope.$broadcast('scroll.resize');
+        }).catch(function (err) {
+          div = div + '<br/><h3>No hay ningún reporte pendiente de envío.</h3>';
+          div = div + '</div></div><div class="scroll-bar scroll-bar-v"><div class="scroll-bar-indicator scroll-bar-fade-out"></div></div></ion-scroll>';
+        });
+        document.getElementById("offline-report-list-container").style.display = "block";
+      });
+
+    }
 
     $scope.list_reports_and_go = function(reportId) {
       $scope.set_active_option('button-list-reports');
@@ -808,14 +1012,14 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
               div = div + '<br/><h3>No hay ningún reporte pendiente de envío.</h3>';
             }
             div = div + '</div>';
-            var element = angular.element( document.querySelector( '#offline-report-list-scroll' ) );
+            var element = angular.element( document.querySelector( '#offline-report-list-container' ) );
             element.html(div);
             var compiled = $compile(element.contents())($scope);
           }).catch(function (err) {
             div = div + '<br/><h3>No hay ningún reporte pendiente de envío.</h3>';
             div = div + '</div>';
           });
-          document.getElementById("offline-report-list-scroll").style.display = "block";
+          document.getElementById("offline-report-list-container").style.display = "block";
         });
 
       }
@@ -901,25 +1105,40 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.hide_special_divs = function(){
       document.getElementById("report-list-scroll").style.display = "none";
-      document.getElementById("offline-report-list-scroll").style.display = "none";
+      document.getElementById("offline-report-list-container").style.display = "none";
       document.getElementById("user-options-menu").style.display="none";
+      document.getElementById('map_crosshair').style.display = "none";
+      document.getElementById('map_crosshair_button').style.display = "none";
     }
 
     $scope.viewReportDetails = function(id){
+      if($scope.report_detail_modal!=null){
+        $scope.report_detail_modal.remove();
+        $scope.report_detail_id = null;
+      }
+      $scope.report_detail_id = id;
       if(ConnectivityService.isOnline()){
         document.getElementById("spinner").style.display = "block";
         $scope.hide_special_divs();
         ReportService.getById(id).then(function(resp) {
-          $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;","").replace('src="/','src="'+ConfigService.baseURL));
+          $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;","").replace('src="/','src="'+ConfigService.baseURL).replace('url(/','url('+ConfigService.baseURL+ConfigService.baseCobrand+"/").replace('url(/','url('+ConfigService.baseURL+ConfigService.baseCobrand+"/"));
           document.getElementById("spinner").style.display = "none";
           $ionicModal.fromTemplateUrl('templates/report-detail.html', {
             scope: $scope,
-            hardwareBackButtonClose: false,
+            //hardwareBackButtonClose: false,
             animation: 'slide-in-up',
             //focusFirstInput: true
           }).then(function(modal) {
               $scope.report_detail_modal = modal;
-              $scope.report_detail_modal.show()
+              $scope.report_detail_modal.show().then(function(){
+                  var element = angular.element( document.querySelector( '#report-detail-container-div' ) );
+                  var compiled = $compile(element.contents())($scope);
+                  if(UserService.isLogged()){
+                    //document.getElementById("comment-button").style.display="inline";
+                  }else{
+                    document.getElementById("comment-button").style.display="none";
+                  }
+              })
             });
         }, function(resp) {
           //console.log(err);
@@ -934,6 +1153,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.close_report_detail_modal = function(){
       $scope.report_detail_modal.hide();
+      $scope.report_detail_modal.remove();
+      $scope.report_detail_id = null;
     }
 
 
@@ -980,14 +1201,27 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       });
     };*/
 
-    /*$scope.addMapControls = function() {
-      var _crosshair, _crosshairIcon = L.icon({
-        iconUrl: 'img/crosshairs@x2.png' //,
-      });
+    $scope.addMapControls = function() {
 
+      document.getElementById('map_crosshair').style.display = "block";
+      document.getElementById('map_crosshair_button').style.display = "block";
+
+    };
+
+    $scope.startReportFromCrosshairs = function(){
       leafletData.getMap().then(function(map) {
+        var latlon = map.getCenter();
+        LocationsService.save_new_report_position(latlon.lat,latlon.lng);
+        $scope.new_report(1);
+        //console.log(latlon);
       });
-    };*/
+    }
+
+    $scope.getOnlyCategoryIconURL = function(url){
+      var new_url = url.replace("-proceso","");
+      new_url = new_url.replace("-resuelto","");
+      return new_url;
+    };
 
     $scope.addReportsLayer = function() {
       var baseURL = ConfigService.baseURL;
@@ -1014,7 +1248,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         },
 
         l = new L.LayerJSON({
-          url: baseURL + "ajax_geo?bbox={bbox}" /*"ajax_geo?bbox={bbox}"*/ ,
+          url: baseURL + "/ajax_geo?bbox={bbox}" /*"ajax_geo?bbox={bbox}"*/ ,
           locAsGeoJSON: true /*locAsArray:true*/,
           onEachFeature: onEachFeature
         });
@@ -1032,7 +1266,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       l.on('layeradd', function(e) {
         e.layer.eachLayer(function(_layer) {
           var markerIcon = L.icon({
-            iconUrl: baseURL + _layer.feature.properties.pin_url,
+            iconUrl: baseURL + "/" + _layer.feature.properties.pin_url,
             iconSize: [29, 34],
             iconAnchor: [8, 8],
             popupAnchor: [0, -8]
@@ -1055,12 +1289,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       var report_div = document.getElementById("report-container-"+report.properties.id);
       report_div.className = "report-inside-list-active";
 
+
       var layer = $scope.featureReports[report.properties.id];
       leafletData.getMap().then(function(map) {
         var coords = layer.getLatLng();
         var lat = coords.lat;
         //Move a little the map center because the map view is smaller (report list is displayed)
-        lat = lat - 0.001;
+        lat = lat - 0.0006;
         map.setView(new L.LatLng(lat, coords.lng), 18);
         layer.openPopup();
       });
@@ -1125,15 +1360,20 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       html = html + "<div class='nonauth-link' ng-click='show_sign_up_modal()'>Registrarse</div></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
+      menu.style.height = '120px';
+      menu.style.width = '150px';
       menu.style.display = "block";
     }
 
     $scope.show_user_menu = function(){
       var menu = document.getElementById("user-options-menu");
       var html = UserService.name + "<div id='auth_options'><div class='user-logged-link' ng-click='show_edit_profile_modal()'>Mi perfil</div>";
+      html = html + "<div class='user-logged-link' ng-click='list_offline_reports_menu()'>Reportes pendientes</div>";
       html = html + "<div class='user-logged-link' ng-click='sign_out()'>Cerrar sesión</div></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
+      menu.style.height = '160px';
+      menu.style.width = '200px';
       menu.style.display = "block";
     };
 
@@ -1217,6 +1457,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.profile.picture_url = null;
       if(UserService.picture_url!=null){
         $scope.actual_photo = UserService.picture_url;
+        if($scope.actual_photo=="url(./img/icon-user-anonymous.png)"){
+          $scope.actual_photo = "./img/icon-user-anonymous.png";
+        }
         $ionicModal.fromTemplateUrl('templates/edit_profile_with_photo.html', {
             scope: $scope,
             hardwareBackButtonClose: false,
@@ -1294,7 +1537,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                 document.getElementById("spinner-inside-modal").style.display = "none";
               }
             }, function(error) {
-              ErrorService.show_error_message("error_container","Hubo un error en el envío: Código = " + error.code);
+              var alert = "Código: " + error.code;
+              alert = alert + " Origen: " + error.source;
+              alert = alert + " Destino: " + error.target;
+              alert = alert + " http_status: " + error.http_status;
+              alert = alert + " Body: " + error.body;
+              alert = alert + " Exception: " + error.exception;
+              ErrorService.show_error_message("error_container","Hubo un error en el envío: " + alert);
               document.getElementById("spinner-inside-modal").style.display = "none";
             }, function(progress) {
                 $timeout(function() {
@@ -1437,15 +1686,48 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       }
     }
 
+    $scope.set_offline_user = function(){
+      var name = UserService.name;
+      if(name==null){
+          //Si Hay un usuario guardado
+          var user = DBService.getUser();
+          user.then(function (doc) {
+            if(doc.name!=null && doc.name!="" && doc.name!="undefined"){
+              //$scope.sign_in_ajax(doc.email, doc.password);
+              UserService.save_user_data(doc.name, doc.email, doc.password, doc.identity_document, doc.phone, doc.picture_url);
+            }else{
+              $scope.set_user_picture(0);
+            }
+          }).catch(function (err) {
+            $scope.set_user_picture(0);
+          });
+      }else{
+        //Está logueado
+        if(UserService.picture_url==null || UserService.picture_url==""){
+          //El usuario no tiene foto definida
+          $scope.set_user_picture(0);
+        }else{
+          //El usuario tiene foto
+          $scope.set_user_picture(1);
+        }
+      }
+    }
+
+
+
     $scope.set_user_picture = function(hasPhoto){
       var picture = document.getElementById("user_picture");
       if(hasPhoto==0){
-        picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
+        //picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
+        $scope.user_cached_image="./img/icon-user-anonymous.png";
       }else{
         if(UserService.picture_url!=null && UserService.picture_url!=""){
-          picture.style.backgroundImage = "url(" + UserService.picture_url + ")";
+          //alert(UserService.picture_url);
+          $scope.user_cached_image=UserService.picture_url;
+          //picture.style.backgroundImage = "url(" + UserService.picture_url + ")";
         }else{
-          picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
+          //picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
+          $scope.user_cached_image="./img/icon-user-anonymous.png";
         }
       }
 

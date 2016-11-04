@@ -1,9 +1,13 @@
 <ion-modal-view>
-  <ion-scroll direction="y" class="report-detail-scroll">
-    <div ng-bind-html="report_detail" class="report-detail-container">
+  <ion-content id="report-detail-scroll" class="report-detail-scroll" delegate-handle="content">
+  <!--<ion-scroll direction="y" class="report-detail-scroll">-->
+    <div ng-bind-html="report_detail" class="report-detail-container" id="report-detail-container-div">
     </div>
-  </ion-scroll>
+  <!--</ion-scroll>-->
+</ion-content>
+  <div id="error_container"></div>
   <div class="padding report-detail-back">
+    <button class="custom-html-modal-button" id="comment-button" ng-click="comment()">Añadir comentario</button>
     <button class="custom-html-modal-button" ng-click="close_report_detail_modal()">Volver al mapa</button>
   </div>
 </ion-modal-view>

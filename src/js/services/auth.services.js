@@ -1,6 +1,6 @@
 pmb_im.services.factory('AuthService', ['$http', '$cordovaFileTransfer', 'ConfigService', function($http, $cordovaFileTransfer, ConfigService) {
 
-  var baseURL = ConfigService.baseURL + "auth/ajax/";
+  var baseURL = ConfigService.baseURL + "/auth/ajax/";
 
   return {
     sign_in: function (password, email) {

@@ -6,7 +6,7 @@ pmb_im.services.factory('UserService', ['$http', function($http) {
   UserObj.email = null;
   UserObj.password = null;
   UserObj.identity_document = null;
-  UserObj.phone = null;
+  UserObj.phone = '';
   UserObj.picture_url = "url(./img/icon-user-anonymous.png)";
 
 

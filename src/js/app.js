@@ -10,7 +10,7 @@ var pmb_im = {
   services: angular.module('pmb_im.services', [])
 };
 
-pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete','leaflet-directive', 'pmb_im.controllers', 'pmb_im.services', 'ngCordova'])
+pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete','leaflet-directive', 'pmb_im.controllers', 'pmb_im.services', 'ngCordova', 'ionic-cache-src'])
 
 .constant('ApiImEndpoint', {
   url: 'http://www.montevideo.gub.uy'
@@ -43,7 +43,7 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
 .config(function($stateProvider, $urlRouterProvider, $compileProvider, $ionicConfigProvider) {
   $compileProvider.debugInfoEnabled(false);
   //$ionicConfigProvider.scrolling.jsScrolling(true);
-  
+
   // Ionic uses AngularUI Router which uses the concept of states
   // Learn more here: https://github.com/angular-ui/ui-router
   // Set up the various states which the app can be in.

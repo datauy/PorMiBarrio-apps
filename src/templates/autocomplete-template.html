@@ -2,7 +2,7 @@
   <div class="bar bar-header item-input-inset">
     <label class="item-input-wrapper">
       <i class="icon ion-search placeholder-icon"></i>
-      <input class="ion-autocomplete-search" ng-model="viewModel.searchQuery" placeholder="{{viewModel.placeholder}}" type="search"/>
+      <input id="buscador_de_calles" autofocus class="ion-autocomplete-search" ng-model="viewModel.searchQuery" placeholder="{{viewModel.placeholder}}" type="search"/>
     </label>
     <div class="ion-autocomplete-loading-icon" ng-if="viewModel.showLoadingIcon && viewModel.loadingIcon">
       <ion-spinner icon="{{viewModel.loadingIcon}}"></ion-spinner>

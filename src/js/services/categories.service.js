@@ -1,6 +1,6 @@
 pmb_im.services.factory('CategoriesService', ['$http','LocationsService', 'ConfigService', 'DBService', function($http,LocationsService, ConfigService, DBService) {
 
-  var baseURL = ConfigService.baseURL + "report/new/ajax";
+  var baseURL = ConfigService.baseURL + "/report/new/ajax";
 
   return {
     all: function () {

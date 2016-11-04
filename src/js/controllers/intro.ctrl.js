@@ -12,7 +12,7 @@ pmb_im.controllers.controller('IntroCtrl', ['$scope', '$state',
 
   $scope.geolocate = function() {
 
-      var posOptions = {timeout: 7000, enableHighAccuracy: true};
+      var posOptions = {timeout: 3500, enableHighAccuracy: true};
       $cordovaGeolocation
         .getCurrentPosition(posOptions)
         .then(function(position) {

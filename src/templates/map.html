@@ -6,10 +6,10 @@
 
 <div id="spinner" class="intro-spinner"><ion-spinner icon="spiral"></ion-spinner></div>
 
-<div class="top-bar-imm">
+<!--<div class="top-bar-imm">
   <div class="white-bar-imm"></div>
   <div class="icon-imm-top"/></div>
-</div>
+</div>-->
 
 
   <ion-content data-tap-disabled="true">
@@ -18,10 +18,16 @@
 
   </ion-content>
 
+  <div id="map_crosshair">
+  </div>
+  <div id="map_crosshair_button">
+    <button class="custom-html-modal-button" ng-click="startReportFromCrosshairs()">Reportar</button>
+  </div>
+
   <ion-scroll direction="y" id="report-list-scroll">
     <div id="report-list">
       <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reports track by $index" class="report-inside-list">
-        <div style="background-image: url('{{baseURL}}{{report.properties.category_url}}');" class="report-in-list-icon">
+        <div cache-src="{{baseURL}}{{getOnlyCategoryIconURL(report.properties.category_url)}}" src-is="background" background-style="no-repeat center" class="report-in-list-icon">
         </div>
         <div class="report-in-list-info">
           <p id="report-title-{{report.properties.id}}" style="color: {{report.properties.color}};" class="report-in-list-title">{{report.properties.title}}</p>
@@ -37,9 +43,9 @@
       </div>
     </div>
   </ion-scroll>
-  <ion-scroll direction="y" id="offline-report-list-scroll">
+  <div id="offline-report-list-container">
 
-  </ion-scroll>
+  </div>
 
 
 <div id="foot_bar" class="foot-bar">
@@ -79,7 +85,7 @@
       <div class="button-find-me" ng-click="find_me()"></div>
     </div>
     <div class="user-options">
-      <div id="user_picture" class="user-picture" ng-click="user_options()"></div>
+      <div id="user_picture" class="user-picture" cache-src="{{user_cached_image}}" src-is="background" background-style="no-repeat center" ng-click="user_options()"></div>
     </div>
   </div>
   <div id="user-options-menu">
