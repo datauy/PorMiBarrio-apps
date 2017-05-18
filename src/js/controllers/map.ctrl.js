@@ -239,6 +239,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   };
 
     $scope.create_offline_map = function(){
+      if($scope.map!=null){
+        return false;
+      }
       $scope.map = {
           defaults: {
             tileLayer: './offline_tiles/{z}/{x}/{y}.png',
@@ -258,6 +261,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     };
 
     $scope.create_online_map = function(){
+      if($scope.map!=null){
+        return false;
+      }
       $scope.map = {
         defaults: {
           tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
@@ -271,11 +277,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             enable: ['context'],
             logic: 'emit'
           }
+        },
+        center: {
         }
       };
     };
 
-    $scope.$on("$ionicView.afterEnter", function() {
+    $scope.$on("$ionicView.beforeEnter", function() {
       //document.getElementById("spinner").style.display = "none";
       document.getElementById("foot_bar").style.display = "block";
       if(ConnectivityService.isOnline()){
@@ -286,11 +294,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.create_offline_map();
       }
 
-        $scope.map.center = {
+        /*$scope.map.center = {
           lat: -34.901113,
           lng: -56.164531,
           zoom: 14
-        };
+        };*/
     });
 
     var Location = function() {
@@ -646,7 +654,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
   $scope.hide = function() {
     if(UserService.isLogged()){
-      var confirmHide = PopUpService.confirmPopup("Ocultar","¿¿Está seguro de que desea ocultar su reporte? Este no aparecerá más ni en la página ni en la aplicación si es ocultado.");
+      var confirmHide = PopUpService.confirmPopup("Ocultar","¿Está seguro de que desea ocultar su reporte? Este no aparecerá más ni en la página ni en la aplicación si es ocultado.");
       confirmHide.then(function(res) {
        if(res) {
         var http_request = PMBService.hide($scope.report_detail_id);
@@ -804,7 +812,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   $scope.image = null;
 
   $scope.addImage = function(isFromAlbum, isUserPhoto) {
-
+    //alert("addImage");
     $scope.isUserPhoto = isUserPhoto;
 
     var source = Camera.PictureSourceType.CAMERA;
@@ -825,8 +833,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
       saveToPhotoAlbum: save_to_gallery,
-      targetWidth: 350,
-      targetHeight: 350
+      targetWidth: 360,
+      targetHeight: 360
     };
 
 
@@ -835,6 +843,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
       function onImageSuccess(fileURI) {
         //alert(fileURI);
+        //alert(fileURI);
         window.FilePath.resolveNativePath(fileURI, function(result) {
           // onSuccess code
           //alert(result);
@@ -842,6 +851,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           if(result.startsWith("file://")){
             fileURI = result;
           }
+          //alert(fileURI);
           if($scope.isUserPhoto==1){
             //UserService.add_photo(fileURI);
             $scope.profile.picture_url = fileURI;
@@ -1224,6 +1234,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     };
 
     $scope.addReportsLayer = function() {
+      if($scope.jsonLayer!=null){
+        return false;
+      }
       var baseURL = ConfigService.baseURL;
         buildPopup = function(data, marker) {
           var reportId = data[3],
@@ -1253,6 +1266,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           onEachFeature: onEachFeature
         });
 
+        $scope.jsonLayer = l;
+
       leafletData.getMap().then(function(map) {
         map.addLayer(l);
       });
@@ -1278,6 +1293,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         });
 
       });
+
     };
 
     $scope.goToReport = function(report) {
@@ -1740,6 +1756,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $cordovaGeolocation
           .getCurrentPosition(posOptions)
           .then(function (position) {
+                console.log(position);
+                console.log($scope);
+                console.log($scope.map);
                 $scope.map.center.lat  = position.coords.latitude;
                 $scope.map.center.lng = position.coords.longitude;
                 LocationsService.save_new_report_position(position.coords.latitude,position.coords.longitude);

@@ -1,5 +1,5 @@
 <ion-modal-view class="new-report-modal">
-    <ion-scroll direction="y" class="new-report-scroll">
+    <ion-content class="new-report-scroll">
         <div class="new-report-slide">
           <div class="new-report-content">
             <div class="category-header">
@@ -42,9 +42,10 @@
               <div class="foto-input-container">
                 <div class="foto-picker">
                   <div ng-click="addImage(0,0)" class="foto-icon"></div>
-                  <div ng-click="addImage(1,0)" class="foto-text">o seleccione un archivo</div>
+                  <div ng-click="addImage(1,0)" class="foto-text">o GALERÍA</div>
                 </div>
               </div>
+              <div class="field-separator"></div>
               <div class="field-separator"></div>
               <div class="foto-footer">
                 <h3>El archivo no puede pesar más de 2MB. (JPG)</h3>
@@ -68,6 +69,6 @@
             </div>
           </div>
         </div>
-    </ionic-scroll>
+    </ion-content>
     <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>
 </ion-modal-view>

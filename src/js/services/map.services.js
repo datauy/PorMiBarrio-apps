@@ -8,7 +8,6 @@
    var mapService = {};
 
    mapService.goToPlace = function(_place,scope) {
-
      var _geoJson = {
        properties: {
          nombre: _place.nombre
@@ -34,13 +33,12 @@
        });
        layer.addTo(map);
        // console.log(JSON.stringify(layer));
-
        map.setView(_latlng, 18);
        layer.openPopup();
      });
    };
 
-   mapService.centerMapOnCoords = function(lat,lng,zoom) {
+  mapService.centerMapOnCoords = function(lat,lng,zoom) {
      leafletData.getMap().then(function(map) {
         map.setView(new L.LatLng(lat, lng),zoom);
        });

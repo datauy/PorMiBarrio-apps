@@ -27,12 +27,12 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
     if (window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(false);
       //cordova.plugins.Keyboard.disableScroll(false);
     }
-    $cordovaKeyboard.hideAccessoryBar(true)
+    //$cordovaKeyboard.hideAccessoryBar(false)
     //$cordovaKeyboard.disableScroll(false)
-    ionic.Platform.isFullScreen = false;
+    ionic.Platform.isFullScreen = true;
     if (window.StatusBar) {
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();

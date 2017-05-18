@@ -1,7 +1,7 @@
 <ion-modal-view class="new-report-modal">
   <ion-slide-box on-slide-changed="slideHasChanged($index)">
     <ion-slide>
-      <ion-scroll direction="y" class="new-report-scroll">
+      <ion-content class="new-report-scroll">
           <div class="new-report-slide">
             <div class="new-report-content">
               <div class="category-header">
@@ -44,7 +44,7 @@
                 <div class="foto-input-container">
                   <div class="foto-picker">
                     <div ng-click="addImage(0,0)" class="foto-icon"></div>
-                    <div ng-click="addImage(1,0)" class="foto-text">o seleccione un archivo</div>
+                    <div ng-click="addImage(1,0)" class="foto-text" style="margin-left: 15pt;">o GALERÍA</div>
                   </div>
                 </div>
                 <div class="field-separator"></div>
@@ -61,11 +61,11 @@
               </div>
             </div>
           </div>
-      </ionic-scroll>
+      </ion-content>
     </ion-slide>
 
     <ion-slide>
-      <ion-scroll direction="y" class="new-report-scroll">
+      <ion-content class="new-report-scroll">
           <div class="new-report-slide">
             <div class="new-report-content">
               <div class="category-header">
@@ -77,7 +77,7 @@
                   <h3>Email *</h3>
                 </div>
                 <div class="text-input-container">
-                  <input style="color: #ffffff; padding-left: 10px; padding-right: 10px;" class="text-input" type="text" placeholder="Proporcionar un correo electrónico" ng-model="report.email"/>
+                  <input style="color: #ffffff; padding-left: 10px; padding-right: 10px;" class="text-input" type="email" placeholder="Proporcionar un correo electrónico" ng-model="report.email"/>
                 </div>
                 <div class="field-separator"></div>
                 <div class="text-input-header">
@@ -101,7 +101,7 @@
               </div>
             </div>
           </div>
-      </ionic-scroll>
+      </ion-content>
     </ion-slide>
   </ion-slide-box>
     <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>

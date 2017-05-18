@@ -625,7 +625,8 @@ body {
 }
 
 .foto-text{
-  float: left;
+  font-size: 14pt;
+  float: right;
   position: relative;
   padding-left: 10px;
   padding-top: 5px;

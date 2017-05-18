@@ -20,7 +20,7 @@ var paths = {
   templates: ['src/templates/**/*.html']
 };
 
-gulp.task('bump', require('gulp-cordova-bump'));
+/*gulp.task('bump', require('gulp-cordova-bump'));*/
 
 
 gulp.task('default', ['sass', 'templates', 'build']);
