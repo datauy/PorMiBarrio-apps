@@ -13,7 +13,7 @@
                 <div class="category-select-container">
                   <select id="categoriesSelect" class="category-select" ng-model="report.categorygroup" ng-change="update_subcategories()">
                     <option value="" disabled selected>Seleccione una categoría</option>
-                    <option value="{{ key }}" ng-repeat="(key,data) in categories track by $index">{{ data.name }}</option>
+                    <option value="{{ key }}" ng-if="key != -2" ng-repeat="(key,data) in categories track by $index">{{ data.name }}</option>
                   </select>
                 </div>
                 <div class="field-separator"></div>

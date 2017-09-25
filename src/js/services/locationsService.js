@@ -5,6 +5,7 @@ pmb_im.services.factory('LocationsService', [ function() {
   locationsObj.initial_lng = "";
   locationsObj.new_report_lat = "";
   locationsObj.new_report_lng = "";
+  locationsObj.council_modal = null;
 
   locationsObj.save_initial_position = function(position) {
     locationsObj.initial_lat =  position.coords.latitude;

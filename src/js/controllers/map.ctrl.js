@@ -29,6 +29,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$cordovaInAppBrowser',
   '$interval',
   '$cordovaKeyboard',
+  'MapService',
   function(
     $scope,
     $sce,
@@ -62,7 +63,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     ConnectivityService,
     $cordovaInAppBrowser,
     $interval,
-    $cordovaKeyboard
+    $cordovaKeyboard,
+    MapService
   ) {
 
     /*$ionicPlatform.registerBackButtonAction(function () {
@@ -92,6 +94,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
      * Once state loaded, get put map on scope.
      */
     $scope.featureReports = {};
+    $scope.reportsByState = {};
+    $scope.reportsVisible = {};
     $scope.baseURL = ConfigService.baseURL;
     $scope.user_cached_image = "";
     $scope.report_detail_id = null;
@@ -114,6 +118,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       var checkOfflineReports = $interval(function() {
         $scope.send_offline_reports();
       }, 60000);
+      document.getElementById("foot_bar").style.display = "block";
+      if(ConnectivityService.isOnline()){
+        $scope.create_online_map();
+      }else{
+        $scope.create_offline_map();
+      }
     });
 
     $scope.openWebsite = function(url) {
@@ -137,8 +147,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.$on('$cordovaNetwork:online', function(event, networkState){
           $scope.check_user_logged();
           $scope.send_offline_reports();
-          $scope.addReportsLayer();
+          //$scope.addReportsLayer();
           $scope.create_online_map();
+
         });
         $scope.$on('$cordovaNetwork:offline', function(event, networkState){
           $scope.create_offline_map();
@@ -149,7 +160,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         window.addEventListener("online", function(e) {
           $scope.check_user_logged();
           $scope.send_offline_reports();
-          $scope.addReportsLayer();
+          //$scope.addReportsLayer();
           $scope.create_online_map();
         }, false);
         window.addEventListener("offline", function(e) {
@@ -281,25 +292,17 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         center: {
         }
       };
-    };
-
-    $scope.$on("$ionicView.beforeEnter", function() {
-      //document.getElementById("spinner").style.display = "none";
-      document.getElementById("foot_bar").style.display = "block";
-      if(ConnectivityService.isOnline()){
-        $scope.create_online_map();
-        $scope.addReportsLayer();
-        //$scope.addMapControls();
-      }else{
-        $scope.create_offline_map();
-      }
-
-        /*$scope.map.center = {
+      $scope.loadPinsLayer();
+      /*$scope.map.center = {
           lat: -34.901113,
           lng: -56.164531,
-          zoom: 14
+          zoom: 16
         };*/
-    });
+      leafletData.getMap().then(function(map) {
+        map.on('moveend', $scope.hideOffScreenPins);
+      });
+    };
+
 
     var Location = function() {
       if (!(this instanceof Location)) return new Location();
@@ -680,7 +683,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           report_sent.success(function(data, status, headers,config){
             if(ErrorService.http_data_response_is_successful(data,"error_container")){
               $scope.back_to_map(true);
-              $scope.addReportsLayer();
+              //$scope.addReportsLayer();
+              $scope.loadPinsLayer();
             }else{
               $scope.back_to_map(false);
             }
@@ -694,7 +698,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             var data = JSON.parse(resp.response);
             if(ErrorService.http_data_response_is_successful(data,"error_container")){
               $scope.back_to_map(true);
-              $scope.addReportsLayer();
+              //$scope.addReportsLayer();
+              $scope.loadPinsLayer();
             }else{
               $scope.back_to_map(false);
             }
@@ -1233,6 +1238,90 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       return new_url;
     };
 
+    $scope.hideOffScreenPins = function() {
+      leafletData.getMap().then(function(map) {
+        var mapBounds = map.getBounds();
+        var keysArray = Object.keys($scope.reportsByState);
+        $scope.reportsVisible = [];
+        keysArray.forEach(function(item){
+          $scope.reportsByState[item].forEach(function(layer,key){
+            var shouldBeVisible = mapBounds.contains(layer.getLatLng());
+            if (!shouldBeVisible) {
+                map.removeLayer(layer);
+            } else if (shouldBeVisible) {
+                /*if($scope.selected_residuo){
+                  var programas_str = $scope.selected_residuo.properties.Programas;
+                  var programasIds = programas_str.split(".");
+                  var id = layer.feature.properties.ProgramaSubProgID;
+                  if(programasIds.indexOf(id)<0){
+                    map.removeLayer(layer);
+                  }else{
+                    map.addLayer(layer);
+                  }
+                }else{
+                  map.addLayer(layer);
+                }*/
+                map.addLayer(layer);
+                $scope.reportsVisible.push(layer.feature);
+            }
+          })
+        });
+      });
+    }
+
+    $scope.removeAllPins = function() {
+      leafletData.getMap().then(function(map) {
+        var mapBounds = map.getBounds();
+        var keysArray = Object.keys($scope.reportsByState);
+        $scope.reportsVisible = [];
+        keysArray.forEach(function(item){
+          $scope.reportsByState[item].forEach(function(layer,key){
+            map.removeLayer(layer);
+          })
+        });
+      });
+    }
+
+    $scope.loadPinsLayer = function(){
+        document.getElementById("spinner").style.display = "block";
+        $scope.removeAllPins();
+        $scope.reportsByState = {};
+        ReportService.getAll().then(function (response) {
+          var pinsArray = response.data.features;
+          $scope.reports = response.data.features;
+          pinsArray.forEach(function(feature){
+            if (feature.properties) {
+              var lon = feature.geometry.coordinates[0];
+              var lat = feature.geometry.coordinates[1];
+              var icon = ConfigService.baseURL + feature.properties.pin_url;
+              var markerIcon = L.icon({
+                iconUrl: icon,
+                iconSize: [29, 34],
+                iconAnchor: [14, 34],
+                popupAnchor: [14, -8]
+              });
+              var layer = L.marker([lat, lon], {icon: markerIcon});
+              layer.feature = feature;
+              $scope.featureReports[layer.feature.properties.id] = layer;
+              if(!$scope.reportsByState["state-" + feature.properties.state]){
+                $scope.reportsByState["state-" + feature.properties.state]=[];
+              }
+              $scope.reportsByState["state-" + feature.properties.state].push(layer);
+              if (feature.properties) {
+                reportId = feature.properties.id;
+                descripcion = feature.properties.title;
+                html = '<a class="text report-link" ng-click="viewReportDetails(' + reportId + ')"><p>' + descripcion + '</p></a>';
+                var compiled = $compile(html)($scope);
+                layer.bindPopup(compiled[0]);
+              }
+            }
+          });
+          document.getElementById("spinner").style.display = "none";
+          $scope.hideOffScreenPins();
+        });
+    }
+
+
     $scope.addReportsLayer = function() {
       if($scope.jsonLayer!=null){
         return false;
@@ -1283,7 +1372,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           var markerIcon = L.icon({
             iconUrl: baseURL + "/" + _layer.feature.properties.pin_url,
             iconSize: [29, 34],
-            iconAnchor: [8, 8],
+            iconAnchor: [14, 34],
             popupAnchor: [0, -8]
           });
           _layer.setIcon(markerIcon);
@@ -1780,7 +1869,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                 // error
                 //console.log("Location error!");
                 //console.log(err);
-                ErrorService.show_error_message_popup("No hemos podido geolocalizarlo. ¿Tal vez olvidó habilitar los servicios de localización en su dispositivo?")
+                //ErrorService.show_error_message_popup("No hemos podido geolocalizarlo. ¿Tal vez olvidó habilitar los servicios de localización en su dispositivo?")
+                $scope.openCouncilSelector();
               });
 
           };
@@ -1803,6 +1893,33 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.new_report(1);
       });
 
+      $scope.select_imm = function(){
+        $scope.close_council_modal();
+        MapService.centerMapOnCoords(-34.901113, -56.164531, 14);
+      }
+
+      $scope.select_idr = function(){
+        $scope.close_council_modal();
+        MapService.centerMapOnCoords(-30.8997469, -55.5434686, 14);
+      }
+
+      $scope.openCouncilSelector = function(){
+        $ionicModal.fromTemplateUrl('templates/council_selector_with_back_button.html', {
+          scope: $scope,
+          hardwareBackButtonClose: false,
+          animation: 'slide-in-up',
+          //focusFirstInput: true
+        }).then(function(modal) {
+            LocationsService.council_modal = modal;
+            LocationsService.council_modal.show().then(function(){
+            })
+          });
+      }
+
+      $scope.close_council_modal = function(){
+        LocationsService.council_modal.hide();
+        LocationsService.council_modal.remove();
+      }
 
   }
 ]);

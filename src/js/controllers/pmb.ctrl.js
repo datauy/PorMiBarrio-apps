@@ -9,6 +9,7 @@ pmb_im.controllers.controller('PMBCtrl',
 '_',
 'Loader',
 'LocationsService',
+'$ionicModal',
 function($scope,
   $state,
   leafletData,
@@ -18,7 +19,10 @@ function($scope,
   MapService,
   _,
   Loader,
-  LocationsService) {
+  LocationsService,
+  $ionicModal) {
+
+
   $scope.reportButton = {
     text: "Reportar",
     state: "unConfirmed"
@@ -26,14 +30,43 @@ function($scope,
 
   //$scope.$on('$ionicView.afterEnter', function(){ //This is fired twice in a row
   $scope.$on("$ionicView.afterEnter", function() {
-    document.getElementById("spinner").style.display = "none";
+    //document.getElementById("spinner").style.display = "none";
     var map = leafletData.getMap();
     if(LocationsService.initial_lat!=""){
-      MapService.centerMapOnCoords(LocationsService.initial_lat, LocationsService.initial_lng, 18);
+      MapService.centerMapOnCoords(LocationsService.initial_lat, LocationsService.initial_lng, 16);
     }else{
-      MapService.centerMapOnCoords(-34.901113, -56.164531, 14);
+      //MapService.centerMapOnCoords(-34.901113, -56.164531, 14);
+      $scope.openCouncilSelector();
     }
   });
+
+  $scope.select_imm = function(){
+    $scope.close_council_modal();
+    MapService.centerMapOnCoords(-34.901113, -56.164531, 14);
+  }
+
+  $scope.select_idr = function(){
+    $scope.close_council_modal();
+    MapService.centerMapOnCoords(-30.8997469, -55.5434686, 14);
+  }
+
+  $scope.openCouncilSelector = function(){
+    $ionicModal.fromTemplateUrl('templates/council_selector.html', {
+      scope: $scope,
+      hardwareBackButtonClose: false,
+      animation: 'slide-in-up',
+      //focusFirstInput: true
+    }).then(function(modal) {
+        LocationsService.council_modal = modal;
+        LocationsService.council_modal.show().then(function(){
+        })
+      });
+  }
+
+  $scope.close_council_modal = function(){
+    LocationsService.council_modal.hide();
+    LocationsService.council_modal.remove();
+  }
 
 
   /**/

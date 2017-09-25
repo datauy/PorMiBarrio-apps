@@ -1,0 +1,24 @@
+<ion-modal-view class="new-report-modal">
+    <ion-content class="new-report-scroll">
+        <div class="new-report-slide">
+          <div class="new-report-content">
+            <div class="category-header">
+              <h3>Selecciona una intendencia</h3>
+              <p>No hemos podido geolocalizarlo. ¿Tal vez olvidó habilitar los servicios de ubicación en su dispositivo?
+                <br/><br/> <b>Por favor selecciona una intendencia</b></p>
+            </div>
+            <div class="list">
+              <div class="padding">
+                <button class="form-button-big" ng-click="select_imm()">Intendencia Municipal de Montevideo</button>
+                <div class="field-separator"></div>
+                <button class="form-button-big" ng-click="select_idr()">Intendencia Departamental de Rivera</button>
+                <div class="field-separator"></div>
+                <div class="field-separator"></div>
+                <div class="field-separator"></div>
+                <button class="form-button-big" ng-click="close_council_modal()">Volver al mapa</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </ion-content>
+</ion-modal-view>

@@ -2,6 +2,9 @@ pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService'
 
   var baseURL = ConfigService.baseURL + "/report/ajax/";
 
+  var pinsURL = ConfigService.baseURL + "/ajax_geo?bbox=-58.199387,-36.932178,-50.168488,-30.887061";
+
+
 
   /**
    * Constructor, with class name
@@ -17,6 +20,9 @@ pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService'
     });
   }
 
+  Report.getAll = function(){
+    return $http.get(pinsURL, { params: {}});
+  }
 
   Report._default = function(){
     var _data = {

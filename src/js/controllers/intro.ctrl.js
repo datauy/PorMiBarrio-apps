@@ -24,6 +24,10 @@ pmb_im.controllers.controller('IntroCtrl', ['$scope', '$state',
     };
 
    $scope.$on('$ionicView.enter', function(){ //This is fired twice in a row
+      if(LocationsService.council_modal!=null){
+        LocationsService.council_modal.hide();
+        LocationsService.council_modal.remove();
+      }
        $scope.geolocate();
    });
 

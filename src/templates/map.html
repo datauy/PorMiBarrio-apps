@@ -5,6 +5,7 @@
 </ion-nav-title>
 
 <div id="spinner" class="intro-spinner"><ion-spinner icon="spiral"></ion-spinner></div>
+<div id="pinspinner" class="intro-spinner"><ion-spinner icon="spiral"></ion-spinner></div>
 
 <!--<div class="top-bar-imm">
   <div class="white-bar-imm"></div>
@@ -26,7 +27,7 @@
 
   <ion-scroll direction="y" id="report-list-scroll">
     <div id="report-list">
-      <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reports track by $index" class="report-inside-list">
+      <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reportsVisible track by $index" class="report-inside-list">
         <div cache-src="{{baseURL}}{{getOnlyCategoryIconURL(report.properties.category_url)}}" src-is="background" background-style="no-repeat center" class="report-in-list-icon">
         </div>
         <div class="report-in-list-info">
