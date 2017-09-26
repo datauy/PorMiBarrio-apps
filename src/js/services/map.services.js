@@ -7,22 +7,28 @@
 
    var mapService = {};
 
-   mapService.goToPlace = function(_place,scope) {
-     var _geoJson = {
-       properties: {
-         nombre: _place.nombre
-       },
-       crs: {
-         type: 'name',
-         properties: {
-           name: 'urn:ogc:def:crs:EPSG::32721'
-         }
-       }
-     };
-     _geoJson = angular.extend(_geoJson, _place.geom);
-     //alert(JSON.stringify(_place.geom));
+   mapService.goToPlace = function(name,lat,lon,scope) {
+    var _geoJson = {
+              "type": "FeatureCollection",
+              "crs": { "type": "name",
+                      "properties": {
+                              "name": 'urn:ogc:def:crs:EPSG::32721'
+                            }
+                      },
+              "features": [
+                { "type": "Feature",
+                "geometry":{
+                       "type":"Point",
+                       "coordinates":[lat,lon]
+                   },
+                "properties":{
+                      "nombre": name
+                    }
+                }
+              ]
+            };
      leafletData.getMap().then(function(map) {
-       var _latlng;
+      var _latlng;
        var layer = L.Proj.geoJson(_geoJson, {
          'pointToLayer': function(feature, latlng) {
            _latlng = latlng;
@@ -31,8 +37,8 @@
            return L.marker(latlng).bindPopup(compiled[0]);
          }
        });
+
        layer.addTo(map);
-       // console.log(JSON.stringify(layer));
        map.setView(_latlng, 18);
        layer.openPopup();
      });

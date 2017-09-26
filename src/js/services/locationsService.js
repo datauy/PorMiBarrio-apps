@@ -6,6 +6,11 @@ pmb_im.services.factory('LocationsService', [ function() {
   locationsObj.new_report_lat = "";
   locationsObj.new_report_lng = "";
   locationsObj.council_modal = null;
+  locationsObj.selected_council = null;
+
+  locationsObj.selectCouncil = function(councilName) {
+    locationsObj.selected_council =  councilName;
+  }
 
   locationsObj.save_initial_position = function(position) {
     locationsObj.initial_lat =  position.coords.latitude;

@@ -1895,11 +1895,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
       $scope.select_imm = function(){
         $scope.close_council_modal();
+        LocationsService.selectCouncil("289");
         MapService.centerMapOnCoords(-34.901113, -56.164531, 14);
       }
 
       $scope.select_idr = function(){
         $scope.close_council_modal();
+        LocationsService.selectCouncil("255");
         MapService.centerMapOnCoords(-30.8997469, -55.5434686, 14);
       }
 
