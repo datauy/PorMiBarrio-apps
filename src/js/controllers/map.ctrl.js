@@ -106,7 +106,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.abuse_message = null;
 
     $scope.$on("$ionicView.beforeEnter", function() {
-
       DBService.initDB();
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
@@ -272,9 +271,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     };
 
     $scope.create_online_map = function(){
-      if($scope.map!=null){
-        return false;
-      }
       $scope.map = {
         defaults: {
           tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
@@ -293,11 +289,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         }
       };
       $scope.loadPinsLayer();
-      /*$scope.map.center = {
+      $scope.map.center = {
           lat: -34.901113,
           lng: -56.164531,
           zoom: 16
-        };*/
+        };
       leafletData.getMap().then(function(map) {
         map.on('moveend', $scope.hideOffScreenPins);
       });

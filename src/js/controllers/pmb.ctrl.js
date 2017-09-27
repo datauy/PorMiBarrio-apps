@@ -53,7 +53,7 @@ function($scope,
   }
 
   $scope.openCouncilSelector = function(){
-    $ionicModal.fromTemplateUrl('templates/council_selector.html', {
+    $ionicModal.fromTemplateUrl('templates/council_selector_with_back_button.html', {
       scope: $scope,
       hardwareBackButtonClose: false,
       animation: 'slide-in-up',
