@@ -631,6 +631,14 @@ body {
   position: relative;
 }
 
+.foto-icon-black{
+  width: 36px;
+  height: 27px;
+  background: url("./img/icon-camera-black.png") no-repeat center;
+  float: left;
+  position: relative;
+}
+
 .foto-text{
   font-size: 14pt;
   float: right;
@@ -875,4 +883,16 @@ body {
 
 #comment-button{
   display: none;
+}
+
+#comment_container .input-label{
+    border: none;
+    position: relative;
+    float: left;
+}
+
+#comment_container .item-checkbox{
+    border: none;
+    position: relative;
+    float: left;
 }

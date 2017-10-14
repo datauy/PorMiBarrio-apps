@@ -36,20 +36,27 @@ pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTran
       return $http.get(base + deleteURL, { params: {} });
     },
 
-    comment: function (report_id,message,name,email,may_show_name,add_alert,fixed) {
-      return $http.get(base + "/report/update_ajax",
-      { params:
-        {
-          submit_update: 1,
-          id: report_id,
-          may_show_name: may_show_name,
-          add_alert: add_alert,
-          fixed: fixed,
-          update: message,
-          name: name,
-          form_rznvy: email
-        }
-      });
+    comment: function (comment) {
+      if(comment.fixed==0){
+        delete comment.fixed;
+      }
+      if (comment.photo) {
+        var options = {
+         fileKey: "photo",
+         fileName: "image.jpeg",
+         chunkedMode: false,
+         mimeType: "image/jpeg",
+         params : comment,
+         withCredentials: true
+        };
+        options.headers = {
+          Connection: "Close"
+        };
+        var trustAllHosts = true;
+        return $cordovaFileTransfer.upload(base + '/report/update', comment.photo, options, trustAllHosts);
+      }else{
+        return $http.get(base + '/report/update', { withCredentials: true, params: comment });
+      }
     },
 
   };

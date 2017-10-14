@@ -30,6 +30,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$interval',
   '$cordovaKeyboard',
   'MapService',
+  'ModalService',
   function(
     $scope,
     $sce,
@@ -64,31 +65,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $cordovaInAppBrowser,
     $interval,
     $cordovaKeyboard,
-    MapService
+    MapService,
+    ModalService
   ) {
-
-    /*$ionicPlatform.registerBackButtonAction(function () {
-      document.getElementById("foot_bar").style.display = "block";
-      $scope.previous();
-    }, 100);
-
-    $ionicPlatform.on('backbutton', function() {
-      document.getElementById("foot_bar").style.display = "block";
-    });
-
-    $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
-      document.getElementById("foot_bar").style.display = "block";
-    });
-
-    // Execute action on hide modal
-    $scope.$on('modal.removed', function() {
-      document.getElementById("foot_bar").style.display = "block";
-    });
-
-    $scope.$on('$destroy', function() {
-      document.getElementById("foot_bar").style.display = "block";
-    });*/
-
 
     /**
      * Once state loaded, get put map on scope.
@@ -106,6 +85,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.abuse_message = null;
 
     $scope.$on("$ionicView.beforeEnter", function() {
+      ModalService.checkNoModalIsOpen();
       DBService.initDB();
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
@@ -386,16 +366,17 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.hide_special_divs();
     document.getElementById("spinner").style.display = "block";
     $scope.report =  $scope.offlineReports[reportId];
+    ModalService.checkNoModalIsOpen();
     $ionicModal.fromTemplateUrl('templates/delete-offline-report.html', {
       scope: $scope,
       //hardwareBackButtonClose: false,
       animation: 'slide-in-up',
       //focusFirstInput: true
     }).then(function(modal) {
-        $scope.new_report_modal = modal;
+        ModalService.activeModal = modal;
         document.getElementById("spinner").style.display = "none";
         document.getElementById("foot_bar").style.display = "none";
-        $scope.new_report_modal.show();
+        ModalService.show();
       });
   };
 
@@ -447,6 +428,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.categories = categories;
     document.getElementById("spinner").style.display = "none";
     document.getElementById("foot_bar").style.display = "none";
+    ModalService.checkNoModalIsOpen();
     if(UserService.isLogged()){
       $scope.report.name = UserService.name;
       $scope.report.email = UserService.email;
@@ -458,8 +440,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         //focusFirstInput: true,
         hardwareBackButtonClose: false
       }).then(function(modal) {
-          $scope.new_report_modal = modal;
-          $scope.new_report_modal.show();
+          ModalService.activeModal = modal;
+          ModalService.activeModal.show();
         });
     }else{
       $ionicModal.fromTemplateUrl('templates/pmb-wizard-with-login.html', {
@@ -468,8 +450,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         animation: 'slide-in-up',
         //focusFirstInput: true
       }).then(function(modal) {
-          $scope.new_report_modal = modal;
-          $scope.new_report_modal.show();
+          ModalService.activeModal = modal;
+          ModalService.activeModal.show();
         });
 
     }
@@ -491,14 +473,15 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       template = "templates/pmb-offline-wizard.html";
       //Se llama siempre al form que no pide usuario porque ya se guardó el usuario la primera vez
     }
+    ModalService.checkNoModalIsOpen();
     $ionicModal.fromTemplateUrl('templates/pmb-offline-wizard.html', {
       scope: $scope,
       //hardwareBackButtonClose: false,
       animation: 'slide-in-up',
       //focusFirstInput: true
     }).then(function(modal) {
-        $scope.new_report_modal = modal;
-        $scope.new_report_modal.show().then(function(){
+        ModalService.activeModal = modal;
+        ModalService.activeModal.show().then(function(){
               var categorygroup = $scope.report.categorygroup;
               var categories_select = angular.element( document.querySelector( '#categoriesSelect' ) );
               categories_select.val(categorygroup);
@@ -570,53 +553,32 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
    });
   };
 
-  $scope.comment = function() {
-      var confirmComment = $ionicPopup.show({
-      template: '<div id="comment_container"><input type="checkbox" id="comment_showname"/> - Mostrar mi nombre<br/><input type="checkbox" id="comment_addalerts"/> - Recibir futuros comentarios<br/><input type="checkbox" id="comment_fixed"/> - Problema arreglado <br/>Comentario: <textarea rows="6" id="comment_message"></textarea><div id="error_container_inside"></div></div>',
-      title: "Añadir comentario",
-      subTitle: "",
-      scope: $scope,
-      buttons: [
-        { text: 'Cancelar' },
-        {
-          text: '<b>Enviar</b>',
-          type: 'button-positive',
-          onTap: function(e) {
-            var fields = new Array();
-            $scope.comment_showname = document.getElementById("comment_showname").checked;
-            console.log($scope.comment_showname);
-            /*$scope.abuse_name = document.getElementById("abuse_name").value;
-            $scope.abuse_subject = document.getElementById("abuse_subject").value;
-            $scope.abuse_message = document.getElementById("abuse_message").value;
-            fields.push($scope.create_field_array("Nombre","notNull",$scope.abuse_name));
-            fields.push($scope.create_field_array("Email","email",$scope.abuse_email));
-            fields.push($scope.create_field_array("Asunto","notNull",$scope.abuse_subject));
-            fields.push($scope.create_field_array("Mensaje","notNull",$scope.abuse_message));
-            if(ErrorService.check_fields(fields,"error_container_inside")){
-              return $scope.abuse_email;
-            }else{*/
-              e.preventDefault();
-            //}
-          }
+  $scope.send_comment = function(){
+    var fields = new Array();
+    fields.push($scope.create_field_array("Comentario","notNull",$scope.comment.update));
+    if(ErrorService.check_fields(fields,"error_container_inside")){
+      comment_sent = PMBService.comment($scope.comment);
+      if($scope.comment.photo==null){
+          comment_sent.success(function(data, status, headers,config){
+            $scope.back_to_map(true);
+          })
+          .error(function(data, status, headers, config){
+            ErrorService.show_error_message("error_container_inside",status);
+            $scope.back_to_map(false);
+          })
+        }else{
+          comment_sent.then(function(resp) {
+            $scope.back_to_map(true);
+          }, function(error) {
+          }, function(progress) {
+            $timeout(function() {
+              $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+              document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+            });
+          });
         }
-      ]
-    });
-    confirmComment.then(function(res) {
-     if(res) {
-       var http_request = PMBService.comment($scope.abuse_email,$scope.report_detail_id,$scope.abuse_name,abuse_subject,$scope.abuse_message);
-       http_request.then(function(resp) {
-          //var data = JSON.parse(resp.response);
-          //if(ErrorService.http_data_response_is_successful(data,"error_container")){
-            PopUpService.show_alert("Denuncia enviada","Gracias por tus comentarios. ¡Nos pondremos en contacto con usted tan pronto como nos sea posible!");
-            $scope.abuse_name = null;
-            $scope.abuse_email = null;
-            $scope.abuse_subject = null;
-            $scope.abuse_message = null;
-          //}
-       });
     }
-   });
-  };
+  }
 
   $scope.subscribe = function() {
     if(UserService.isLogged()){
@@ -794,8 +756,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     if(back_to_map){
       //LocationsService.initial_lat = $scope.report.lat;
       //LocationsService.initial_lng = $scope.report.lon;
-      $scope.new_report_modal.hide();
-      $scope.new_report_modal.remove();
+      ModalService.checkNoModalIsOpen();
       document.getElementById("foot_bar").style.display = "block";
       document.getElementById("spinner-inside-modal").style.display = "none";
       //$scope.addReportsLayer();
@@ -805,16 +766,16 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   }
 
   $scope.cancelReport = function(){
-    $scope.new_report_modal.hide();
-    $scope.new_report_modal.remove();
+    ModalService.checkNoModalIsOpen();
     document.getElementById("foot_bar").style.display = "block";
   }
 
   $scope.image = null;
 
-  $scope.addImage = function(isFromAlbum, isUserPhoto) {
+  $scope.addImage = function(isFromAlbum, isUserPhoto, isCommentPhoto) {
     //alert("addImage");
     $scope.isUserPhoto = isUserPhoto;
+    $scope.isCommentPhoto = isCommentPhoto;
 
     var source = Camera.PictureSourceType.CAMERA;
     var fix_orientation = true;
@@ -857,7 +818,11 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             //UserService.add_photo(fileURI);
             $scope.profile.picture_url = fileURI;
           }else{
-            $scope.report.file = fileURI;
+            if($scope.isCommentPhoto==1){
+              $scope.comment.file = fileURI;
+            }else{
+              $scope.report.file = fileURI;
+            }
           }
           $scope.imgURI = fileURI;
           //createFileEntry(fileURI);
@@ -1074,6 +1039,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.set_active_option('button-faq');
         $scope.hide_special_divs();
         FaqService.all().success(function (response) {
+          ModalService.checkNoModalIsOpen();
           $scope.faq = $sce.trustAsHtml(response);
           document.getElementById("spinner").style.display = "none";
           $ionicModal.fromTemplateUrl('templates/faq.html', {
@@ -1082,8 +1048,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             animation: 'slide-in-up',
             //focusFirstInput: true
           }).then(function(modal) {
-              $scope.faq_modal = modal;
-              $scope.faq_modal.show().then(function(){
+              ModalService.activeModal = modal;
+              ModalService.activeModal.show().then(function(){
                 var element = angular.element( document.querySelector( '#faq-container-div' ) );
                 var compiled = $compile(element.contents())($scope);
               })
@@ -1102,8 +1068,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.close_faq_modal = function(){
-      $scope.faq_modal.hide();
-      $scope.faq_modal.remove();
+      ModalService.checkNoModalIsOpen();
     }
 
     $scope.set_active_option = function(buttonid) {
@@ -1123,10 +1088,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.viewReportDetails = function(id){
-      if($scope.report_detail_modal!=null){
-        $scope.report_detail_modal.remove();
-        $scope.report_detail_id = null;
-      }
       $scope.report_detail_id = id;
       if(ConnectivityService.isOnline()){
         document.getElementById("spinner").style.display = "block";
@@ -1134,20 +1095,34 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         ReportService.getById(id).then(function(resp) {
           $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;","").replace('src="/','src="'+ConfigService.baseURL).replace('url(/','url('+ConfigService.baseURL+ConfigService.baseCobrand+"/").replace('url(/','url('+ConfigService.baseURL+ConfigService.baseCobrand+"/"));
           document.getElementById("spinner").style.display = "none";
+          $scope.comment = {
+            submit_update: 1,
+            id: $scope.report_detail_id,
+            may_show_name: 1,
+            add_alert: 1,
+            fixed: 0,
+            update: "",
+            name: null,
+            form_rznvy: null,
+            photo: null
+          };
+          ModalService.checkNoModalIsOpen();
           $ionicModal.fromTemplateUrl('templates/report-detail.html', {
             scope: $scope,
             //hardwareBackButtonClose: false,
             animation: 'slide-in-up',
             //focusFirstInput: true
           }).then(function(modal) {
-              $scope.report_detail_modal = modal;
-              $scope.report_detail_modal.show().then(function(){
+              ModalService.activeModal = modal;
+              ModalService.activeModal.show().then(function(){
                   var element = angular.element( document.querySelector( '#report-detail-container-div' ) );
                   var compiled = $compile(element.contents())($scope);
                   if(UserService.isLogged()){
-                    //document.getElementById("comment-button").style.display="inline";
+                    document.getElementById("comment_container").style.display="block";
+                    $scope.comment.name = UserService.name;
+                    $scope.comment.form_rznvy = UserService.email;
                   }else{
-                    document.getElementById("comment-button").style.display="none";
+                    document.getElementById("comment_container").style.display="none";
                   }
               })
             });
@@ -1163,8 +1138,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.close_report_detail_modal = function(){
-      $scope.report_detail_modal.hide();
-      $scope.report_detail_modal.remove();
+      ModalService.checkNoModalIsOpen();
       $scope.report_detail_id = null;
     }
 
@@ -1561,6 +1535,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         if($scope.actual_photo=="url(./img/icon-user-anonymous.png)"){
           $scope.actual_photo = "./img/icon-user-anonymous.png";
         }
+        ModalService.checkNoModalIsOpen();
         $ionicModal.fromTemplateUrl('templates/edit_profile_with_photo.html', {
             scope: $scope,
             hardwareBackButtonClose: false,
@@ -1568,12 +1543,13 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             //focusFirstInput: true
           }).then(function(modal) {
               document.getElementById("user-options-menu").style.display="none";
-              $scope.edit_profile_modal = modal;
+              ModalService.activeModal = modal;
               document.getElementById("foot_bar").style.display = "none";
-              $scope.edit_profile_modal.show();
+              ModalService.activeModal.show();
           });
       }else{
         $scope.actual_photo = null;
+        ModalService.checkNoModalIsOpen();
         $ionicModal.fromTemplateUrl('templates/edit_profile.html', {
             scope: $scope,
             hardwareBackButtonClose: false,
@@ -1581,9 +1557,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             //focusFirstInput: true
           }).then(function(modal) {
               $scope.hide_special_divs();
-              $scope.edit_profile_modal = modal;
+              ModalService.activeModal = modal;
               document.getElementById("foot_bar").style.display = "none";
-              $scope.edit_profile_modal.show();
+              ModalService.activeModal.show();
           });
       }
     }
@@ -1591,8 +1567,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.close_edit_profile_modal = function(){
       //Cargar el modal con la info del usuario logueado y con el submit a update_user
       document.getElementById("foot_bar").style.display = "block";
-      $scope.edit_profile_modal.hide();
-      $scope.edit_profile_modal.remove();
+      ModalService.checkNoModalIsOpen();
     }
 
     $scope.edit_profile_ok = function(){
@@ -1667,6 +1642,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.nonauth = new Array();
       $scope.nonauth.email = "";
       $scope.nonauth.password = "";
+      ModalService.checkNoModalIsOpen();
       $ionicModal.fromTemplateUrl('templates/log_in.html', {
           scope: $scope,
           hardwareBackButtonClose: false,
@@ -1674,9 +1650,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           //focusFirstInput: true
         }).then(function(modal) {
             $scope.hide_special_divs();
-            $scope.login_modal = modal;
+            ModalService.activeModal = modal;
             document.getElementById("foot_bar").style.display = "none";
-            $scope.login_modal.show();
+            ModalService.activeModal.show();
         });
     }
 
@@ -1686,8 +1662,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
 
     $scope.close_login_modal = function(){
       document.getElementById("foot_bar").style.display = "block";
-      $scope.login_modal.hide();
-      $scope.login_modal.remove();
+      ModalService.checkNoModalIsOpen();
     }
 
 
@@ -1700,6 +1675,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.newuser.fullname = "";
       $scope.newuser.id_doc = "";
       $scope.newuser.telephone = "";
+      ModalService.checkNoModalIsOpen();
       $ionicModal.fromTemplateUrl('templates/sign_up.html', {
           scope: $scope,
           hardwareBackButtonClose: false,
@@ -1707,16 +1683,15 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           //focusFirstInput: true
         }).then(function(modal) {
             $scope.hide_special_divs();
-            $scope.sign_up_modal = modal;
+            ModalService.activeModal = modal;
             document.getElementById("foot_bar").style.display = "none";
-            $scope.sign_up_modal.show();
+            ModalService.activeModal.show();
         });
     }
 
     $scope.close_sign_up_modal = function(){
       document.getElementById("foot_bar").style.display = "block";
-      $scope.sign_up_modal.hide();
-      $scope.sign_up_modal.remove();
+      ModalService.checkNoModalIsOpen();
     }
 
     $scope.sign_up = function(email,fullname,password, id_doc, user_phone){
@@ -1841,9 +1816,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $cordovaGeolocation
           .getCurrentPosition(posOptions)
           .then(function (position) {
-                console.log(position);
-                console.log($scope);
-                console.log($scope.map);
                 $scope.map.center.lat  = position.coords.latitude;
                 $scope.map.center.lng = position.coords.longitude;
                 LocationsService.save_new_report_position(position.coords.latitude,position.coords.longitude);
