@@ -24,6 +24,14 @@ pmb_im.services.factory('ValidationService', ['$http','$ionicPopup', function($h
         }
     },
 
+    validate_equalsTo: function (value,secondValue) {
+      if(value==secondValue){
+        return true;
+      }else{
+        return false;
+      }
+    },
+
     validate_email: function (value) {
         if(value!=null && value!="undefined" && value!=""){
           var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

@@ -83,6 +83,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.abuse_email = null;
     $scope.abuse_subject = null;
     $scope.abuse_message = null;
+    $scope.allCategoriesFromBoyArea = null;
 
     $scope.$on("$ionicView.beforeEnter", function() {
       ModalService.checkNoModalIsOpen();
@@ -253,7 +254,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.create_online_map = function(){
       $scope.map = {
         defaults: {
-          tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+          //tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+          tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           minZoom: 12,
           maxZoom: 18,
           zoomControlPosition: 'topleft',
@@ -717,6 +719,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         AuthService.sign_in($scope.report.password_sign_in, $scope.report.email).then(function(resp) {
           if(ErrorService.http_response_is_successful(resp,"error_container")){
             UserService.save_user_data(resp.data.name, $scope.report.email, $scope.report.password_sign_in, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
+            if(resp.data.from_body){
+              UserService.from_body = resp.data.from_body;
+            }
             DBService.saveUser(resp.data.name,$scope.report.email,$scope.report.password_sign_in,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
             $scope.set_user_picture(1);
             $scope.confirmReport();
@@ -1098,9 +1103,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           $scope.comment = {
             submit_update: 1,
             id: $scope.report_detail_id,
-            may_show_name: 1,
-            add_alert: 1,
-            fixed: 0,
+            may_show_name: true,
+            add_alert: true,
+            fixed: false,
             update: "",
             name: null,
             form_rznvy: null,
@@ -1121,6 +1126,38 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                     document.getElementById("comment_container").style.display="block";
                     $scope.comment.name = UserService.name;
                     $scope.comment.form_rznvy = UserService.email;
+                    if(UserService.from_body!=null){
+                      var lon = $scope.featureReports[id].feature.geometry.coordinates[0];
+                      var lat = $scope.featureReports[id].feature.geometry.coordinates[1];
+                      PMBService.getAreas(lon,lat).then(function(resp){
+                        jsonObject = resp.data;
+                        $scope.isBodyAdmin = false;
+                        for (var prop in jsonObject) {
+                             var areaId = prop;
+                             var areaProps = jsonObject[prop];
+                             if(areaProps.type=="CIU"){
+                               if(UserService.from_body==areaId){
+                                 $scope.isBodyAdmin = true;
+                                 $scope.comment.new_category = $scope.featureReports[id].feature.properties.category;
+                                 $scope.comment.state = $scope.featureReports[id].feature.properties.state;
+                                 CategoriesService.allFromBodyArea(areaId).then(function(resp){
+                                   jsonAreaObject = resp.data;
+                                   $scope.allCategoriesFromBoyArea = [];
+                                   for (var index in jsonAreaObject) {
+                                     $scope.allCategoriesFromBoyArea.push(index);
+                                   }
+                                   $timeout(function(){
+                                     document.getElementById("new_category_select").value=$scope.comment.new_category;
+                                   }, 500);
+                                 });
+                               }
+                             }
+                         }
+                      });
+                    }else{
+                      $scope.isBodyAdmin = false;
+                    }
+                    document.getElementById("comment_container").style.display="block";
                   }else{
                     document.getElementById("comment_container").style.display="none";
                   }
@@ -1443,13 +1480,97 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.show_user_menu = function(){
       var menu = document.getElementById("user-options-menu");
       var html = UserService.name + "<div id='auth_options'><div class='user-logged-link' ng-click='show_edit_profile_modal()'>Mi perfil</div>";
+      html = html + "<div class='user-logged-link' ng-click='change_password()'>Cambiar contraseña</div>";
       html = html + "<div class='user-logged-link' ng-click='list_offline_reports_menu()'>Reportes pendientes</div>";
       html = html + "<div class='user-logged-link' ng-click='sign_out()'>Cerrar sesión</div></div>";
       menu.innerHTML = html;
       $compile(menu)($scope); //<---- recompilation
-      menu.style.height = '160px';
+      menu.style.height = '220px';
       menu.style.width = '200px';
       menu.style.display = "block";
+    };
+
+    $scope.forgot_password = function(){
+      ModalService.checkNoModalIsOpen();
+      $scope.nonauth = new Array();
+      $scope.nonauth.email = "";
+      $ionicModal.fromTemplateUrl('templates/forgot_password.html', {
+            scope: $scope,
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
+          }).then(function(modal) {
+              document.getElementById("user-options-menu").style.display="none";
+              ModalService.activeModal = modal;
+              document.getElementById("foot_bar").style.display = "none";
+              ModalService.activeModal.show();
+          });
+    };
+
+    $scope.forgot_password_ok = function(){
+      document.getElementById("spinner-inside-modal").style.display = "block";
+      var fields = new Array();
+      fields.push($scope.create_field_array("Email","email",$scope.nonauth.email));
+      if(ErrorService.check_fields(fields,"error_container")){
+        document.getElementById("spinner-inside-modal").style.display = "none";
+        AuthService.password_recovery($scope.nonauth.email).then(function(resp) {
+          if(resp.data.message=="Email successfuly sended"){
+            ModalService.checkNoModalIsOpen();
+            document.getElementById("foot_bar").style.display = "block";
+            $timeout(function(){
+              PopUpService.show_alert("Instrucciones enviadas con éxito","Se han enviado intrucciones para restablecer tu contraseña al correo proporcionado anteriormente.");
+            }, 1000);
+          }else{
+            ErrorService.show_error_message("error_container",resp.data.message);
+          }
+        });
+      }else{
+        document.getElementById("spinner-inside-modal").style.display = "none";
+      }
+    };
+
+    $scope.change_password = function(){
+      ModalService.checkNoModalIsOpen();
+      $scope.nonauth = new Array();
+      $scope.nonauth.oldPassword = "";
+      $scope.nonauth.newPassword = "";
+      $scope.nonauth.confirmPassword = "";
+      $ionicModal.fromTemplateUrl('templates/change_password.html', {
+            scope: $scope,
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
+          }).then(function(modal) {
+              document.getElementById("user-options-menu").style.display="none";
+              ModalService.activeModal = modal;
+              document.getElementById("foot_bar").style.display = "none";
+              ModalService.activeModal.show();
+          });
+    };
+
+    $scope.change_password_ok = function(){
+      document.getElementById("spinner-inside-modal").style.display = "block";
+      var fields = new Array();
+      //fields.push($scope.create_field_array("Email","email",$scope.nonauth.email));
+      fields.push($scope.create_field_array("Contraseña actual","notNull",$scope.nonauth.oldPassword));
+      fields.push($scope.create_field_array("Nueva contraseña","notNull",$scope.nonauth.newPassword));
+      fields.push($scope.create_field_array("Confirmar nueva contraseña","notNull",$scope.nonauth.confirmPassword));
+      fields.push($scope.create_field_array_with_twoFields("Nueva contraseña y Confirmar contraseña","equalsTo",$scope.nonauth.newPassword,$scope.nonauth.confirmPassword));
+      if(ErrorService.check_fields(fields,"error_container")){
+        AuthService.password_change(UserService.email,$scope.nonauth.oldPassword,$scope.nonauth.newPassword,$scope.nonauth.confirmPassword).then(function(resp) {
+          document.getElementById("spinner-inside-modal").style.display = "none";
+          if(resp.data.message=="Password successfuly changed"){
+            UserService.save_user_data(UserService.name, UserService.email, $scope.nonauth.newPassword, UserService.identity_document, UserService.phone, UserService.picture_url);
+            DBService.saveUser(UserService.name,UserService.email,UserService.password,UserService.identity_document,UserService.phone,UserService.picture_url);
+            ModalService.checkNoModalIsOpen();
+            document.getElementById("foot_bar").style.display = "block";
+          }else{
+            ErrorService.show_error_message("error_container","Se ha producido un error al cambiar su clave, por favor intente más tarde");
+          }
+        });
+      }else{
+        document.getElementById("spinner-inside-modal").style.display = "none";
+      }
     };
 
     $scope.create_field_array = function(name,type,value){
@@ -1458,6 +1579,24 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       field.type = type;
       field.value = value;
       return field;
+    };
+
+    $scope.create_field_array_with_twoFields = function(name,type,value,secondValue){
+      var field = new Array();
+      field.name = name;
+      field.type = type;
+      field.value = value;
+      field.secondValue = secondValue;
+      return field;
+    };
+
+    $scope.fix_fb_image_link = function(url){
+      if(url.indexOf("http://graph.facebook.com") >= 0){
+        var parts = url.split("http://graph.facebook.com");
+        var newUrl = "http://graph.facebook.com"+parts[1];
+        return newUrl;
+      }
+      return url;
     };
 
     $scope.sign_in = function(email, password){
@@ -1469,8 +1608,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         if(ErrorService.check_fields(fields,"error_container")){
           AuthService.sign_in(password, email).then(function(resp) {
             if(ErrorService.http_response_is_successful(resp,"error_container")){
+              resp.data.picture_url = $scope.fix_fb_image_link(resp.data.picture_url);
               UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
               DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+              if(resp.data.from_body){
+                UserService.from_body = resp.data.from_body;
+              }
               //$scope.set_user_picture(1);
               document.getElementById("spinner-inside-modal").style.display = "none";
               $scope.close_login_modal();
@@ -1497,8 +1640,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.sign_in_ajax = function(email, password){
       AuthService.sign_in(password, email).then(function(resp) {
         if(ErrorService.http_response_is_successful_ajax(resp)){
+          resp.data.picture_url = $scope.fix_fb_image_link(resp.data.picture_url);
           UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
           DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+          if(resp.data.from_body){
+            UserService.from_body = resp.data.from_body;
+          }
           $scope.set_user_picture(1);
           return 1;
         }else{
@@ -1857,6 +2004,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
        */
       $scope.$on('leafletDirectiveMap.contextmenu', function(event, locationEvent){
         $scope.hide_special_divs();
+        console.log(locationEvent.leafletEvent.latlng.lat);
+        console.log(locationEvent.leafletEvent.latlng.lng);
         LocationsService.save_new_report_position(locationEvent.leafletEvent.latlng.lat,locationEvent.leafletEvent.latlng.lng);
         $scope.new_report(1);
       });

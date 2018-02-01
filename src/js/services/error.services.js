@@ -97,6 +97,11 @@ pmb_im.services.factory('ErrorService', ['$http','$ionicPopup', 'ValidationServi
             errors = errors + '<h3>- El campo "' + field.name + '" debe contener al menos dos palabras.</h3>';
           }
         }
+        if(field.type=="equalsTo"){
+          if(!ValidationService.validate_equalsTo(field.value, field.secondValue)){
+            errors = errors + '<h3>- Los campos "' + field.name + '" no coinciden.</h3>';
+          }
+        }
       });
       if(errors ==""){
         return true;

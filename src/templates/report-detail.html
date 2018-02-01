@@ -21,9 +21,26 @@
           <ion-checkbox item-right ng-model="comment.add_alert"></ion-checkbox>
           <ion-label>Recibir futuros comentarios</ion-label>
         </ion-item>
-        <ion-item>
-          <ion-checkbox item-right ng-model="comment.fixed"></ion-checkbox>
+        <ion-item ng-if="isBodyAdmin==false">
+          <ion-checkbox item-right ng-Model="comment.fixed"></ion-checkbox>
           <ion-label>Problema arreglado</ion-label>
+        </ion-item>
+        <ion-item ng-if="isBodyAdmin==true">
+          <ion-label>Estado:</ion-label>
+          <br/>
+          <select ng-Model="comment.state">
+            <option value="investigating">Investigando</option>
+            <option value="action scheduled">Acción agendada</option>
+            <option value="in progress">En Progreso</option>
+            <option value="fixed">Arreglado</option>
+          </select>
+        </ion-item>
+        <ion-item ng-if="isBodyAdmin==true">
+          <ion-label>Asignar categoría:</ion-label>
+          <br/>
+          <select id="new_category_select" ng-Model="comment.new_category">
+            <option ng-repeat="cat in allCategoriesFromBoyArea" value="{{cat}}">{{cat}}</option>
+          </select>
         </ion-item>
         <ion-item>
           <textarea style="width: 100%" ng-model="comment.update" placeholder="Ingrese un comentario" rows="6"></textarea>
@@ -35,8 +52,9 @@
       <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>
     </div>
     <div id="error_container"></div>
-    <button style="float: right; margin-top: -33px; margin-right: 15px;" class="custom-html-modal-button" ng-click="close_report_detail_modal()">Volver al mapa</button>
+    <button style="float: right; margin-top: -59px; margin-right: 30px;" class="custom-html-modal-button" ng-click="close_report_detail_modal()">Volver al mapa</button>
   <!--</ion-scroll>-->
+  <div style="height: 200px"></div>
 </ion-content>
 
 </ion-modal-view>

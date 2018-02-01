@@ -40,6 +40,12 @@ pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTran
       if(comment.fixed==0){
         delete comment.fixed;
       }
+      if(comment.state==null){
+        delete comment.state;
+      }
+      if(comment.new_category==null){
+        delete comment.new_category;
+      }
       if (comment.photo) {
         var options = {
          fileKey: "photo",
@@ -58,6 +64,11 @@ pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTran
         return $http.get(base + '/report/update', { withCredentials: true, params: comment });
       }
     },
+
+   getAreas: function (lon,lat) {
+     var mapitURL = "http://mapit.pormibarrio.uy/point/4326/"+lon+","+lat+"";
+     return $http.get(mapitURL, { params: {} });
+   },
 
   };
   return PMBService;

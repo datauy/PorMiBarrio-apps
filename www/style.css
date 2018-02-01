@@ -640,7 +640,7 @@ body {
 }
 
 .foto-text{
-  font-size: 14pt;
+  font-size: 10pt;
   float: right;
   position: relative;
   padding-left: 10px;
@@ -651,7 +651,7 @@ body {
 
 .foto-picker{
   margin: 7px auto;
-  width: 65%;
+  width: 80%;
 }
 
 .form-button{
@@ -889,10 +889,15 @@ body {
     border: none;
     position: relative;
     float: left;
+    font-size: 10pt;
 }
 
 #comment_container .item-checkbox{
     border: none;
     position: relative;
     float: left;
+}
+
+.add-ticket{
+  margin-bottom: 25px;
 }
