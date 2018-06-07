@@ -104,6 +104,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.abuse_email = null;
     $scope.abuse_subject = null;
     $scope.abuse_message = null;
+    $scope.allCategoriesFromBoyArea = null;
 
     $scope.$on("$ionicView.beforeEnter", function() {
       DBService.initDB();
@@ -273,7 +274,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.create_online_map = function(){
       $scope.map = {
         defaults: {
-          tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+          tileLayer: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           minZoom: 12,
           maxZoom: 18,
           zoomControlPosition: 'topleft',
@@ -570,53 +571,20 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
    });
   };
 
-  $scope.comment = function() {
-      var confirmComment = $ionicPopup.show({
-      template: '<div id="comment_container"><input type="checkbox" id="comment_showname"/> - Mostrar mi nombre<br/><input type="checkbox" id="comment_addalerts"/> - Recibir futuros comentarios<br/><input type="checkbox" id="comment_fixed"/> - Problema arreglado <br/>Comentario: <textarea rows="6" id="comment_message"></textarea><div id="error_container_inside"></div></div>',
-      title: "Añadir comentario",
-      subTitle: "",
-      scope: $scope,
-      buttons: [
-        { text: 'Cancelar' },
-        {
-          text: '<b>Enviar</b>',
-          type: 'button-positive',
-          onTap: function(e) {
-            var fields = new Array();
-            $scope.comment_showname = document.getElementById("comment_showname").checked;
-            console.log($scope.comment_showname);
-            /*$scope.abuse_name = document.getElementById("abuse_name").value;
-            $scope.abuse_subject = document.getElementById("abuse_subject").value;
-            $scope.abuse_message = document.getElementById("abuse_message").value;
-            fields.push($scope.create_field_array("Nombre","notNull",$scope.abuse_name));
-            fields.push($scope.create_field_array("Email","email",$scope.abuse_email));
-            fields.push($scope.create_field_array("Asunto","notNull",$scope.abuse_subject));
-            fields.push($scope.create_field_array("Mensaje","notNull",$scope.abuse_message));
-            if(ErrorService.check_fields(fields,"error_container_inside")){
-              return $scope.abuse_email;
-            }else{*/
-              e.preventDefault();
-            //}
-          }
-        }
-      ]
-    });
-    confirmComment.then(function(res) {
-     if(res) {
-       var http_request = PMBService.comment($scope.abuse_email,$scope.report_detail_id,$scope.abuse_name,abuse_subject,$scope.abuse_message);
-       http_request.then(function(resp) {
-          //var data = JSON.parse(resp.response);
-          //if(ErrorService.http_data_response_is_successful(data,"error_container")){
-            PopUpService.show_alert("Denuncia enviada","Gracias por tus comentarios. ¡Nos pondremos en contacto con usted tan pronto como nos sea posible!");
-            $scope.abuse_name = null;
-            $scope.abuse_email = null;
-            $scope.abuse_subject = null;
-            $scope.abuse_message = null;
-          //}
-       });
+  $scope.send_comment = function(){
+    var fields = new Array();
+    fields.push($scope.create_field_array("Comentario","notNull",$scope.comment.update));
+    if(ErrorService.check_fields(fields,"error_container_inside")){
+      	  comment_sent = PMBService.comment($scope.comment);
+	  comment_sent.success(function(data, status, headers,config){
+	    $scope.back_to_map(true);
+	  })
+	  .error(function(data, status, headers, config){
+	    ErrorService.show_error_message("error_container",status);
+	    $scope.back_to_map(false);
+	  })
     }
-   });
-  };
+  }
 
   $scope.subscribe = function() {
     if(UserService.isLogged()){
@@ -665,6 +633,28 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
   };
 
+
+	$scope.readURL = function (input,type) {
+
+	    if (input.files && input.files[0]) {
+		if(type==1){
+			$scope.profile.picture_url = input.files[0];
+	    	}else if (type==2){
+			$scope.comment.photo = input.files[0];
+		}else{
+			$scope.report.file = input.files[0];
+		}
+		var reader = new FileReader();
+
+		reader.onload = function (e) {
+		    document.getElementById("myImage").src = e.target.result;
+		}
+
+		reader.readAsDataURL(input.files[0]);
+	    }
+
+	}
+
   $scope.confirmReport = function() {
     if(ConnectivityService.isOnline()){
       var fields = new Array();
@@ -675,51 +665,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         var report_sent = PMBService.report($scope.report);
         var back_to_map = false;
         document.getElementById("spinner-inside-modal").style.display = "block";
-        if($scope.report.file==null){
-          report_sent.success(function(data, status, headers,config){
-            if(ErrorService.http_data_response_is_successful(data,"error_container")){
-              $scope.back_to_map(true);
-              //$scope.addReportsLayer();
-              $scope.loadPinsLayer();
-            }else{
-              $scope.back_to_map(false);
-            }
-          })
-          .error(function(data, status, headers, config){
-            ErrorService.show_error_message("error_container",status);
-            $scope.back_to_map(false);
-          })
-        }else{
-          report_sent.then(function(resp) {
-            var data = JSON.parse(resp.response);
-            if(ErrorService.http_data_response_is_successful(data,"error_container")){
-              $scope.back_to_map(true);
-              //$scope.addReportsLayer();
-              $scope.loadPinsLayer();
-            }else{
-              $scope.back_to_map(false);
-            }
-          }, function(error) {
-            $scope.save_offline_report().then(function(response){
-              $scope.back_to_map(true);
-              //$scope.list_reports_and_go(response.id);
-              $scope.list_reports();
-              var alert = "Código: " + error.code;
-              alert = alert + " Origen: " + error.source;
-              alert = alert + " Destino: " + error.target;
-              alert = alert + " http_status: " + error.http_status;
-              //alert = alert + " Body: " + error.body;
-            //  alert = alert + " Exception: " + error.exception;
-              //console.log(alert);
-              PopUpService.show_alert("Error en el envío","Hubo un error en el envío: " + alert + ". El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
-            });
-          }, function(progress) {
-            $timeout(function() {
-              $scope.uploadProgress = (progress.loaded / progress.total) * 100;
-              document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
-            });
-          });
-        }
+	  report_sent.success(function(data, status, headers,config){
+	    if(ErrorService.http_data_response_is_successful(data,"error_container")){
+	      $scope.back_to_map(true);
+	      $scope.loadPinsLayer();
+	    }else{
+	      $scope.back_to_map(false);
+	    }
+	  })
+	  .error(function(data, status, headers, config){
+	    ErrorService.show_error_message("error_container",status);
+	    $scope.back_to_map(false);
+	  })
       }else{
         $scope.back_to_map(false);
       }
@@ -756,6 +713,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
           if(ErrorService.http_response_is_successful(resp,"error_container")){
             UserService.save_user_data(resp.data.name, $scope.report.email, $scope.report.password_sign_in, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
             DBService.saveUser(resp.data.name,$scope.report.email,$scope.report.password_sign_in,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+            if(resp.data.from_body){
+              UserService.from_body = resp.data.from_body;
+            }
             $scope.set_user_picture(1);
             $scope.confirmReport();
           }else{
@@ -794,8 +754,14 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     if(back_to_map){
       //LocationsService.initial_lat = $scope.report.lat;
       //LocationsService.initial_lng = $scope.report.lon;
-      $scope.new_report_modal.hide();
-      $scope.new_report_modal.remove();
+	if($scope.new_report_modal){
+	      $scope.new_report_modal.hide();
+	      $scope.new_report_modal.remove();
+	}
+	if($scope.report_detail_modal){
+	      $scope.report_detail_modal.hide();
+	      $scope.report_detail_modal.remove();
+	}
       document.getElementById("foot_bar").style.display = "block";
       document.getElementById("spinner-inside-modal").style.display = "none";
       //$scope.addReportsLayer();
@@ -1134,6 +1100,17 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         ReportService.getById(id).then(function(resp) {
           $scope.report_detail = $sce.trustAsHtml(resp.data.replace("overflow:auto;","").replace('src="/','src="'+ConfigService.baseURL).replace('url(/','url('+ConfigService.baseURL+ConfigService.baseCobrand+"/").replace('url(/','url('+ConfigService.baseURL+ConfigService.baseCobrand+"/"));
           document.getElementById("spinner").style.display = "none";
+          $scope.comment = {
+            submit_update: 1,
+            id: $scope.report_detail_id,
+            may_show_name: true,
+            add_alert: true,
+            fixed: false,
+            update: "",
+            name: null,
+            form_rznvy: null,
+            photo: null
+          };
           $ionicModal.fromTemplateUrl('templates/report-detail.html', {
             scope: $scope,
             //hardwareBackButtonClose: false,
@@ -1145,9 +1122,43 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
                   var element = angular.element( document.querySelector( '#report-detail-container-div' ) );
                   var compiled = $compile(element.contents())($scope);
                   if(UserService.isLogged()){
-                    //document.getElementById("comment-button").style.display="inline";
+                    $scope.comment.name = UserService.name;
+                    $scope.comment.form_rznvy = UserService.email;
+                    if(UserService.from_body!=null){
+                      var lon = $scope.featureReports[id].feature.geometry.coordinates[0];
+                      var lat = $scope.featureReports[id].feature.geometry.coordinates[1];
+                      PMBService.getAreas(lon,lat).then(function(resp){
+                        jsonObject = resp.data;
+                        $scope.isBodyAdmin = false;
+                        for (var prop in jsonObject) {
+                             var areaId = prop;
+                             var areaProps = jsonObject[prop];
+                             if(areaProps.type=="CIU"){
+                               if(UserService.from_body==areaId){
+                                 $scope.isBodyAdmin = true;
+                                 $scope.comment.new_category = $scope.featureReports[id].feature.properties.category;
+                                 $scope.comment.state = $scope.featureReports[id].feature.properties.state;
+                                 CategoriesService.allFromBodyArea(areaId).then(function(resp){
+                                   jsonAreaObject = resp.data;
+                                   $scope.allCategoriesFromBoyArea = [];
+                                   for (var index in jsonAreaObject) {
+                                     $scope.allCategoriesFromBoyArea.push(index);
+                                   }
+                                   $timeout(function(){
+                                     document.getElementById("new_category_select").value=$scope.comment.new_category;
+                                   }, 500);
+
+                                 });
+                               }
+                             }
+                         }
+                      });
+                    }else{
+                      $scope.isBodyAdmin = false;
+                    }
+                    document.getElementById("comment_container").style.display="block";
                   }else{
-                    document.getElementById("comment-button").style.display="none";
+                    document.getElementById("comment_container").style.display="none";
                   }
               })
             });
@@ -1469,6 +1480,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.show_user_menu = function(){
       var menu = document.getElementById("user-options-menu");
       var html = UserService.name + "<div id='auth_options'><div class='user-logged-link' ng-click='show_edit_profile_modal()'>Mi perfil</div>";
+      //html = html + "<div class='user-logged-link' ng-click='change_password()'>Cambiar contraseña</div>";
       html = html + "<div class='user-logged-link' ng-click='list_offline_reports_menu()'>Reportes pendientes</div>";
       html = html + "<div class='user-logged-link' ng-click='sign_out()'>Cerrar sesión</div></div>";
       menu.innerHTML = html;
@@ -1477,6 +1489,27 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       menu.style.width = '200px';
       menu.style.display = "block";
     };
+
+    $scope.forgot_password = function(){
+      $scope.login_modal.hide();
+      $scope.login_modal.remove();
+      $ionicModal.fromTemplateUrl('templates/change_password.html', {
+            scope: $scope,
+            hardwareBackButtonClose: false,
+            animation: 'slide-in-up',
+            //focusFirstInput: true
+          }).then(function(modal) {
+              document.getElementById("user-options-menu").style.display="none";
+              $scope.login_modal = modal;
+              document.getElementById("foot_bar").style.display = "none";
+              $scope.login_modal.show();
+          });
+    };
+
+    $scope.forgot_password_ok = function(){
+
+    };
+
 
     $scope.create_field_array = function(name,type,value){
       var field = new Array();
@@ -1497,6 +1530,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             if(ErrorService.http_response_is_successful(resp,"error_container")){
               UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
               DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+              if(resp.data.from_body){
+                UserService.from_body = resp.data.from_body;
+              }
               //$scope.set_user_picture(1);
               document.getElementById("spinner-inside-modal").style.display = "none";
               $scope.close_login_modal();
@@ -1525,6 +1561,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         if(ErrorService.http_response_is_successful_ajax(resp)){
           UserService.save_user_data(resp.data.name, email, password, resp.data.identity_document, resp.data.phone, resp.data.picture_url);
           DBService.saveUser(resp.data.name,email,password,resp.data.identity_document,resp.data.phone,resp.data.picture_url);
+          if(resp.data.from_body){
+            UserService.from_body = resp.data.from_body;
+          }
           $scope.set_user_picture(1);
           return 1;
         }else{
@@ -1608,51 +1647,32 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         fields.push($scope.create_field_array("Cédula de Identidad","iddoc_uy",id_doc));
         fields.push($scope.create_field_array("Nombre y apellido","two_words",fullname));
         if(ErrorService.check_fields(fields,"error_container")){
-          var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
-          if(user_picture_url==null || user_picture_url==""){
-            edit_request.success(function(data, status, headers,config){
-              document.getElementById("sent_label").innerHTML = "Enviado: 100%";
-              //console.log(data);
-              if(ErrorService.http_data_response_is_successful(data,"error_container")){
-                UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
-                document.getElementById("spinner-inside-modal").style.display = "none";
-                $scope.close_edit_profile_modal();
-                $scope.check_user_logged();
-              }else{
-                document.getElementById("spinner-inside-modal").style.display = "none";
-              }
-            })
-            .error(function(data, status, headers,config){
-              ErrorService.show_error_message("error_container",status);
-              document.getElementById("spinner-inside-modal").style.display = "none";
-            })
-          }else{
-            edit_request.then(function(result) {
-              var data = JSON.parse(result.response);
-              if(ErrorService.http_data_response_is_successful(data,"error_container")){
-                UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
-                document.getElementById("spinner-inside-modal").style.display = "none";
-                $scope.close_edit_profile_modal();
-                $scope.check_user_logged();
-              }else{
-                document.getElementById("spinner-inside-modal").style.display = "none";
-              }
-            }, function(error) {
-              var alert = "Código: " + error.code;
-              alert = alert + " Origen: " + error.source;
-              alert = alert + " Destino: " + error.target;
-              alert = alert + " http_status: " + error.http_status;
-              alert = alert + " Body: " + error.body;
-              alert = alert + " Exception: " + error.exception;
-              ErrorService.show_error_message("error_container","Hubo un error en el envío: " + alert);
-              document.getElementById("spinner-inside-modal").style.display = "none";
-            }, function(progress) {
-                $timeout(function() {
-                  $scope.uploadProgress = (progress.loaded / progress.total) * 100;
-                  document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
-                });
-            });
-          }
+            var edit_request = AuthService.edit_user(email,password, fullname, new_email, id_doc, user_phone, user_picture_url);
+	    edit_request.then(function(result) {
+	      var data = result.data;
+	      if(ErrorService.http_data_response_is_successful(data,"error_container")){
+		UserService.save_user_data(data.name, data.email, password, data.identity_document, data.phone, data.picture_url);
+		document.getElementById("spinner-inside-modal").style.display = "none";
+		$scope.close_edit_profile_modal();
+		$scope.check_user_logged();
+	      }else{
+		document.getElementById("spinner-inside-modal").style.display = "none";
+	      }
+	    }, function(error) {
+	      var alert = "Código: " + error.code;
+	      alert = alert + " Origen: " + error.source;
+	      alert = alert + " Destino: " + error.target;
+	      alert = alert + " http_status: " + error.http_status;
+	      alert = alert + " Body: " + error.body;
+	      alert = alert + " Exception: " + error.exception;
+	      ErrorService.show_error_message("error_container","Hubo un error en el envío: " + alert);
+	      document.getElementById("spinner-inside-modal").style.display = "none";
+	    }, function(progress) {
+		$timeout(function() {
+		  $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+		  document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
+		});
+	    });
         }else{
           document.getElementById("spinner-inside-modal").style.display = "none";
         }

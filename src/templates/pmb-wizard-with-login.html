@@ -41,12 +41,10 @@
                 <div class="foto-header">
                   <h3>Agregar una foto</h3>
                 </div>
-                <div class="foto-input-container">
-                  <div class="foto-picker">
-                    <div ng-click="addImage(0,0)" class="foto-icon"></div>
-                    <div ng-click="addImage(1,0)" class="foto-text" style="margin-left: 15pt;">o GALERÍA</div>
-                  </div>
-                </div>
+              <div class="foto-input-container">
+			<input type="file" id="upimgfile" name="uploadfile" onchange="angular.element(this).scope().readURL(this)" ng-model="report.file">
+			<div class="preview-img"> <img id="myImage" width="150"   size="30" /> </div>
+              </div>
                 <div class="field-separator"></div>
                 <div class="foto-footer">
                   <h3>El archivo no puede pesar más de 2MB. (JPG)</h3>
@@ -61,6 +59,7 @@
               </div>
             </div>
           </div>
+          <div style="height: 200px"></div>
       </ion-content>
     </ion-slide>
 
@@ -101,6 +100,7 @@
               </div>
             </div>
           </div>
+          <div style="height: 200px"></div>
       </ion-content>
     </ion-slide>
   </ion-slide-box>

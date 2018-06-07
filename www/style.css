@@ -620,7 +620,11 @@ body {
   -moz-border-radius: 7px 7px 7px 7px;
   -webkit-border-radius: 7px 7px 7px 7px;
   border-radius: 7px 7px 7px 7px;
-  height: 45px;
+  /*height: 45px;*/
+}
+
+input[type="file"]{
+ color: #FFFFFF;
 }
 
 .foto-icon{
@@ -875,4 +879,16 @@ body {
 
 #comment-button{
   display: none;
+}
+
+#comment_container .input-label{
+    border: none;
+    position: relative;
+    float: left;
+}
+
+#comment_container .item-checkbox{
+    border: none;
+    position: relative;
+    float: left;
 }

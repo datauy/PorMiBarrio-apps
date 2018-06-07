@@ -16,7 +16,7 @@ pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService'
 
   Report.getById = function(id){
     var url = baseURL + id;
-    return $http.get(url).then(function(result){
+    return $http.get(url, { withCredentials: true }).then(function(result){
               return result;
     });
   }

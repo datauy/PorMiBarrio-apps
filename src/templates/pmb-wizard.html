@@ -1,5 +1,6 @@
 <ion-modal-view class="new-report-modal">
     <ion-content class="new-report-scroll">
+      <ion-scroll direction="y">
         <div class="new-report-slide">
           <div class="new-report-content">
             <div class="category-header">
@@ -40,10 +41,8 @@
                 <h3>Agregar una foto</h3>
               </div>
               <div class="foto-input-container">
-                <div class="foto-picker">
-                  <div ng-click="addImage(0,0)" class="foto-icon"></div>
-                  <div ng-click="addImage(1,0)" class="foto-text">o GALERÍA</div>
-                </div>
+			<input type="file" id="upimgfile" name="uploadfile" onchange="angular.element(this).scope().readURL(this)" ng-model="report.file">
+			<div class="preview-img"> <img id="myImage" width="150"   size="30" /> </div>
               </div>
               <div class="field-separator"></div>
               <div class="field-separator"></div>
@@ -69,6 +68,8 @@
             </div>
           </div>
         </div>
+        <div style="height: 200px"></div>
+        </ion-scroll>
     </ion-content>
     <div id="spinner-inside-modal" class="modal-spinner"><h3>Aguarde por favor</h3><ion-spinner icon="spiral"></ion-spinner><h3 id="sent_label">Enviado: 100%</h3></div>
 </ion-modal-view>

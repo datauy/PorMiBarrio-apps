@@ -6,18 +6,24 @@ pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTran
 
     report: function(form) {
       if (form.file) {
-        var options = {
-         fileKey: "photo",
-         fileName: "image.jpeg",
-         chunkedMode: false,
-         mimeType: "image/jpeg",
-         params : form
-        };
-        options.headers = {
-          Connection: "Close"
-        };
-        var trustAllHosts = true;
-        return $cordovaFileTransfer.upload(base + '/report/new/mobile', form.file, options, trustAllHosts);
+	var formData = new FormData();
+	formData.append("photo", form.file);
+	formData.append("category", form.category);
+	formData.append("detail", form.detail);
+	formData.append("email", form.email);
+	formData.append("lat", form.lat);
+	formData.append("lon", form.lon);
+	formData.append("may_show_name", form.may_show_name);
+	formData.append("name", form.name);
+	formData.append("password_sign_in", form.password_sign_in);
+	formData.append("pc", form.pc);
+	formData.append("remember_me", form.remember_me);
+	formData.append("submit_sign_in", form.submit_sign_in);
+	formData.append("title", form.title);
+	return $http.post(base + '/report/new/mobile', formData, {
+	    headers: { 'Content-Type': undefined },
+	    transformRequest: angular.identity
+	});
       }else{
         return $http.get(base + '/report/new/mobile', { params: form });
       }
@@ -36,20 +42,49 @@ pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTran
       return $http.get(base + deleteURL, { params: {} });
     },
 
-    comment: function (report_id,message,name,email,may_show_name,add_alert,fixed) {
-      return $http.get(base + "/report/update_ajax",
-      { params:
-        {
-          submit_update: 1,
-          id: report_id,
-          may_show_name: may_show_name,
-          add_alert: add_alert,
-          fixed: fixed,
-          update: message,
-          name: name,
-          form_rznvy: email
+    comment: function (comment) {
+      if (comment.photo) {
+      	var formData = new FormData();
+      	formData.append("photo", comment.photo);
+      	formData.append("id", comment.id);
+      	formData.append("may_show_name", comment.may_show_name);
+      	formData.append("add_alert", comment.add_alert);
+      	if(comment.fixed==1){
+      		formData.append("fixed", comment.fixed);
+      	}
+      	formData.append("update", comment.update);
+      	formData.append("name", comment.name);
+      	formData.append("form_rznvy", comment.form_rznvy);
+      	formData.append("submit_update", comment.submit_update);
+        if(comment.state){
+          formData.append("state", comment.state);
         }
-      });
+        if(comment.new_category){
+          formData.append("new_category", comment.new_category);
+        }
+      	return $http.post(base + '/report/update', formData, {
+      	    headers: { 'Content-Type': undefined },
+      	    transformRequest: angular.identity,
+      	    withCredentials: true
+      	});
+      }else{
+      	if(comment.fixed==0){
+      		delete comment.fixed;
+      	}
+        if(comment.state==null){
+          delete comment.state;
+        }
+        if(comment.new_category==null){
+          delete comment.new_category;
+        }
+        return $http.get(base + '/report/update', { withCredentials: true, params: comment });
+      }
+
+    },
+
+    getAreas: function (lon,lat) {
+      var mapitURL = "http://mapit.pormibarrio.uy/point/4326/"+lon+","+lat+"";
+      return $http.get(mapitURL, { params: {} });
     },
 
   };

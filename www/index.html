@@ -76,8 +76,38 @@
     <script src="dist/app.js"></script>
     <script src="dist/templates.js"></script>
 
+    <meta name="apple-itunes-app" content="app-id=1178012548">
+    <meta name="google-play-app" content="app-id=com.pormibarrio.app">
+    <link rel="stylesheet" href="lib-custom/smart-app-banner/dist/smart-app-banner.css" type="text/css" media="screen">
+    <link rel="apple-touch-icon" href="http://is2.mzstatic.com/image/thumb/Purple118/v4/27/32/ee/2732ee99-360e-8eb9-a11e-e5c21e3ed673/source/175x175bb.jpg">
+    <link rel="android-touch-icon" href="https://lh3.googleusercontent.com/Q_YLOqguvcPE1chfTmr1lLjV7FbO8dZ4HddwGN4fKJg4GZTBmbfMUhPfrr4jTX03vnlx=w300-rw" />
+    <link rel="stylesheet" href="https://pmbdev.development.datauy.org/app_external.css" type="text/css" media="screen">
   </head>
   <body ng-app="pmb_im">
+    <script src="lib-custom/smart-app-banner/dist/smart-app-banner.js"></script>
+    <script type="text/javascript">
+    new SmartBanner({
+      daysHidden: 1,   // days to hide banner after close button is clicked (defaults to 15)
+      daysReminder: 1, // days to hide banner after "VIEW" button is clicked (defaults to 90)
+      appStoreLanguage: 'es', // language code for the App Store (defaults to user's browser language)
+      title: 'Por Mi Barrio',
+      author: 'DATA Uruguay',
+      button: 'Ver App',
+      store: {
+          ios: 'En App Store',
+          android: 'En Google Play',
+          windows: 'En Windows store'
+      },
+      price: {
+          ios: 'Gratis',
+          android: 'Gratis',
+          windows: 'Gratis'
+      }
+      // , theme: '' // put platform type ('ios', 'android', etc.) here to force single theme on all device
+      // , icon: '' // full path to icon image if not using website icon image
+      // , force: 'ios' // Uncomment for platform emulation
+    });
+    </script>
     <!--
       The views will be rendered in the <ion-nav-view> directive below
       Templates are in the /templates folder (but you could also
