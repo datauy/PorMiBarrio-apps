@@ -1,0 +1,121 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "smart-app-banner",
+        "scope": null,
+        "escapedName": "smart-app-banner",
+        "name": "smart-app-banner",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/home/datauy/donderecicloApp"
+    ]
+  ],
+  "_from": "smart-app-banner@latest",
+  "_id": "smart-app-banner@1.3.1",
+  "_inCache": true,
+  "_location": "/smart-app-banner",
+  "_nodeVersion": "6.2.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/smart-app-banner-1.3.1.tgz_1478579138838_0.8842804473824799"
+  },
+  "_npmUser": {
+    "name": "dfcreative",
+    "email": "df.creative@gmail.com"
+  },
+  "_npmVersion": "3.7.2",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "smart-app-banner",
+    "scope": null,
+    "escapedName": "smart-app-banner",
+    "name": "smart-app-banner",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/smart-app-banner/-/smart-app-banner-1.3.1.tgz",
+  "_shasum": "ed5bf7458cba88cee2c76e73551c9748ba0e21b1",
+  "_shrinkwrap": null,
+  "_spec": "smart-app-banner",
+  "_where": "/home/datauy/donderecicloApp",
+  "author": {
+    "name": "Vitaly Glibin"
+  },
+  "bugs": {
+    "url": "https://github.com/kudago/smart-app-banner/issues"
+  },
+  "contributors": [
+    {
+      "name": "Dmitry Ywanov",
+      "email": "dfcreative@gmail.com"
+    },
+    {
+      "name": "Maxime VALY",
+      "email": "maxime.valy@gmail.com",
+      "url": "http://maximevaly.github.com/"
+    }
+  ],
+  "dependencies": {
+    "component-query": "^0.0.3",
+    "cookie-cutter": "^0.1.1",
+    "get-doc": "^1.0.3",
+    "ua-parser-js": "^0.7.7",
+    "xtend": "^4.0.0"
+  },
+  "description": "Smart banner for Android or iOS",
+  "devDependencies": {
+    "browserify": "^10.2.4",
+    "closurecompiler": "^1.5.1",
+    "eslint": "^3.9.1"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "ed5bf7458cba88cee2c76e73551c9748ba0e21b1",
+    "tarball": "https://registry.npmjs.org/smart-app-banner/-/smart-app-banner-1.3.1.tgz"
+  },
+  "gitHead": "bd25a33aa0924cd80d78a5231e01734e0bcf0aeb",
+  "homepage": "https://github.com/kudago/smart-app-banner",
+  "keywords": [
+    "smart",
+    "banner",
+    "smartbanner",
+    "android",
+    "iphone",
+    "application"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "maintainers": [
+    {
+      "name": "dfcreative",
+      "email": "df.creative@gmail.com"
+    },
+    {
+      "name": "everyonesdesign",
+      "email": "tr.yura@yahoo.com"
+    },
+    {
+      "name": "nevel",
+      "email": "case.anny@gmail.com"
+    }
+  ],
+  "name": "smart-app-banner",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kudago/smart-app-banner.git"
+  },
+  "scripts": {
+    "build": "browserify index.js -s SmartBanner | ccjs - > dist/smart-app-banner.js",
+    "lint": "eslint index.js"
+  },
+  "version": "1.3.1"
+}
