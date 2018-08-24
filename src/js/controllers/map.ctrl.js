@@ -2022,6 +2022,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         MapService.centerMapOnCoords(-30.8997469, -55.5434686, 14);
       }
 
+      $scope.select_irn = function(){
+        $scope.close_council_modal();
+        LocationsService.selectCouncil("360");
+        MapService.centerMapOnCoords(-33.124972, -58.303736, 14);
+      }
+
       $scope.openCouncilSelector = function(){
         $ionicModal.fromTemplateUrl('templates/council_selector_with_back_button.html', {
           scope: $scope,

@@ -2,7 +2,7 @@ pmb_im.services.factory('ReportService', ['$http', 'leafletData','ConfigService'
 
   var baseURL = ConfigService.baseURL + "/report/ajax/";
 
-  var pinsURL = ConfigService.baseURL + "/ajax_geo?bbox=-58.199387,-36.932178,-50.168488,-30.887061";
+  var pinsURL = ConfigService.baseURL + "/ajax_geo?bbox=-65.199387,-40.932178,-50.168488,-25.887061";
   //var pinsURL = ConfigService.baseURL + "/api/geo_reports?api_key=1234";
 
 
