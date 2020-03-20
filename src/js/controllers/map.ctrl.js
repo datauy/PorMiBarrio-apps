@@ -85,15 +85,18 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.abuse_message = null;
     $scope.allCategoriesFromBoyArea = null;
 
-    $scope.$on("$ionicView.beforeEnter", function() {
-      ModalService.checkNoModalIsOpen();
-      DBService.initDB();
+    document.addEventListener("deviceready", function () {
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
         $scope.send_offline_reports();
       }else{
         $scope.set_offline_user();
       }
+    });
+    $scope.$on("$ionicView.beforeEnter", function() {
+      ModalService.checkNoModalIsOpen();
+      DBService.initDB();
+
       $scope.set_network_events();
       var checkOfflineReports = $interval(function() {
         $scope.send_offline_reports();

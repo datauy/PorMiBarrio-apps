@@ -12,7 +12,7 @@
     <allow-navigation href="http://*/*" />
     <allow-navigation href="https://*/*" />
     <allow-navigation href="data:*" />
-    <preference name="android-minSdkVersion" value="16" />
+    <preference name="android-minSdkVersion" value="19" />
     <preference name="android-targetSdkVersion" value="25" />
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
@@ -21,6 +21,7 @@
     <preference name="SplashScreen" value="none" />
     <preference name="AndroidPersistentFileLocation" value="Internal" />
     <preference name="SplashScreenDelay" value="3000" />
+    <preference name="Hostname" value="mobile.pormibarrio.uy" />
     <feature name="StatusBar">
         <param name="ios-package" onload="true" value="CDVStatusBar" />
     </feature>
@@ -80,8 +81,4 @@
         <splash height="1280" src="resources/wp8/splash/SplashScreenImage.png" width="768" />
     </platform>
     <icon src="resources/ios/icon/icon-small@3x.png" />
-    <plugin name="cordova-plugin-facebook4" spec="~1.9.1">
-        <variable name="APP_ID" value="155732771686955" />
-        <variable name="APP_NAME" value="Por Mi Barrio App" />
-    </plugin>
 </widget>

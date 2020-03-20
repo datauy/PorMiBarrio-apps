@@ -2,11 +2,9 @@ pmb_im.services.factory('ConfigService', ['$http', function($http) {
 
   var ConfigObj = {};
   //ConfigObj.baseURL = "https://pmbdev.development.datauy.org";
-  ConfigObj.baseURL = "http://pmbuy.development.datauy.org";
+  ConfigObj.baseURL = "/data";
   if(ionic.Platform.isWebView()){
-    ConfigObj.baseURL = "http://pmbuy.development.datauy.org";
-  } else {
-    ConfigObj.baseURL = "/data";
+    ConfigObj.baseURL = "https://pormibarrio.uy";
   }
 
   ConfigObj.baseCobrand = "/cobrands/pormibarrio";

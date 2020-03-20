@@ -1,6 +1,9 @@
 {
-  "name": "pmb-im",
-  "app_id": "ee41f0b9",
+  "name": "Por Mi Barrio",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic1",
   "proxies": [
     {
       "path": "/im",
@@ -8,7 +11,7 @@
     },
     {
       "path": "/data",
-      "proxyUrl": "http://pmbuy.development.datauy.org/"
+      "proxyUrl": "https://pormibarrio.uy/"
     }
   ],
   "gulpStartupTasks": [
@@ -26,5 +29,6 @@
       "browser": "crosswalk",
       "version": "12.41.296.5"
     }
-  ]
+  ],
+  "id": "ee41f0b9"
 }
