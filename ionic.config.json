@@ -1,0 +1,23 @@
+{
+  "name": "PorMiBarrioApps",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic1",
+  "proxies": [
+    {
+      "path": "/im",
+      "proxyUrl": "http://desa.imm.gub.uy:8080"
+    },
+    {
+      "path": "/data",
+      "proxyUrl": "https://pormibarrio.uy/"
+    }
+  ],
+  "watchPatterns": [
+    "scss/**/*",
+    "www/**/*",
+    "!www/lib/**/*",
+    "!www/**/*.map"
+  ]
+}

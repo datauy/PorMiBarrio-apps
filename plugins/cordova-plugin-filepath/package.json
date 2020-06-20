@@ -1,0 +1,62 @@
+{
+  "_from": "cordova-plugin-filepath",
+  "_id": "cordova-plugin-filepath@1.5.8",
+  "_inBundle": false,
+  "_integrity": "sha512-DhMVM9lkndPWQ+lI8Um0Yq648MBKWpNe/3PW057g4wuFrnAz/9nR8Qs4bjYt/yxwxMX/VMZC59qXOcksd2JYuw==",
+  "_location": "/cordova-plugin-filepath",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "cordova-plugin-filepath",
+    "name": "cordova-plugin-filepath",
+    "escapedName": "cordova-plugin-filepath",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-filepath/-/cordova-plugin-filepath-1.5.8.tgz",
+  "_shasum": "9adc7b0ae281683bcea755bb0ac86688e96f5e3a",
+  "_spec": "cordova-plugin-filepath",
+  "_where": "/Users/danielcarranza/Desktop/PorMiBarrio-apps",
+  "author": {
+    "name": "Ramesh Nair",
+    "email": "ram@hiddentao.com"
+  },
+  "bugs": {
+    "url": "https://github.com/hiddentao/cordova-plugin-filepath/issues"
+  },
+  "bundleDependencies": false,
+  "cordova": {
+    "id": "cordova-plugin-filepath",
+    "platforms": [
+      "android"
+    ]
+  },
+  "deprecated": false,
+  "description": "Resolve native file paths from content URLs for Cordova platforms",
+  "devDependencies": {
+    "sync-cordova-xml": "^0.4.0"
+  },
+  "homepage": "https://github.com/hiddentao/cordova-plugin-filepath#readme",
+  "keywords": [
+    "cordova",
+    "file",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "license": "Apache 2.0",
+  "name": "cordova-plugin-filepath",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hiddentao/cordova-plugin-filepath.git"
+  },
+  "scripts": {
+    "version": "sync-cordova-xml package.json plugin.xml --output plugin.xml && git add plugin.xml"
+  },
+  "version": "1.5.8"
+}
