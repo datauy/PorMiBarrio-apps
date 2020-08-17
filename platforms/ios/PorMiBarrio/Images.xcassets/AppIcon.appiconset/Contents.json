@@ -31,13 +31,13 @@
       "size" : "29x29"
     },
     {
-      "filename" : "icon-80.png",
+      "filename" : "icon-40@2x-1.png",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "40x40"
     },
     {
-      "filename" : "icon-60@2x-1.png",
+      "filename" : "icon-60@3x-1.png",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "40x40"
@@ -67,7 +67,7 @@
       "size" : "60x60"
     },
     {
-      "filename" : "icon-20.png",
+      "filename" : "icon-21.png",
       "idiom" : "ipad",
       "scale" : "1x",
       "size" : "20x20"
@@ -97,7 +97,7 @@
       "size" : "40x40"
     },
     {
-      "filename" : "icon-81.png",
+      "filename" : "icon-40@2x-2.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "40x40"
@@ -139,7 +139,7 @@
       "size" : "76x76"
     },
     {
-      "filename" : "icon-83.5@2x.png",
+      "filename" : "icon-1033.png",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "83.5x83.5"
@@ -151,7 +151,7 @@
       "size" : "1024x1024"
     },
     {
-      "filename" : "Copia de icon-48.png",
+      "filename" : "icon-1031.png",
       "idiom" : "watch",
       "role" : "notificationCenter",
       "scale" : "2x",
@@ -159,7 +159,7 @@
       "subtype" : "38mm"
     },
     {
-      "filename" : "Copia de icon-55.png",
+      "filename" : "icon-1032.png",
       "idiom" : "watch",
       "role" : "notificationCenter",
       "scale" : "2x",
@@ -189,7 +189,7 @@
       "subtype" : "38mm"
     },
     {
-      "filename" : "Copia de icon-88.png",
+      "filename" : "icon-1027.png",
       "idiom" : "watch",
       "role" : "appLauncher",
       "scale" : "2x",
@@ -205,7 +205,7 @@
       "subtype" : "44mm"
     },
     {
-      "filename" : "Copia de icon-172.png",
+      "filename" : "icon-1028.png",
       "idiom" : "watch",
       "role" : "quickLook",
       "scale" : "2x",
@@ -213,7 +213,7 @@
       "subtype" : "38mm"
     },
     {
-      "filename" : "Copia de icon-196.png",
+      "filename" : "icon-1029.png",
       "idiom" : "watch",
       "role" : "quickLook",
       "scale" : "2x",
@@ -221,7 +221,7 @@
       "subtype" : "42mm"
     },
     {
-      "filename" : "Copia de icon-216.png",
+      "filename" : "icon-1030.png",
       "idiom" : "watch",
       "role" : "quickLook",
       "scale" : "2x",
@@ -229,7 +229,7 @@
       "subtype" : "44mm"
     },
     {
-      "filename" : "icon-1024.png",
+      "filename" : "icon-1026.png",
       "idiom" : "watch-marketing",
       "scale" : "1x",
       "size" : "1024x1024"
