@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.pormibarrio.app" version="1.0.6" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="100086" id="com.pormibarrio.app" version="1.0.8" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>PorMiBarrio</name>
     <description>
         Por mi barrio - Uruguay
     </description>
-    <author email="devops@datauy.org" href="http://datauy.org/">
+    <author email="devops@datauy.org" href="https://data.org.uy/">
       DATAUY
     </author>
     <content src="index.html" />
@@ -12,8 +12,8 @@
     <allow-navigation href="http://*/*" />
     <allow-navigation href="https://*/*" />
     <allow-navigation href="data:*" />
-    <preference name="android-minSdkVersion" value="19" />
-    <preference name="android-targetSdkVersion" value="25" />
+    <preference name="android-minSdkVersion" value="21" />
+    <preference name="android-targetSdkVersion" value="28" />
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
@@ -22,6 +22,8 @@
     <preference name="AndroidPersistentFileLocation" value="Internal" />
     <preference name="SplashScreenDelay" value="3000" />
     <preference name="Hostname" value="mobile.pormibarrio.uy" />
+    <preference name="WKWebViewOnly" value="true" />
+    <preference name="android-minSdkVersion" value="21" />
     <feature name="StatusBar">
         <param name="ios-package" onload="true" value="CDVStatusBar" />
     </feature>
@@ -81,4 +83,9 @@
         <splash height="1280" src="resources/wp8/splash/SplashScreenImage.png" width="768" />
     </platform>
     <icon src="resources/ios/icon/icon-small@3x.png" />
+    <plugin name="cordova-plugin-file" spec="~6.0.2" />
+    <engine name="browser" spec="~5.0.4" />
+    <plugin name="cordova-plugin-geolocation" spec="~4.0.2" />
+    <plugin name="cordova-sqlite-storage" spec="^5.0.0" />
+    <engine name="android" spec="~7.1.4" />
 </widget>
