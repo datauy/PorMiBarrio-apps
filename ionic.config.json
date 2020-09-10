@@ -1,0 +1,7 @@
+{
+  "name": "PorMiBarrio-apps",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "ionic1"
+}
