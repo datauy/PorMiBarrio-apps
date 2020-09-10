@@ -77,7 +77,8 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-statusbar": {},
-      "cordova-plugin-whitelist": {}
+      "cordova-plugin-whitelist": {},
+      "cordova-plugin-file-transfer": {}
     },
     "platforms": [
       "browser",
