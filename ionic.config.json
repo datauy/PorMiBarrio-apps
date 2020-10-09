@@ -1,7 +1,35 @@
 {
-  "name": "PorMiBarrio-apps",
+  "name": "Por Mi Barrio",
   "integrations": {
     "cordova": {}
   },
-  "type": "ionic1"
+  "type": "ionic1",
+  "proxies": [
+    {
+      "path": "/im",
+      "proxyUrl": "http://desa.imm.gub.uy:8080"
+    },
+    {
+      "path": "/data",
+      "proxyUrl": "https://pormibarrio.uy/"
+    }
+  ],
+  "gulpStartupTasks": [
+    "default",
+    "watch",
+    "sass"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ],
+  "browsers": [
+    {
+      "platform": "android",
+      "browser": "crosswalk",
+      "version": "12.41.296.5"
+    }
+  ],
+  "id": "ee41f0b9",
+  "app_id": ""
 }

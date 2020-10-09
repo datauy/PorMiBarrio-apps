@@ -32,7 +32,9 @@ function($scope,
   $scope.$on("$ionicView.afterEnter", function() {
     //document.getElementById("spinner").style.display = "none";
     var map = leafletData.getMap();
-    if(LocationsService.initial_lat!=""){
+    if(LocationsService.new_report_lat!=""){
+      MapService.centerMapOnCoords(LocationsService.new_report_lat, LocationsService.new_report_lng, 16);
+    }else if(LocationsService.initial_lat!=""){
       MapService.centerMapOnCoords(LocationsService.initial_lat, LocationsService.initial_lng, 16);
     }else{
       //MapService.centerMapOnCoords(-34.901113, -56.164531, 14);
