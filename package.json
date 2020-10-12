@@ -1,6 +1,6 @@
 {
   "name": "pmb-mobile",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Mobile APP for PorMiBarrio website",
   "author": "DATAUY.ORG <contacto@data.org.uy>",
   "license": "OpenSource",
@@ -56,12 +56,13 @@
   },
   "cordovaPlugins": [],
   "cordovaPlatforms": [
-    "android"
+    "android",
+    "ios"
   ],
   "cordova": {
     "plugins": {
       "cordova-plugin-camera": {
-        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+        "ANDROID_SUPPORT_V4_VERSION": "28"
       },
       "cordova-plugin-device": {},
       "cordova-plugin-file": {},
@@ -77,7 +78,8 @@
     },
     "platforms": [
       "browser",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }

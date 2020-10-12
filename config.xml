@@ -9,25 +9,24 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-    <preferance name="android-usesCleartextTraffic" value="true" />
     <allow-navigation href="*" />
     <allow-navigation href="http://*" />
     <allow-navigation href="https://*" />
     <allow-navigation href="http://*/*" />
     <allow-navigation href="https://*/*" />
-    <allow-navigation href="file://*" />
+    <allow-navigation href="file://*" />º
     <allow-navigation href="data:*" />
-    <preference name="android-minSdkVersion" value="23" />
-    <preference name="android-targetSdkVersion" value="30" />
+    <allow-navigation href="cdvfile:*" />
     <preference name="webviewbounce" value="false" />
     <preference name="UIWebViewBounce" value="false" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="BackupWebStorage" value="none" />
     <preference name="SplashScreen" value="none" />
-    <preference name="AndroidPersistentFileLocation" value="Internal" />
-    <preference name="SplashScreenDelay" value="3000" />
+    <preference name="SplashScreenDelay" value="1000" />
     <preference name="Hostname" value="mobile.pormibarrio.uy" />
     <preference name="WKWebViewOnly" value="true" />
+    <preference name="FullScreen" value="true" />
+    <preference name="MediaPlaybackRequiresUserAction" value="false" />
+    <preference name="WindowSize" value="fullscreen" />
     <feature name="StatusBar">
         <param name="ios-package" onload="true" value="CDVStatusBar" />
     </feature>
@@ -35,8 +34,14 @@
         <param name="ios-package" value="CDVWKWebViewEngine" />
     </feature>
     <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
-    <preference name="WKWebViewOnly" value="true" />
     <platform name="android">
+      <preferance name="android-usesCleartextTraffic" value="true" />
+      <preference name="android-minSdkVersion" value="23" />
+      <preference name="android-targetSdkVersion" value="30" />
+      <preference name="AndroidPersistentFileLocation" value="Internal" />
+      <preference name="BackupWebStorage" value="none" />
+      <preference name="disallowOverscroll" value="true" />
+      <preference name="webviewbounce" value="false" />
         <icon density="ldpi" src="resources/android/icon/drawable-ldpi-icon.png" />
         <icon density="mdpi" src="resources/android/icon/drawable-mdpi-icon.png" />
         <icon density="hdpi" src="resources/android/icon/drawable-hdpi-icon.png" />
@@ -56,10 +61,52 @@
         <splash density="port-xxhdpi" src="resources/android/splash/drawable-port-xxhdpi-screen.png" />
         <splash density="port-xxxhdpi" src="resources/android/splash/drawable-port-xxxhdpi-screen.png" />
     </platform>
-    <platform name="wp8">
-        <icon height="99" src="resources/wp8/icon/ApplicationIcon.png" width="99" />
-        <icon height="159" src="resources/wp8/icon/Background.png" width="159" />
-        <splash height="1280" src="resources/wp8/splash/SplashScreenImage.png" width="768" />
+    <platform name="ios">
+      <access origin="*" />
+      <allow-navigation href="*" />
+      <allow-intent href="*" />
+      <allow-intent href="itms:*" />
+      <allow-intent href="itms-apps:*" />
+      <preference name="BackupWebStorage" value="local"/>
+      <preference name="CordovaWebViewEngine" value="CDVUIWebViewEngine" />
+      <preference name="CordovaDefaultWebViewEngine" value="CDVUIWebViewEngine" />
+      <preference name="DisallowOverscroll" value="true" />
+      <preference name="webviewbounce" value="false" />
+      <icon height="57" src="resources/ios/icon/icon.png" width="57" />
+       <icon height="114" src="resources/ios/icon/icon@2x.png" width="114" />
+       <icon height="40" src="resources/ios/icon/icon-40.png" width="40" />
+       <icon height="80" src="resources/ios/icon/icon-40@2x.png" width="80" />
+       <icon height="120" src="resources/ios/icon/icon-40@3x.png" width="120" />
+       <icon height="50" src="resources/ios/icon/icon-50.png" width="50" />
+       <icon height="100" src="resources/ios/icon/icon-50@2x.png" width="100" />
+       <icon height="60" src="resources/ios/icon/icon-60.png" width="60" />
+       <icon height="120" src="resources/ios/icon/icon-60@2x.png" width="120" />
+       <icon height="180" src="resources/ios/icon/icon-60@3x.png" width="180" />
+       <icon height="72" src="resources/ios/icon/icon-72.png" width="72" />
+       <icon height="144" src="resources/ios/icon/icon-72@2x.png" width="144" />
+       <icon height="76" src="resources/ios/icon/icon-76.png" width="76" />
+       <icon height="152" src="resources/ios/icon/icon-76@2x.png" width="152" />
+       <icon height="167" src="resources/ios/icon/icon-83.5@2x.png" width="167" />
+       <icon height="29" src="resources/ios/icon/icon-small.png" width="29" />
+       <icon height="58" src="resources/ios/icon/icon-small@2x.png" width="58" />
+       <icon height="87" src="resources/ios/icon/icon-small@3x.png" width="87" />
+       <splash height="1136" src="resources/ios/splash/Default-568h@2x~iphone.png" width="640" />
+       <splash height="1334" src="resources/ios/splash/Default-667h.png" width="750" />
+       <splash height="2208" src="resources/ios/splash/Default-736h.png" width="1242" />
+       <splash height="1242" src="resources/ios/splash/Default-Landscape-736h.png" width="2208" />
+       <splash height="1536" src="resources/ios/splash/Default-Landscape@2x~ipad.png" width="2048" />
+       <splash height="768" src="resources/ios/splash/Default-Landscape~ipad.png" width="1024" />
+       <splash height="2048" src="resources/ios/splash/Default-Portrait@2x~ipad.png" width="1536" />
+       <splash height="1024" src="resources/ios/splash/Default-Portrait~ipad.png" width="768" />
+       <splash height="960" src="resources/ios/splash/Default@2x~iphone.png" width="640" />
+       <splash height="480" src="resources/ios/splash/Default~iphone.png" width="320" />
+       <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+            <string>Se requiere acceso a la cámara para fotos de reclamos.</string>
+        </edit-config>
+        <edit-config target="NSPhotoLibraryUsageDescription" file="*-Info.plist" mode="merge">
+            <string>Se requiere acceso a la librería para fotos de reclamos.</string>
+        </edit-config>
+
     </platform>
     <icon src="resources/ios/icon/icon-small@3x.png" />
 </widget>
