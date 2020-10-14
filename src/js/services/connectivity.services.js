@@ -3,7 +3,12 @@ pmb_im.services.factory('ConnectivityService', ['$cordovaNetwork', function($cor
   return {
     isOnline: function(){
       if(ionic.Platform.isWebView()){
-        return $cordovaNetwork.isOnline();
+        try {
+          return $cordovaNetwork.isOnline();
+         }
+         catch (error) {
+          return true;
+         }
       } else {
         return navigator.onLine;
         //return false;
@@ -11,7 +16,12 @@ pmb_im.services.factory('ConnectivityService', ['$cordovaNetwork', function($cor
     },
     isOffline: function(){
       if(ionic.Platform.isWebView()){
-        return !$cordovaNetwork.isOnline();
+        try {
+          return !$cordovaNetwork.isOnline();
+         }
+         catch (error) {
+          return false;
+         }
       } else {
         return !navigator.onLine;
       }

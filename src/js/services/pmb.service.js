@@ -5,13 +5,15 @@ pmb_im.services.factory('PMBService', ['$http', 'leafletData', '$cordovaFileTran
   var PMBService = {
 
     report: function(form) {
+      console.log(form);
       if (form.file) {
         var options = {
          fileKey: "photo",
          fileName: "image.jpeg",
          chunkedMode: false,
          mimeType: "image/jpeg",
-         params : form
+         params : form,
+         withCredentials: true 
         };
         options.headers = {
           Connection: "Close"

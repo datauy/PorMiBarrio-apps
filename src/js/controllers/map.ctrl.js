@@ -1,6 +1,6 @@
 pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   '$cordovaCamera',
-  '$cordovaFile',
+  '$cordovaFileTransfer',
   '$cordovaGeolocation',
   '$compile',
   '$state',
@@ -36,7 +36,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $sce,
     _,
     $cordovaCamera,
-    $cordovaFile,
+    $cordovaFileTransfer,
     $cordovaGeolocation,
     $compile,
     $state,
@@ -101,7 +101,10 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       var checkOfflineReports = $interval(function() {
         $scope.send_offline_reports();
       }, 60000);
-      document.getElementById("foot_bar").style.display = "block";
+      if(document.getElementById("foot_bar")!=null){
+          document.getElementById("foot_bar").style.display = "block";
+      }
+
       if(ConnectivityService.isOnline()){
         $scope.create_online_map();
       }else{
@@ -255,6 +258,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     };
 
     $scope.create_online_map = function(){
+      if($scope.map!=null && $scope.map.defaults.tileLayer=='./offline_tiles/{z}/{x}/{y}.png'){
+        return false;
+      }
       $scope.map = {
         defaults: {
           //tileLayer: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
@@ -274,11 +280,20 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         }
       };
       $scope.loadPinsLayer();
-      $scope.map.center = {
-          lat: -34.901113,
-          lng: -56.164531,
-          zoom: 16
-        };
+      if(LocationsService.new_report_lat!=""){
+        $scope.map.center = {
+            lat: LocationsService.new_report_lat,
+            lng: LocationsService.new_report_lng,
+            zoom: 16
+          };
+      }else{
+        $scope.map.center = {
+            lat: -34.901113,
+            lng: -56.164531,
+            zoom: 16
+          };
+      }
+
       leafletData.getMap().then(function(map) {
         map.on('moveend', $scope.hideOffScreenPins);
       });
@@ -295,6 +310,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.new_report_from_latlon = function(lat,lng) {
       LocationsService.new_report_lat = lat;
       LocationsService.new_report_lng = lng;
+      LocationsService.initial_lat =  lat;
+      LocationsService.initial_lng =  lng;
       $scope.new_report(1);
     }
 
@@ -302,6 +319,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       $scope.set_active_option('button-report');
       $scope.hide_special_divs();
       if(alreadyLocated==1){
+        LocationsService.initial_lat = LocationsService.new_report_lat;
+        LocationsService.initial_lng = LocationsService.new_report_lat;
         document.getElementById("spinner").style.display = "block";
         if(ConnectivityService.isOnline()){
           $scope.report = ReportService._new();
@@ -657,17 +676,36 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             $scope.back_to_map(false);
           })
         }else{
+          var reporteEnviado = $scope.report;
           report_sent.then(function(resp) {
+            console.log(resp);
             var data = JSON.parse(resp.response);
             if(ErrorService.http_data_response_is_successful(data,"error_container")){
               $scope.back_to_map(true);
               //$scope.addReportsLayer();
               $scope.loadPinsLayer();
+              leafletData.getMap().then(function(map) {
+                var lat = reporteEnviado.lat;
+                //Move a little the map center because the map view is smaller (report list is displayed)
+                lat = lat - 0.0006;
+                map.setView(new L.LatLng(lat, reporteEnviado.lon), 18);
+              });
             }else{
+              console.log(data);
               $scope.back_to_map(false);
             }
           }, function(error) {
-            $scope.save_offline_report().then(function(response){
+            console.log(error);
+            $scope.back_to_map(true);
+            //$scope.addReportsLayer();
+            $scope.loadPinsLayer();
+            leafletData.getMap().then(function(map) {
+              var lat = reporteEnviado.lat;
+              //Move a little the map center because the map view is smaller (report list is displayed)
+              lat = lat - 0.0006;
+              map.setView(new L.LatLng(lat, reporteEnviado.lon), 18);
+            });
+            /*$scope.save_offline_report().then(function(response){
               $scope.back_to_map(true);
               //$scope.list_reports_and_go(response.id);
               $scope.list_reports();
@@ -679,12 +717,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
             //  alert = alert + " Exception: " + error.exception;
               //console.log(alert);
               PopUpService.show_alert("Error en el envío","Hubo un error en el envío: " + alert + ". El reporte se ha guardado en su dispositivo y se enviará cuando utilice esta aplicación conectado a internet");
-            });
+            });*/
           }, function(progress) {
-            $timeout(function() {
+            /*$timeout(function() {
               $scope.uploadProgress = (progress.loaded / progress.total) * 100;
               document.getElementById("sent_label").innerHTML = "Enviado: " + Math.round($scope.uploadProgress) + "%";
-            });
+            });*/
           });
         }
       }else{
@@ -781,13 +819,16 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
   $scope.image = null;
 
   $scope.addImage = function(isFromAlbum, isUserPhoto, isCommentPhoto) {
+    console.log(isFromAlbum);
+    console.log(isUserPhoto);
+    console.log(isCommentPhoto);
     //alert("addImage");
     $scope.isUserPhoto = isUserPhoto;
     $scope.isCommentPhoto = isCommentPhoto;
 
     var source = Camera.PictureSourceType.CAMERA;
-    var fix_orientation = true;
-    var save_to_gallery = true;
+    var fix_orientation = false;
+    var save_to_gallery = false;
     if(isFromAlbum==1){
       source = Camera.PictureSourceType.PHOTOLIBRARY;
       fix_orientation = false;
@@ -795,7 +836,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     var options = {
-      quality: 90,
+      quality: 50,
       destinationType: Camera.DestinationType.FILE_URI,
       sourceType: source,
       allowEdit: false,
@@ -803,40 +844,45 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       encodingType: Camera.EncodingType.JPEG,
       popoverOptions: CameraPopoverOptions,
       saveToPhotoAlbum: save_to_gallery,
+      mediaType: Camera.MediaType.PICTURE,
       targetWidth: 360,
       targetHeight: 360
     };
-
+    console.log(options);
 
     $cordovaCamera.getPicture(options).then(function(imageData) {
+      console.log(imageData);
       onImageSuccess(imageData);
 
       function onImageSuccess(fileURI) {
         //alert(fileURI);
-        //alert(fileURI);
-        window.FilePath.resolveNativePath(fileURI, function(result) {
-          // onSuccess code
-          //alert(result);
-          fileURI = 'file://' + result;
-          if(result.startsWith("file://")){
-            fileURI = result;
-          }
-          //alert(fileURI);
-          if($scope.isUserPhoto==1){
-            //UserService.add_photo(fileURI);
-            $scope.profile.picture_url = fileURI;
-          }else{
-            if($scope.isCommentPhoto==1){
-              $scope.comment.file = fileURI;
-            }else{
-              $scope.report.file = fileURI;
-            }
-          }
-          $scope.imgURI = fileURI;
-          //createFileEntry(fileURI);
-        }, function(error) {
-          alert("Error resolveNativePath" + error);
-        });
+        console.log(fileURI);
+        window.resolveLocalFileSystemURL(fileURI, function success(fileEntry) {
+
+             // Do something with the FileEntry object, like write to it, upload it, etc.
+             // writeFile(fileEntry, imgUri);
+             console.log("got file: " + fileEntry.toURL());
+             var fullFilePath = fileEntry.toURL();
+             // displayFileData(fileEntry.nativeURL, "Native URL");
+             if($scope.isUserPhoto==1){
+               //UserService.add_photo(fileURI);
+               $scope.profile.picture_url = fullFilePath;
+             }else{
+               if($scope.isCommentPhoto==1){
+                 $scope.comment.file = fullFilePath;
+               }else{
+                 $scope.report.file = fullFilePath;
+                 console.log($scope.report);
+               }
+             }
+             $scope.imgURI = fullFilePath;
+
+         }, function () {
+           // If don't get the FileEntry (which may happen when testing
+           // on some emulators), copy to a new FileEntry.
+             console.log("Error en file entry: " + fileURI);
+             createFileEntry(fileURI);
+         });
 
       }
 
@@ -882,7 +928,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       }
 
     }, function(err) {
-      //console.log(err);
+      console.log(err);
     });
   };
 
@@ -1293,7 +1339,9 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     }
 
     $scope.loadPinsLayer = function(){
-        document.getElementById("spinner").style.display = "block";
+        if(document.getElementById("spinner")){
+          document.getElementById("spinner").style.display = "block";
+        }
         $scope.removeAllPins();
         $scope.reportsByState = {};
         ReportService.getAll().then(function (response) {
