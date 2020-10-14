@@ -1,5 +1,5 @@
 {
-  "name": "PorMiBarrioApps",
+  "name": "Por Mi Barrio",
   "integrations": {
     "cordova": {}
   },
@@ -14,10 +14,22 @@
       "proxyUrl": "https://pormibarrio.uy/"
     }
   ],
+  "gulpStartupTasks": [
+    "default",
+    "watch",
+    "sass"
+  ],
   "watchPatterns": [
-    "scss/**/*",
     "www/**/*",
-    "!www/lib/**/*",
-    "!www/**/*.map"
-  ]
+    "!www/lib/**/*"
+  ],
+  "browsers": [
+    {
+      "platform": "android",
+      "browser": "crosswalk",
+      "version": "12.41.296.5"
+    }
+  ],
+  "id": "ee41f0b9",
+  "app_id": "cab7b381"
 }

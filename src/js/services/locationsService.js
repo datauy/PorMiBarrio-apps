@@ -20,6 +20,8 @@ pmb_im.services.factory('LocationsService', [ function() {
   locationsObj.save_new_report_position = function(lat,lng){
     locationsObj.new_report_lat = lat;
     locationsObj.new_report_lng = lng;
+    locationsObj.initial_lat =  lat;
+    locationsObj.initial_lng =  lng;
   }
 
   locationsObj.savedLocations = [];
