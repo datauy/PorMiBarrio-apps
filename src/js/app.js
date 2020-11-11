@@ -21,41 +21,42 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
 })
 
 
-.run(function($ionicPlatform, $rootScope, $cordovaKeyboard,$cordovaNetwork) {
+.run(function($ionicPlatform, $rootScope, $cordovaKeyboard,$cordovaNetwork,DBService) {
   $rootScope.VERSION = window.VERSION;
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
-    if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
       try {
-        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(false);
+        cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
        }
        catch (error) {
        }
       //cordova.plugins.Keyboard.disableScroll(false);
-    }
-    if(window.Keyboard!=null){
       try {
-        window.Keyboard.hideKeyboardAccessoryBar(false);
+        window.Keyboard.hideKeyboardAccessoryBar(true);
        }
        catch (error) {
        }
-    }
+    
 
-    if(Keyboard!=null){
       try {
-        Keyboard.hideKeyboardAccessoryBar(false);
+        Keyboard.hideKeyboardAccessoryBar(true);
        }
        catch (error) {
        }
-    }
-    //$cordovaKeyboard.hideAccessoryBar(false)
-    //$cordovaKeyboard.disableScroll(false)
+
+      try {
+        StatusBar.hide();
+       }
+       catch (error) {
+       }
+
+
     ionic.Platform.isFullScreen = true;
-    if (window.StatusBar) {
-      // org.apache.cordova.statusbar required
-      StatusBar.hide();
-    }
+
+    var db = DBService.initDB();
+
+
   });
 })
 
@@ -78,6 +79,7 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
   })
 
 .state('app.map', {
+    cache: false,
     url: "/map/",
     views: {
       'menuContent' :{

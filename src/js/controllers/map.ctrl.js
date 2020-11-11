@@ -95,8 +95,6 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     });
     $scope.$on("$ionicView.beforeEnter", function() {
       ModalService.checkNoModalIsOpen();
-      DBService.initDB();
-
       $scope.set_network_events();
       var checkOfflineReports = $interval(function() {
         $scope.send_offline_reports();

@@ -3,7 +3,7 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var cloneBuffer = _interopDefault(require('clone-buffer'));
-var uuidV4 = _interopDefault(require('uuid'));
+var uuid = require('uuid');
 var crypto = _interopDefault(require('crypto'));
 var nodeFetch = require('node-fetch');
 var nodeFetch__default = _interopDefault(nodeFetch);
@@ -24,8 +24,7 @@ var LevelWriteStream = _interopDefault(require('level-write-stream'));
 var vm = _interopDefault(require('vm'));
 var getArguments = _interopDefault(require('argsarray'));
 var inherits = _interopDefault(require('inherits'));
-var events = require('events');
-var events__default = _interopDefault(events);
+var EE = _interopDefault(require('events'));
 
 function mangle(key) {
   return '$' + key;
@@ -442,7 +441,7 @@ function nextTick(fn) {
   process.nextTick(fn);
 }
 
-inherits(Changes, events.EventEmitter);
+inherits(Changes, EE);
 
 /* istanbul ignore next */
 function attachBrowserEvents(self) {
@@ -454,7 +453,7 @@ function attachBrowserEvents(self) {
 }
 
 function Changes() {
-  events.EventEmitter.call(this);
+  EE.call(this);
   this._listeners = {};
 
   attachBrowserEvents(this);
@@ -507,7 +506,7 @@ Changes.prototype.removeListener = function (dbName, id) {
   if (!(id in this._listeners)) {
     return;
   }
-  events.EventEmitter.prototype.removeListener.call(this, dbName,
+  EE.prototype.removeListener.call(this, dbName,
     this._listeners[id]);
   delete this._listeners[id];
 };
@@ -644,9 +643,10 @@ function createError(error, reason) {
     // inherit error properties from our parent error manually
     // so as to allow proper JSON parsing.
     /* jshint ignore:start */
-    for (var p in error) {
-      if (typeof error[p] !== 'function') {
-        this[p] = error[p];
+    var names = Object.getOwnPropertyNames(error);
+    for (var i = 0, len = names.length; i < len; i++) {
+      if (typeof error[names[i]] !== 'function') {
+        this[names[i]] = error[names[i]];
       }
     }
     /* jshint ignore:end */
@@ -806,7 +806,7 @@ function isRemote(db) {
 
 function listenerCount(ee, type) {
   return 'listenerCount' in ee ? ee.listenerCount(type) :
-                                 events.EventEmitter.listenerCount(ee, type);
+                                 EE.listenerCount(ee, type);
 }
 
 function parseDesignDocFunctionName(s) {
@@ -924,14 +924,14 @@ function stringMd5(string) {
 function rev(doc, deterministic_revs) {
   var clonedDoc = clone(doc);
   if (!deterministic_revs) {
-    return uuidV4.v4().replace(/-/g, '').toLowerCase();
+    return uuid.v4().replace(/-/g, '').toLowerCase();
   }
 
   delete clonedDoc._rev_tree;
   return stringMd5(JSON.stringify(clonedDoc));
 }
 
-var uuid = uuidV4.v4;
+var uuid$1 = uuid.v4; // mimic old import, only v4 is ever used elsewhere
 
 // We fetch all leafs of the revision tree, and sort them based on tree length
 // and whether they were deleted, undeleted documents with the longest revision
@@ -1384,7 +1384,7 @@ function latest(rev, metadata) {
   throw new Error('Unable to resolve latest revision for id ' + metadata.id + ', rev ' + rev);
 }
 
-inherits(Changes$1, events.EventEmitter);
+inherits(Changes$1, EE);
 
 function tryCatchInChangeListener(self, change, pending, lastSeq) {
   // isolate try/catches to avoid V8 deoptimizations
@@ -1396,7 +1396,7 @@ function tryCatchInChangeListener(self, change, pending, lastSeq) {
 }
 
 function Changes$1(db, opts, callback) {
-  events.EventEmitter.call(this);
+  EE.call(this);
   var self = this;
   this.db = db;
   opts = opts ? clone(opts) : {};
@@ -1705,10 +1705,10 @@ function attachmentNameError(name) {
   return false;
 }
 
-inherits(AbstractPouchDB, events.EventEmitter);
+inherits(AbstractPouchDB, EE);
 
 function AbstractPouchDB() {
-  events.EventEmitter.call(this);
+  EE.call(this);
 
   // re-bind prototyped methods
   for (var p in AbstractPouchDB.prototype) {
@@ -2689,11 +2689,11 @@ PouchDB.preferredAdapters = [];
 
 PouchDB.prefix = '_pouch_';
 
-var eventEmitter = new events.EventEmitter();
+var eventEmitter = new EE();
 
 function setUpEventEmitter(Pouch) {
-  Object.keys(events.EventEmitter.prototype).forEach(function (key) {
-    if (typeof events.EventEmitter.prototype[key] === 'function') {
+  Object.keys(EE.prototype).forEach(function (key) {
+    if (typeof EE.prototype[key] === 'function') {
       Pouch[key] = eventEmitter[key].bind(eventEmitter);
     }
   });
@@ -2807,7 +2807,7 @@ PouchDB.fetch = function (url, opts) {
 };
 
 // managed automatically by set-version.js
-var version = "7.2.1";
+var version = "7.2.2";
 
 // this would just be "return doc[field]", but fields
 // can be "deep" due to dot notation
@@ -4039,7 +4039,7 @@ inherits(NotFoundError, Error);
 
 NotFoundError.prototype.name = 'NotFoundError';
 
-var EventEmitter = events__default.EventEmitter;
+var EventEmitter = EE.EventEmitter;
 var version$1 = "6.5.4";
 
 var NOT_FOUND_ERROR = new NotFoundError();
@@ -4394,7 +4394,7 @@ function parseDoc(doc, newEdits, dbOpts) {
 
   if (newEdits) {
     if (!doc._id) {
-      doc._id = uuid();
+      doc._id = uuid$1();
     }
     newRevId = rev(doc, dbOpts.deterministic_revs);
     if (doc._rev) {
@@ -4938,7 +4938,7 @@ function LevelPouch(opts, callback) {
       stores.metaStore.get(DOC_COUNT_KEY, function (err, value) {
         db._docCount = !err ? value : 0;
         stores.metaStore.get(UUID_KEY, function (err, value) {
-          instanceId = !err ? value : uuid();
+          instanceId = !err ? value : uuid$1();
           stores.metaStore.put(UUID_KEY, instanceId, function () {
             nextTick(function () {
               callback(null, api);
@@ -5718,7 +5718,7 @@ function LevelPouch(opts, callback) {
     opts = clone(opts);
 
     if (opts.continuous) {
-      var id = name + ':' + uuid();
+      var id = name + ':' + uuid$1();
       levelChanges.addListener(name, id, api, opts);
       levelChanges.notify(name);
       return {
@@ -9473,7 +9473,7 @@ function replicate(src, target, opts, returnValue, result) {
   var checkpointer;
   var changedDocs = [];
   // Like couchdb, every replication gets a unique session id
-  var session = uuid();
+  var session = uuid$1();
 
   result = result || {
     ok: true,
@@ -9937,9 +9937,9 @@ function replicate(src, target, opts, returnValue, result) {
 
 // We create a basic promise so the caller can cancel the replication possibly
 // before we have actually started listening to changes etc
-inherits(Replication, events.EventEmitter);
+inherits(Replication, EE);
 function Replication() {
-  events.EventEmitter.call(this);
+  EE.call(this);
   this.cancelled = false;
   this.state = 'pending';
   var self = this;
@@ -10020,7 +10020,7 @@ function replicateWrapper(src, target, opts, callback) {
   return replicateRet;
 }
 
-inherits(Sync, events.EventEmitter);
+inherits(Sync, EE);
 function sync(src, target, opts, callback) {
   if (typeof opts === 'function') {
     callback = opts;

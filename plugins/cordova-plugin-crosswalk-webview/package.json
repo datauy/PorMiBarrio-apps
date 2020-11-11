@@ -16,13 +16,13 @@
     "fetchSpec": "2.4.0"
   },
   "_requiredBy": [
-    "#USER",
-    "/"
+    "#DEV:/",
+    "#USER"
   ],
   "_resolved": "https://registry.npmjs.org/cordova-plugin-crosswalk-webview/-/cordova-plugin-crosswalk-webview-2.4.0.tgz",
   "_shasum": "90717bc4315c92d3182782fcba6b7ad89e532311",
   "_spec": "cordova-plugin-crosswalk-webview@2.4.0",
-  "_where": "/Users/danielcarranza/Desktop/PorMiBarrio-apps",
+  "_where": "/Users/lito/projects/PMBTest4",
   "author": "",
   "bugs": {
     "url": "https://crosswalk-project.org/jira"

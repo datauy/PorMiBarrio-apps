@@ -11,7 +11,7 @@
     },
     {
       "path": "/data",
-      "proxyUrl": "https://pormibarrio.uy/"
+      "proxyUrl": "https://pormibarrio.freyja.datauy.org/"    
     }
   ],
   "gulpStartupTasks": [
@@ -30,6 +30,5 @@
       "version": "12.41.296.5"
     }
   ],
-  "id": "ee41f0b9",
-  "app_id": "cab7b381"
+  "id": "ee41f0b9"
 }

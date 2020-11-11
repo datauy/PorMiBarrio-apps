@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.8</string>
+	<string>1.2.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>1.2.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -29,18 +29,18 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>La app requiere acceso a la cámara para cargar fotos en reportes.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>La app requiere acceso a localización para ubicación de usuario.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>La app requiere acceso a localización para ubicación de usuario.</string>
+	<key>NSMainNibFile</key>
+	<string></string>
 	<key>NSMainNibFile~ipad</key>
 	<string></string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>La app requiere acceso a galería de fotos para cargar fotos en reportes.</string>
+	<key>UILaunchStoryboardName</key>
+	<string>CDVLaunchScreen</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
+	<key>UIStatusBarHidden</key>
+	<true/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

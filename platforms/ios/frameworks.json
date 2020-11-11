@@ -2,6 +2,8 @@
     "ImageIO.framework": 1,
     "CoreLocation.framework": 2,
     "AVFoundation.framework": 1,
+    "WebKit.framework": 2,
     "SystemConfiguration.framework": 1,
-    "CoreTelephony.framework": 1
+    "CoreTelephony.framework": 1,
+    "libsqlite3.dylib": 1
 }

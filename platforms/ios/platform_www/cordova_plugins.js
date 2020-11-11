@@ -278,6 +278,22 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
+      "id": "cordova-plugin-ionic-webview.IonicWebView",
+      "file": "plugins/cordova-plugin-ionic-webview/src/www/util.js",
+      "pluginId": "cordova-plugin-ionic-webview",
+      "clobbers": [
+        "Ionic.WebView"
+      ]
+    },
+    {
+      "id": "cordova-plugin-ionic-webview.ios-wkwebview-exec",
+      "file": "plugins/cordova-plugin-ionic-webview/src/www/ios/ios-wkwebview-exec.js",
+      "pluginId": "cordova-plugin-ionic-webview",
+      "clobbers": [
+        "cordova.exec"
+      ]
+    },
+    {
       "id": "cordova-plugin-network-information.network",
       "file": "plugins/cordova-plugin-network-information/www/network.js",
       "pluginId": "cordova-plugin-network-information",
@@ -295,20 +311,36 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
-      "id": "cordova-plugin-splashscreen.SplashScreen",
-      "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
-      "pluginId": "cordova-plugin-splashscreen",
+      "id": "cordova-plugin-sqlite-2.sqlitePlugin",
+      "file": "plugins/cordova-plugin-sqlite-2/dist/sqlite-plugin.js",
+      "pluginId": "cordova-plugin-sqlite-2",
       "clobbers": [
-        "navigator.splashscreen"
+        "sqlitePlugin"
       ]
     },
     {
-      "id": "cordova-plugin-statusbar.statusbar",
-      "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
-      "pluginId": "cordova-plugin-statusbar",
-      "clobbers": [
-        "window.StatusBar"
-      ]
+      "id": "@globules-io/cordova-plugin-ios-xhr.formdata-polyfill",
+      "file": "plugins/@globules-io/cordova-plugin-ios-xhr/src/www/ios/formdata-polyfill.js",
+      "pluginId": "@globules-io/cordova-plugin-ios-xhr",
+      "runs": true
+    },
+    {
+      "id": "@globules-io/cordova-plugin-ios-xhr.xhr-polyfill",
+      "file": "plugins/@globules-io/cordova-plugin-ios-xhr/src/www/ios/xhr-polyfill.js",
+      "pluginId": "@globules-io/cordova-plugin-ios-xhr",
+      "runs": true
+    },
+    {
+      "id": "@globules-io/cordova-plugin-ios-xhr.fetch-bootstrap",
+      "file": "plugins/@globules-io/cordova-plugin-ios-xhr/src/www/ios/fetch-bootstrap.js",
+      "pluginId": "@globules-io/cordova-plugin-ios-xhr",
+      "runs": true
+    },
+    {
+      "id": "@globules-io/cordova-plugin-ios-xhr.fetch-polyfill",
+      "file": "plugins/@globules-io/cordova-plugin-ios-xhr/src/www/ios/whatwg-fetch-2.0.3.js",
+      "pluginId": "@globules-io/cordova-plugin-ios-xhr",
+      "runs": true
     }
   ];
   module.exports.metadata = {
@@ -317,14 +349,15 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-crosswalk-webview": "2.4.0",
     "cordova-plugin-device": "2.0.3",
     "cordova-plugin-file": "6.0.2",
-    "cordova-plugin-file-transfer": "1.7.1",
+    "cordova-plugin-file-transfer": "2.0.0-dev",
     "cordova-plugin-filepath": "1.5.8",
     "cordova-plugin-geolocation": "4.0.2",
     "cordova-plugin-inappbrowser": "4.0.0",
     "cordova-plugin-ionic-keyboard": "2.2.0",
+    "cordova-plugin-ionic-webview": "5.0.0",
     "cordova-plugin-network-information": "2.0.2",
-    "cordova-plugin-splashscreen": "5.0.4",
-    "cordova-plugin-statusbar": "2.4.3",
-    "cordova-plugin-whitelist": "1.3.4"
+    "cordova-plugin-sqlite-2": "1.0.6",
+    "cordova-plugin-whitelist": "1.3.4",
+    "@globules-io/cordova-plugin-ios-xhr": "1.0.8"
   };
 });

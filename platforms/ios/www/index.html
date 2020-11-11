@@ -2,11 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi">
-
-    <!--<meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'">-->
-
-    <title></title>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height">
+    <meta http-equiv="Content-Security-Policy" content="connect-src *; default-src 'self' gap://ready file://* data: *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; style-src 'self' 'unsafe-inline' *">
+    <title>Por Mi Barrio</title>
 
     <!-- compiled css output -->
 
@@ -23,13 +21,13 @@
     <!-- ionic/angularjs js -->
 
 
-   <script src="lib/ionic/release/js/ionic.bundle.min.js"></script>
+   <script type="text/javascript" src="lib/ionic/release/js/ionic.bundle.js"></script>
 
 
 
 
 
-  <script src="lib/ion-autocomplete/dist/ion-autocomplete.js"></script>
+  <script type="text/javascript" src="lib/ion-autocomplete/dist/ion-autocomplete.js"></script>
 
 
 
@@ -41,7 +39,7 @@
 
 
     <!--leaflet js-->
-    <script src="lib/leaflet/dist/leaflet.js"></script>
+    <script type="text/javascript"  src="lib/leaflet/dist/leaflet.js"></script>
     <script src="lib/Leaflet.EasyButton/src/easy-button.js"></script>
     <script src="lib-custom/leaflet-layerjson/dist/leaflet-layerjson.src.js"></script>
     <script src="lib/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
@@ -68,8 +66,10 @@
     <script src="lib/ngstorage/ngStorage.min.js"></script>
     <script src="lib/angular-svg-round-progressbar/build/roundProgress.min.js"></script>
     <script src="lib/ionic-cache-src/ionic-cache-src.js"></script>
+
     <!-- pouchDB -->
-    <script src="lib/pouchdb/dist/pouchdb.min.js"></script>
+    <script src="js/pouchdb-6.1.2.js"></script>
+    <script src="js/pouchdb.cordova-sqlite-2.0.2.js"></script>
     <script src="lib/pouchdb-collate/dist/pouchdb-collate.js"></script>
 
     <!-- your app's js -->
@@ -77,7 +77,7 @@
     <script src="dist/templates.js"></script>
 
   </head>
-  <body ng-app="pmb_im" class="platform-ios platform-cordova platform-webview">
+  <body ng-app="pmb_im">
     <!--
       The views will be rendered in the <ion-nav-view> directive below
       Templates are in the /templates folder (but you could also
