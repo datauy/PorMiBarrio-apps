@@ -1,0 +1,26 @@
+export declare type Application = import('express').Application;
+export declare type RequestHandler = import('express').RequestHandler;
+export declare type Server = import('ws').Server;
+export declare const DEV_SERVER_PREFIX = "__ionic";
+export interface DevServerMessage {
+    category: 'console';
+    type: string;
+    data: any[];
+}
+export interface DevServerOptions {
+    consolelogs: boolean;
+    devPort: number;
+}
+export declare type LiveReloadFunction = (changedFiles: string[]) => void;
+export declare function isDevServerMessage(m: any): m is DevServerMessage;
+export declare function injectScript(content: string, code: string): string;
+export declare function createDevServerHandler(options: DevServerOptions): Promise<RequestHandler>;
+export declare function attachDevServer(app: Application, options: DevServerOptions): Promise<void>;
+export declare function injectDevServerScript(content: string): string;
+export declare function createLiveReloadServer({ host, port, wwwDir }: {
+    host: string;
+    port: number;
+    wwwDir: string;
+}): Promise<LiveReloadFunction>;
+export declare function injectLiveReloadScript(content: string, port: number): string;
+export declare function createDevLoggerServer(host: string, port: number): Promise<Server>;

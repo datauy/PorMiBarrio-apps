@@ -46,8 +46,14 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
 
    function initDB() {
        // Creates the database or opens if it already exists
-       PouchDB.plugin(require('pouchdb-adapter-cordova-sqlite'));
-       _db = new PouchDB('mydb.db', {adapter: 'cordova-sqlite', iosDatabaseLocation: 'Library'});
+       //PouchDB.plugin(require('pouchdb-adapter-cordova-sqlite'));
+       _db = new PouchDB(
+          'mydb.db',
+          {
+            adapter: 'cordova-sqlite',
+            iosDatabaseLocation: 'default'
+          }
+        );
        return _db;
    };
 

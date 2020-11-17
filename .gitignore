@@ -4,7 +4,6 @@
 *.lock
 *.tmp
 *.tmp.*
-log.txt
 *.sublime-project
 *.sublime-workspace
 
@@ -12,32 +11,11 @@ log.txt
 .vscode/
 .sass-cache/
 .versions/
-coverage/
-collection/
-dist/
-dist-transpiled/
-node_modules/
-tmp/
-temp/
-core/theme-builder/
-core/test-components/
-core/css/
-angular/css/
-$RECYCLE.BIN/
 
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate
 .env
-
-.package.tmp.json
-
-src/themes/version.scss
-scripts/e2e/webpackEntryPoints.json
-scripts/build/e2e-generated-tsconfig.json
-*.css.ts
-
-stats.json
 
 # demo stuff
 demos/node_modules
@@ -54,13 +32,3 @@ prerender.html
 prerender-domino.html
 prerender-hydrated.html
 prerender-static.html
-
-# stencil
-angular/css/
-packages/react/css/
-core/css/
-core/hydrate/
-core/loader/
-core/www/
-.stencil/
-angular/build/

@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="org.datauy.pormibarrio" version="1.2.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>PorMiBarrio</name>
+    <description>
+        Por mi barrio - Uruguay
+    </description>
+    <author email="devops@datauy.org" href="http://datauy.org/">
+      DATAUY
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <access origin="*" subdomains="true" />
+    <allow-navigation href="ionic://*" />
+    <allow-navigation href="*" />
+    <allow-navigation href="http://*/*" />
+    <allow-navigation href="https://*/*" />
+    <allow-navigation href="data:*" />
+    <allow-navigation href="app:*" />
+    <allow-intent href="*" />
+    <allow-intent href="itms:*" />
+    <allow-intent href="app:*" />
+    <allow-intent href="itms-apps:*" />
+    <icon src="resources/icon.png" />
+    <preference name="AllowInlineMediaPlayback" value="true" />
+    <preference name="BackupWebStorage" value="local" />
+    <preference name="DisallowOverscroll" value="true" />
+    <preference name="EnableViewportScale" value="false" />
+    <preference name="KeyboardResize" value="true" />
+    <preference name="HideKeyboardFormAccessoryBar" value="false" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="false" />
+    <preference name="MediaTypesRequiringUserActionForPlayback" value="none" />
+    <preference name="SuppressesIncrementalRendering" value="false" />
+    <preference name="SuppressesLongPressGesture" value="false" />
+    <preference name="Suppresses3DTouchGesture" value="false" />
+    <preference name="GapBetweenPages" value="0" />
+    <preference name="PageLength" value="0" />
+    <preference name="PaginationBreakingMode" value="page" />
+    <preference name="PaginationMode" value="unpaginated" />
+    <preference name="CameraUsesGeolocation" value="false" />
+    <preference name="StatusBarOverlaysWebView" value="false" />
+    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="webviewbounce" value="false" />
+    <preference name="SplashScreen" value="none" />
+    <preference name="Scheme" value="app" />
+    <preference name="iosScheme" value="httpsionic" />
+    <preference name="Hostname" value="mobile.pormibarrio.uy" />
+    <preference name="WKWebViewOnly" value="true" />
+    <preference name="FullScreen" value="true" />
+    <preference name="deployment-target" value="11.0" />
+    <preference name="WKSuspendInBackground" value="false" />
+    <preference name="AutoInjectCordova" value="true" />
+    <preference name="AllowLinkPreview" value="true" />
+    <preference name="AudioCanMix" value="false" />
+    <preference name="MediaPlaybackAllowsAirPlay" value="true" />
+    <preference name="KeyboardAppearanceDark" value="false" />
+    <preference name="AllowBackForwardNavigationGestures" value="false" />
+    <preference name="AutoHideSplashScreen" value="true" />
+    <preference name="ScrollEnabled" value="true" />
+    <preference name="NativeXHRLogging" value="full" />
+    <preference name="AllowUntrustedCerts" value="true" />
+    <preference name="InterceptRemoteRequests" value="all" />
+    <preference name="allowFileAccessFromFileURLs" value="true" />
+    <preference name="allowUniversalAccessFromFileURLs" value="true" />
+    <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+</widget>

@@ -311,14 +311,6 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
-      "id": "cordova-plugin-sqlite-2.sqlitePlugin",
-      "file": "plugins/cordova-plugin-sqlite-2/dist/sqlite-plugin.js",
-      "pluginId": "cordova-plugin-sqlite-2",
-      "clobbers": [
-        "sqlitePlugin"
-      ]
-    },
-    {
       "id": "@globules-io/cordova-plugin-ios-xhr.formdata-polyfill",
       "file": "plugins/@globules-io/cordova-plugin-ios-xhr/src/www/ios/formdata-polyfill.js",
       "pluginId": "@globules-io/cordova-plugin-ios-xhr",
@@ -341,12 +333,19 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "file": "plugins/@globules-io/cordova-plugin-ios-xhr/src/www/ios/whatwg-fetch-2.0.3.js",
       "pluginId": "@globules-io/cordova-plugin-ios-xhr",
       "runs": true
+    },
+    {
+      "id": "cordova-plugin-sqlite-2.sqlitePlugin",
+      "file": "plugins/cordova-plugin-sqlite-2/dist/sqlite-plugin.js",
+      "pluginId": "cordova-plugin-sqlite-2",
+      "clobbers": [
+        "sqlitePlugin"
+      ]
     }
   ];
   module.exports.metadata = {
     "cordova-plugin-camera": "4.1.0",
     "cordova-plugin-compat": "1.2.0",
-    "cordova-plugin-crosswalk-webview": "2.4.0",
     "cordova-plugin-device": "2.0.3",
     "cordova-plugin-file": "6.0.2",
     "cordova-plugin-file-transfer": "2.0.0-dev",
@@ -356,8 +355,8 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-ionic-keyboard": "2.2.0",
     "cordova-plugin-ionic-webview": "5.0.0",
     "cordova-plugin-network-information": "2.0.2",
-    "cordova-plugin-sqlite-2": "1.0.6",
     "cordova-plugin-whitelist": "1.3.4",
-    "@globules-io/cordova-plugin-ios-xhr": "1.0.8"
+    "@globules-io/cordova-plugin-ios-xhr": "1.0.8",
+    "cordova-plugin-sqlite-2": "1.0.6"
   };
 });

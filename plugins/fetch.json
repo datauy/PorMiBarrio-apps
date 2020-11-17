@@ -95,14 +95,6 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-sqlite-2": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-sqlite-2"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
   "@globules-io/cordova-plugin-ios-xhr": {
     "source": {
       "type": "registry",
@@ -111,10 +103,10 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-crosswalk-webview": {
+  "cordova-plugin-sqlite-2": {
     "source": {
       "type": "registry",
-      "id": "cordova-plugin-crosswalk-webview@2.4.0"
+      "id": "cordova-plugin-sqlite-2"
     },
     "is_top_level": true,
     "variables": {}

@@ -8,13 +8,13 @@
       DATAUY
     </author>
     <content src="index.html" />
-    <preference name="AllowInlineMediaPlayback" value="false" />
+    <preference name="AllowInlineMediaPlayback" value="true" />
     <preference name="BackupWebStorage" value="local" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="EnableViewportScale" value="false" />
     <preference name="KeyboardResize" value="true" />
-    <preference name="HideKeyboardFormAccessoryBar" value="true" />
-    <preference name="KeyboardDisplayRequiresUserAction" value="true" />
+    <preference name="HideKeyboardFormAccessoryBar" value="false" />
+    <preference name="KeyboardDisplayRequiresUserAction" value="false" />
     <preference name="MediaTypesRequiringUserActionForPlayback" value="none" />
     <preference name="SuppressesIncrementalRendering" value="false" />
     <preference name="SuppressesLongPressGesture" value="false" />
@@ -47,7 +47,7 @@
     <preference name="AllowUntrustedCerts"  value="true" />
     <preference name="InterceptRemoteRequests" value="all" />
     <preference name="allowFileAccessFromFileURLs" value="true" />
-    <preference name="allowUniversalAccessFromFileURLs" value="true" /> 
+    <preference name="allowUniversalAccessFromFileURLs" value="true" />
     <feature name="CDVWKWebViewEngine">
       <param name="ios-package" value="CDVWKWebViewEngine" />
     </feature>

@@ -13,9 +13,6 @@
     "cordova-plugin-compat": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
-    "cordova-plugin-crosswalk-webview": {
-      "PACKAGE_NAME": "org.datauy.pormibarrio"
-    },
     "cordova-plugin-device": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
@@ -43,13 +40,13 @@
     "cordova-plugin-network-information": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
-    "cordova-plugin-sqlite-2": {
-      "PACKAGE_NAME": "org.datauy.pormibarrio"
-    },
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
     "@globules-io/cordova-plugin-ios-xhr": {
+      "PACKAGE_NAME": "org.datauy.pormibarrio"
+    },
+    "cordova-plugin-sqlite-2": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     }
   },

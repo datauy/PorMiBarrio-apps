@@ -1,0 +1,17 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "PorMiBarrio",
+  "short_name": "PorMiBarrio",
+  "version": "org.datauy.pormibarrio",
+  "description": "Por mi barrio - Uruguay",
+  "author": "DATAUY",
+  "icons": [
+    {
+      "src": "resources/icon.png",
+      "type": "image/png",
+      "sizes": "undefinedxundefined"
+    }
+  ],
+  "start_url": "index.html"
+}
