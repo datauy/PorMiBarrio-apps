@@ -95,6 +95,12 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
         $scope.set_offline_user();
       }
     });
+
+    $scope.wtk_url_fix = function(url) {
+      var newURL = url.replace("file://", "");
+      return newURL;
+    };
+
     $scope.$on("$ionicView.beforeEnter", function() {
       ModalService.checkNoModalIsOpen();
       $scope.set_network_events();
@@ -1291,6 +1297,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.getOnlyCategoryIconURL = function(url){
       var new_url = url.replace("-proceso","");
       new_url = new_url.replace("-resuelto","");
+      new_url = $scope.wtk_url_fix(new_url);
       return new_url;
     };
 
@@ -1997,7 +2004,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
       }else{
         if(UserService.picture_url!=null && UserService.picture_url!=""){
           //alert(UserService.picture_url);
-          $scope.user_cached_image=UserService.picture_url;
+          $scope.user_cached_image= $scope.wtk_url_fix(UserService.picture_url);
           //picture.style.backgroundImage = "url(" + UserService.picture_url + ")";
         }else{
           //picture.style.backgroundImage = "url(./img/icon-user-anonymous.png)";
