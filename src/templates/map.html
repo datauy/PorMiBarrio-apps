@@ -30,7 +30,7 @@
       <div id="report-container-{{report.properties.id}}" ng-click="goToReport(report)" ng-repeat="report in reportsVisible track by $index" class="report-inside-list">
         <div
          style="background-image:    url({{baseURL}}{{getOnlyCategoryIconURL(report.properties.category_url)}});
-            background-size:     cover;
+            background-size:     contain;
             background-repeat:   no-repeat;
             background-position: center center;"
          class="report-in-list-icon">
@@ -92,9 +92,9 @@
     </div>
     <div class="user-options">
       <div
-      id="user_picture" class="user-picture" 
+      id="user_picture" class="user-picture"
       style="background-image:    url({{user_cached_image}});
-         background-size:     cover;
+         background-size:     contain;
          background-repeat:   no-repeat;
          background-position: center center;"
       ng-click="user_options()">
