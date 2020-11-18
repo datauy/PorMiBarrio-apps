@@ -299,6 +299,15 @@ module.exports = [
         "clobbers": [
             "sqlitePlugin"
         ]
+    },
+    {
+        "file": "plugins/ionic-plugin-keyboard/www/browser/keyboard.js",
+        "id": "ionic-plugin-keyboard.keyboard",
+        "pluginId": "ionic-plugin-keyboard",
+        "clobbers": [
+            "cordova.plugins.Keyboard"
+        ],
+        "runs": true
     }
 ];
 module.exports.metadata = 
@@ -312,12 +321,12 @@ module.exports.metadata =
     "cordova-plugin-filepath": "1.5.8",
     "cordova-plugin-geolocation": "4.0.2",
     "cordova-plugin-inappbrowser": "4.0.0",
-    "cordova-plugin-ionic-keyboard": "2.2.0",
     "cordova-plugin-ionic-webview": "5.0.0",
     "cordova-plugin-network-information": "2.0.2",
     "cordova-plugin-sqlite-2": "1.0.6",
     "cordova-plugin-whitelist": "1.3.4",
-    "@globules-io/cordova-plugin-ios-xhr": "1.0.8"
+    "@globules-io/cordova-plugin-ios-xhr": "1.0.8",
+    "ionic-plugin-keyboard": "2.2.1"
 }
 // BOTTOM OF METADATA
 });

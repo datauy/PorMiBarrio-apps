@@ -29,9 +29,6 @@
     "cordova-plugin-inappbrowser": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
-    "cordova-plugin-ionic-keyboard": {
-      "PACKAGE_NAME": "org.datauy.pormibarrio"
-    },
     "cordova-plugin-ionic-webview": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
@@ -45,6 +42,9 @@
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
     "@globules-io/cordova-plugin-ios-xhr": {
+      "PACKAGE_NAME": "org.datauy.pormibarrio"
+    },
+    "ionic-plugin-keyboard": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     }
   },

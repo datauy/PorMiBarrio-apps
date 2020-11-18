@@ -31,8 +31,9 @@
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <feature name="CDVIonicKeyboard">
-        <param name="android-package" onload="true" value="io.ionic.keyboard.CDVIonicKeyboard" />
+    <feature name="Keyboard">
+        <param name="android-package" value="io.ionic.keyboard.IonicKeyboard" />
+        <param name="onload" value="true" />
     </feature>
     <allow-navigation href="http://localhost/*" />
     <allow-navigation href="https://localhost/*" />

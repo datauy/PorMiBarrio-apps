@@ -29,24 +29,16 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>La aplicación necesita acceso a biblioteca de medios para cargar fotos de reclamo.s</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Se requiere acceso a cámara para fotos de reclamos.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>La aplicación necesita usar tu ubicación para ubicar tu posición en el mapa al hacer un reclamo.</string>
 	<key>NSMainNibFile</key>
-	<string/>
+	<string></string>
 	<key>NSMainNibFile~ipad</key>
-	<string/>
+	<string></string>
 	<key>UILaunchStoryboardName</key>
 	<string>CDVLaunchScreen</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
 	<key>UIStatusBarHidden</key>
 	<true/>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

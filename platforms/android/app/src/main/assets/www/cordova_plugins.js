@@ -260,14 +260,6 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       ]
     },
     {
-      "id": "cordova-plugin-ionic-keyboard.keyboard",
-      "file": "plugins/cordova-plugin-ionic-keyboard/www/android/keyboard.js",
-      "pluginId": "cordova-plugin-ionic-keyboard",
-      "clobbers": [
-        "window.Keyboard"
-      ]
-    },
-    {
       "id": "cordova-plugin-ionic-webview.IonicWebView",
       "file": "plugins/cordova-plugin-ionic-webview/src/www/util.js",
       "pluginId": "cordova-plugin-ionic-webview",
@@ -299,6 +291,15 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
       "clobbers": [
         "sqlitePlugin"
       ]
+    },
+    {
+      "id": "ionic-plugin-keyboard.keyboard",
+      "file": "plugins/ionic-plugin-keyboard/www/android/keyboard.js",
+      "pluginId": "ionic-plugin-keyboard",
+      "clobbers": [
+        "cordova.plugins.Keyboard"
+      ],
+      "runs": true
     }
   ];
   module.exports.metadata = {
@@ -309,11 +310,11 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-filepath": "1.5.8",
     "cordova-plugin-geolocation": "4.0.2",
     "cordova-plugin-inappbrowser": "4.0.0",
-    "cordova-plugin-ionic-keyboard": "2.2.0",
     "cordova-plugin-ionic-webview": "5.0.0",
     "cordova-plugin-network-information": "2.0.2",
     "cordova-plugin-sqlite-2": "1.0.6",
     "cordova-plugin-whitelist": "1.3.4",
-    "@globules-io/cordova-plugin-ios-xhr": "1.0.8"
+    "@globules-io/cordova-plugin-ios-xhr": "1.0.8",
+    "ionic-plugin-keyboard": "2.2.1"
   };
 });

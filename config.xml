@@ -12,7 +12,6 @@
     <preference name="BackupWebStorage" value="local" />
     <preference name="DisallowOverscroll" value="true" />
     <preference name="EnableViewportScale" value="false" />
-    <preference name="KeyboardResize" value="true" />
     <preference name="HideKeyboardFormAccessoryBar" value="false" />
     <preference name="KeyboardDisplayRequiresUserAction" value="false" />
     <preference name="MediaTypesRequiringUserActionForPlayback" value="none" />
@@ -35,11 +34,6 @@
     <preference name="FullScreen" value="true" />
     <preference name="deployment-target" value="11.0" />
     <preference name="WKSuspendInBackground" value="false" />
-    <preference name="AutoInjectCordova" value="true" />
-    <preference name="AllowLinkPreview" value="true" />
-    <preference name="AudioCanMix" value="false" />
-    <preference name="MediaPlaybackAllowsAirPlay" value="true" />
-    <preference name="KeyboardAppearanceDark" value="false" />
     <preference name="AllowBackForwardNavigationGestures" value="false" />
     <preference name="AutoHideSplashScreen" value="true" />
     <preference name="ScrollEnabled" value="true" />

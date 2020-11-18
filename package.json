@@ -14,7 +14,6 @@
   "dependencies": {
     "@ionic-native/ionic-webview": "^5.29.0",
     "cordova": "^10.0.0",
-    "cordova-plugin-ionic-keyboard": "2.2.0",
     "cordova-sqlite-storage-dependencies": "^3.0.0",
     "gulp-minify-css": "^0.3.0",
     "gulp-rename": "^1.2.0",
@@ -52,6 +51,7 @@
     "gulp-sourcemaps": "^1.5.1",
     "gulp-uglify": "^1.1.0",
     "gulp-util": "^2.2.14",
+    "ionic-plugin-keyboard": "^2.2.1",
     "jasmine-core": "^2.2.0",
     "karma": "^0.12.31",
     "karma-jasmine": "^0.3.5",
@@ -74,14 +74,14 @@
       "cordova-plugin-whitelist": {},
       "cordova-plugin-file-transfer": {},
       "cordova-plugin-ionic-webview": {},
-      "cordova-plugin-ionic-keyboard": {},
       "@globules-io/cordova-plugin-ios-xhr": {},
-      "cordova-plugin-sqlite-2": {}
+      "cordova-plugin-sqlite-2": {},
+      "ionic-plugin-keyboard": {}
     },
     "platforms": [
-      "ios",
       "browser",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }

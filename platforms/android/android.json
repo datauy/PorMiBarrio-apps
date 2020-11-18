@@ -47,6 +47,10 @@
             {
               "xml": "<feature name=\"Whitelist\"><param name=\"android-package\" value=\"org.apache.cordova.whitelist.WhitelistPlugin\" /><param name=\"onload\" value=\"true\" /></feature>",
               "count": 1
+            },
+            {
+              "xml": "<feature name=\"Keyboard\"><param name=\"android-package\" value=\"io.ionic.keyboard.IonicKeyboard\" /><param name=\"onload\" value=\"true\" /></feature>",
+              "count": 1
             }
           ]
         }
@@ -90,10 +94,6 @@
       "config.xml": {
         "parents": {
           "/*": [
-            {
-              "xml": "<feature name=\"CDVIonicKeyboard\"><param name=\"android-package\" onload=\"true\" value=\"io.ionic.keyboard.CDVIonicKeyboard\" /></feature>",
-              "count": 1
-            },
             {
               "xml": "<allow-navigation href=\"http://localhost/*\" />",
               "count": 1
@@ -146,9 +146,6 @@
     "cordova-plugin-inappbrowser": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
-    "cordova-plugin-ionic-keyboard": {
-      "PACKAGE_NAME": "org.datauy.pormibarrio"
-    },
     "cordova-plugin-ionic-webview": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
@@ -162,6 +159,9 @@
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     },
     "@globules-io/cordova-plugin-ios-xhr": {
+      "PACKAGE_NAME": "org.datauy.pormibarrio"
+    },
+    "ionic-plugin-keyboard": {
       "PACKAGE_NAME": "org.datauy.pormibarrio"
     }
   },
@@ -427,14 +427,6 @@
       ]
     },
     {
-      "id": "cordova-plugin-ionic-keyboard.keyboard",
-      "file": "plugins/cordova-plugin-ionic-keyboard/www/android/keyboard.js",
-      "pluginId": "cordova-plugin-ionic-keyboard",
-      "clobbers": [
-        "window.Keyboard"
-      ]
-    },
-    {
       "id": "cordova-plugin-ionic-webview.IonicWebView",
       "file": "plugins/cordova-plugin-ionic-webview/src/www/util.js",
       "pluginId": "cordova-plugin-ionic-webview",
@@ -466,6 +458,15 @@
       "clobbers": [
         "sqlitePlugin"
       ]
+    },
+    {
+      "id": "ionic-plugin-keyboard.keyboard",
+      "file": "plugins/ionic-plugin-keyboard/www/android/keyboard.js",
+      "pluginId": "ionic-plugin-keyboard",
+      "clobbers": [
+        "cordova.plugins.Keyboard"
+      ],
+      "runs": true
     }
   ],
   "plugin_metadata": {
@@ -476,11 +477,11 @@
     "cordova-plugin-filepath": "1.5.8",
     "cordova-plugin-geolocation": "4.0.2",
     "cordova-plugin-inappbrowser": "4.0.0",
-    "cordova-plugin-ionic-keyboard": "2.2.0",
     "cordova-plugin-ionic-webview": "5.0.0",
     "cordova-plugin-network-information": "2.0.2",
     "cordova-plugin-sqlite-2": "1.0.6",
     "cordova-plugin-whitelist": "1.3.4",
-    "@globules-io/cordova-plugin-ios-xhr": "1.0.8"
+    "@globules-io/cordova-plugin-ios-xhr": "1.0.8",
+    "ionic-plugin-keyboard": "2.2.1"
   }
 }

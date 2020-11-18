@@ -87,14 +87,6 @@
     "is_top_level": true,
     "variables": {}
   },
-  "cordova-plugin-ionic-keyboard": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-ionic-keyboard"
-    },
-    "is_top_level": true,
-    "variables": {}
-  },
   "@globules-io/cordova-plugin-ios-xhr": {
     "source": {
       "type": "registry",
@@ -107,6 +99,14 @@
     "source": {
       "type": "registry",
       "id": "cordova-plugin-sqlite-2"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "ionic-plugin-keyboard": {
+    "source": {
+      "type": "registry",
+      "id": "ionic-plugin-keyboard"
     },
     "is_top_level": true,
     "variables": {}
