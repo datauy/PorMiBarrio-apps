@@ -84,6 +84,7 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.abuse_subject = null;
     $scope.abuse_message = null;
     $scope.allCategoriesFromBoyArea = null;
+    $scope.user_cached_image="./img/icon-user-anonymous.png";
 
     document.addEventListener("deviceready", function () {
       var db = DBService.initDB();

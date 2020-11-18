@@ -10,7 +10,7 @@ var pmb_im = {
   services: angular.module('pmb_im.services', [])
 };
 
-pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete','leaflet-directive', 'pmb_im.controllers', 'pmb_im.services', 'ngCordova', 'ionic-cache-src'])
+pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete','leaflet-directive', 'pmb_im.controllers', 'pmb_im.services', 'ngCordova'])
 
 .constant('ApiImEndpoint', {
   url: 'http://www.montevideo.gub.uy'

@@ -3,7 +3,13 @@
         <div class="new-report-slide">
           <div class="new-report-content">
             <div id="actual_photo_container" ng-if="actual_photo!=null">
-              <div id="actual_photo" cache-src="{{actual_photo}}" src-is="background" background-style="no-repeat center" />
+              <div
+                id="actual_photo"  
+                style="background-image:    url({{actual_photo}});
+                    background-size:     cover;
+                    background-repeat:   no-repeat;
+                    background-position: center center;"
+              </div>
             </div>
             <div class="category-header">
               <h3>Editar perfil</h3>
