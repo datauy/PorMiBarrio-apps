@@ -86,6 +86,8 @@ pmb_im.controllers.controller('MapController', ['$scope', '$sce', '_',
     $scope.allCategoriesFromBoyArea = null;
 
     document.addEventListener("deviceready", function () {
+      var db = DBService.initDB();
+      db.info().then(console.log.bind(console));
       if(ConnectivityService.isOnline()){
         $scope.check_user_logged();
         $scope.send_offline_reports();

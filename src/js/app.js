@@ -21,12 +21,11 @@ pmb_im.app = angular.module('pmb_im', ['ionic','ionic.wizard','ion-autocomplete'
 })
 
 
-.run(function($ionicPlatform, $rootScope, $cordovaKeyboard,$cordovaNetwork,DBService) {
+.run(function($ionicPlatform, $rootScope, $cordovaKeyboard,$cordovaNetwork) {
   $rootScope.VERSION = window.VERSION;
   $ionicPlatform.ready(function() {
     ionic.Platform.isFullScreen = true;
-    var db = DBService.initDB();
-    db.info().then(console.log.bind(console));
+
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
       try {

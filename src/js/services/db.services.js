@@ -1,5 +1,5 @@
 pmb_im.services.factory('DBService', ['$q', function($q) {
-   var _db;
+   var _db = "empty";
 
    return {
        initDB: initDB,
@@ -47,13 +47,16 @@ pmb_im.services.factory('DBService', ['$q', function($q) {
    function initDB() {
        // Creates the database or opens if it already exists
        //PouchDB.plugin(require('pouchdb-adapter-cordova-sqlite'));
-       _db = new PouchDB(
-          'mydb.db',
-          {
-            adapter: 'cordova-sqlite',
-            iosDatabaseLocation: 'default'
-          }
-        );
+       if(_db == "empty"){
+         _db = new PouchDB(
+            'mydb.db',
+            {
+              adapter: 'cordova-sqlite',
+              iosDatabaseLocation: 'default'
+            }
+          );
+          return _db;
+       }
        return _db;
    };
 
