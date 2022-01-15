@@ -49,7 +49,7 @@
     "karma": "^0.12.31",
     "karma-jasmine": "^0.3.5",
     "karma-phantomjs-launcher": "^0.1.4",
-    "shelljs": "^0.3.0"
+    "shelljs": "^0.8.5"
   },
   "cordovaPlugins": [
     "cordova-plugin-whitelist",
